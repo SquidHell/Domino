@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>Domino 2048</title>
+<style>
+  :root{
+    --bg:#faf8ef;
+    --ink:#776e65;
+    --board:#bbada0;
+    --cellbg:#cdc1b4;
+    --btn:#8f7a66;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{margin:0;padding:0}
+  body{
+    background:var(--bg);
+    color:var(--ink);
+    font-family:"Clear Sans","Helvetica Neue",Arial,sans-serif;
+    display:flex;flex-direction:column;align-items:center;
+    padding:14px 12px 32px;
+    min-height:100vh;
+  }
+  .wrap{width:min(94vw,480px)}
+
+  header{display:flex;align-items:flex-end;justify-content:space-between;gap:10px;margin-bottom:10px}
+  h1{font-size:clamp(28px,7vw,44px);margin:0;line-height:1;font-weight:800;letter-spacing:-1px}
+  h1 small{display:block;font-size:12px;font-weight:600;letter-spacing:2px;text-transform:uppercase;opacity:.65;margin-top:4px}
+  .scores{display:flex;gap:8px}
+  .score{background:var(--board);color:#fff;border-radius:6px;padding:6px 14px;text-align:center;min-width:80px}
+  .score span{display:block;font-size:11px;letter-spacing:1px;text-transform:uppercase;color:#eee4da}
+  .score b{font-size:22px;font-weight:800}
+
+  .panel{
+    display:flex;align-items:center;gap:12px;
+    background:#efe5da;border-radius:8px;padding:10px 12px;margin-bottom:10px;
+  }
+  .panel .lbl{font-size:11px;text-transform:uppercase;letter-spacing:1px;opacity:.7;margin-bottom:6px}
+  .slot{display:flex;flex-direction:column;align-items:center}
+  .slot.next{opacity:.75}
+  .piece{display:flex;background:#fdfaf6;border:2px solid #d6c9bc;border-radius:8px;padding:4px;gap:4px}
+  .piece.vert{flex-direction:column}
+  .half{
+    width:38px;height:38px;border-radius:5px;display:flex;align-items:center;justify-content:center;
+    font-weight:800;font-size:18px;color:#776e65;background:#eee4da;
+  }
+  .piece.small .half{width:24px;height:24px;font-size:12px;border-radius:4px}
+  .arrowhint{font-size:18px;opacity:.55;margin-top:2px;height:20px}
+  .actions{margin-left:auto;display:flex;flex-direction:column;gap:6px}
+  button{
+    font-family:inherit;font-weight:700;color:#f9f6f2;background:var(--btn);
+    border:0;border-radius:6px;padding:9px 14px;cursor:pointer;font-size:13px;
+  }
+  button:hover{filter:brightness(1.08)}
+  button:active{transform:translateY(1px)}
+
+  .status{min-height:22px;font-size:14px;font-weight:600;margin:0 0 8px;text-align:center}
+  .status.warn{color:#c14a34}
+
+  .board{
+    position:relative;width:100%;aspect-ratio:1/1;background:var(--board);
+    border-radius:8px;touch-action:none;user-select:none;
+    --gap:10px;--cell:80px;
+  }
+  .cell,.tile,.ghost{position:absolute;border-radius:5px}
+  .cell{background:var(--cellbg)}
+  .tile{
+    display:flex;align-items:center;justify-content:center;font-weight:800;
+    transition:transform 110ms ease-in-out;z-index:2;
+  }
+  .tile.dying{z-index:1}
+  .ghost{z-index:3;pointer-events:none;opacity:.55;border:2px dashed #fff;
+         display:flex;align-items:center;justify-content:center;font-weight:800}
+  .ghost.bad{background:rgba(224,80,60,.55);border-color:#ffd9d2}
+  @keyframes pop{0%{transform:var(--tf) scale(.35);opacity:0}100%{transform:var(--tf) scale(1);opacity:1}}
+  @keyframes bump{0%{transform:var(--tf) scale(1)}50%{transform:var(--tf) scale(1.18)}100%{transform:var(--tf) scale(1)}}
+  .tile.new{animation:pop 140ms ease-out}
+  .tile.merged{animation:bump 160ms ease-in-out}
+
+  .v2{background:#eee4da;color:#776e65}
+  .v4{background:#ede0c8;color:#776e65}
+  .v8{background:#f2b179;color:#f9f6f2}
+  .v16{background:#f59563;color:#f9f6f2}
+  .v32{background:#f67c5f;color:#f9f6f2}
+  .v64{background:#f65e3b;color:#f9f6f2}
+  .v128{background:#edcf72;color:#f9f6f2}
+  .v256{background:#edcc61;color:#f9f6f2}
+  .v512{background:#edc850;color:#f9f6f2}
+  .v1024{background:#edc53f;color:#f9f6f2}
+  .v2048{background:#edc22e;color:#f9f6f2;box-shadow:0 0 22px rgba(243,215,116,.85)}
+  .vbig{background:#3c3a32;color:#f9f6f2}
+
+  .overlay{
+    position:absolute;inset:0;background:rgba(238,228,218,.78);border-radius:8px;z-index:10;
+    display:none;flex-direction:column;align-items:center;justify-content:center;gap:14px;text-align:center;
+  }
+  .overlay.show{display:flex}
+  .overlay h2{margin:0;font-size:clamp(26px,7vw,40px);font-weight:800}
+  .overlay p{margin:0;font-weight:600}
+
+  .float{position:absolute;right:6px;top:8px;font-weight:800;color:#776e65;opacity:0;pointer-events:none}
+  @keyframes rise{0%{opacity:1;transform:translateY(0)}100%{opacity:0;transform:translateY(-26px)}}
+  .float.go{animation:rise 640ms ease-out}
+  .scorewrap{position:relative}
+
+  .help{margin-top:14px;font-size:13px;line-height:1.55;background:#efe5da;border-radius:8px;padding:12px 14px}
+  .help b{color:#5f574f}
+  .help ol{margin:6px 0 0;padding-left:20px}
+  kbd{background:#fff;border:1px solid #d6c9bc;border-bottom-width:2px;border-radius:4px;padding:0 5px;font-size:12px;font-family:inherit;font-weight:700}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Domino 2048<small>pose · glisse · fusionne</small></h1>
+    <div class="scores">
+      <div class="score scorewrap"><span>Score</span><b id="score">0</b><div class="float" id="float"></div></div>
+      <div class="score"><span>Record</span><b id="best">0</b></div>
+    </div>
+  </header>
+
+  <div class="panel">
+    <div class="slot">
+      <div class="lbl">À poser</div>
+      <div id="cur"></div>
+      <div class="arrowhint" id="hint">→</div>
+    </div>
+    <div class="slot next">
+      <div class="lbl">Suivant</div>
+      <div id="nxt"></div>
+    </div>
+    <div class="actions">
+      <button id="rotate">Pivoter ⟳</button>
+      <button id="restart">Nouvelle partie</button>
+    </div>
+  </div>
+
+  <p class="status" id="status"></p>
+
+  <div class="board" id="board">
+    <div class="overlay" id="overlay">
+      <h2 id="ovtitle"></h2>
+      <p id="ovtext"></p>
+      <div><button id="ovbtn"></button></div>
+    </div>
+  </div>
+
+  <div class="help">
+    <b>Règle du jeu</b>
+    <ol>
+      <li>Un domino de deux valeurs t'est proposé. <b>Choisis une case</b> (clic ou tap) pour le poser (il occupe cette case et sa voisine).</li>
+      <li><kbd>R</kbd> ou <b>Pivoter</b> change le sens (droite, bas, gauche, haut) et échange les deux moitiés.</li>
+      <li>Ensuite <b>glisse tout le plateau</b> : <kbd>↑</kbd><kbd>↓</kbd><kbd>←</kbd><kbd>→</kbd> (ou balayage au doigt). Les cases identiques fusionnent et doublent.</li>
+      <li>Objectif : la tuile <b>2048</b>. Fin de partie quand plus aucun domino ne rentre.</li>
+    </ol>
+  </div>
+</div>
+
+<script>
+(function(){
+"use strict";
+
+const N = 5;
+const DIRS = {up:[-1,0], down:[1,0], left:[0,-1], right:[0,1]};
+const ROTS = [[0,1],[1,0],[0,-1],[-1,0]];      // droite, bas, gauche, haut
+const ARROWS = ["→","↓","←","↑"];
+
+const boardEl   = document.getElementById("board");
+const overlayEl = document.getElementById("overlay");
+const scoreEl   = document.getElementById("score");
+const bestEl    = document.getElementById("best");
+const floatEl   = document.getElementById("float");
+const statusEl  = document.getElementById("status");
+const curEl     = document.getElementById("cur");
+const nxtEl     = document.getElementById("nxt");
+const hintEl    = document.getElementById("hint");
+
+let grid, tiles, score, best, phase, rot, piece, nextPiece, uid, won;
+
+/* ---------- mise en page ---------- */
+let gap = 10, cell = 80;
+function layout(){
+  const w = boardEl.clientWidth;
+  gap  = Math.max(6, Math.round(w * 0.022));
+  cell = (w - gap * (N + 1)) / N;
+  boardEl.style.setProperty("--gap", gap + "px");
+  boardEl.style.setProperty("--cell", cell + "px");
+  document.querySelectorAll(".cell,.tile,.ghost").forEach(el => {
+    el.style.width = cell + "px";
+    el.style.height = cell + "px";
+  });
+  boardEl.querySelectorAll(".cell").forEach(el => placeEl(el, +el.dataset.r, +el.dataset.c, true));
+  for (const t of (tiles || [])) if (t.el) placeEl(t.el, t.r, t.c, true);
+  document.querySelectorAll(".tile").forEach(el => el.style.fontSize = fontFor(el.textContent));
+}
+const px = i => gap + i * (cell + gap);
+function placeEl(el, r, c, instant){
+  const tf = "translate(" + px(c) + "px," + px(r) + "px)";
+  el.style.setProperty("--tf", tf);
+  if (instant){ const p = el.style.transition; el.style.transition = "none"; el.style.transform = tf; void el.offsetWidth; el.style.transition = p; }
+  else el.style.transform = tf;
+}
+function fontFor(txt){
+  const n = String(txt).length;
+  return Math.round(cell * (n <= 2 ? 0.44 : n === 3 ? 0.34 : n === 4 ? 0.27 : 0.22)) + "px";
+}
+function cls(v){ return v <= 1024 ? "v" + v : (v === 2048 ? "v2048" : "vbig"); }
+
+/* ---------- état ---------- */
+function newGame(){
+  grid = Array.from({length:N}, () => Array(N).fill(null));
+  tiles = [];
+  score = 0; uid = 1; rot = 0; won = false;
+  boardEl.querySelectorAll(".tile,.ghost").forEach(e => e.remove());
+  piece = makePiece(); nextPiece = makePiece();
+  overlayEl.classList.remove("show");
+  phase = "place";
+  updateScore(0); drawPieces(); render(); say();
+}
+function allTiles(){ return tiles; }
+function maxValue(){ return tiles.reduce((m,t) => Math.max(m, t.value), 0); }
+
+function makePiece(){
+  const m = maxValue();
+  let pool = [2,2,2,2,4];
+  if (m >= 64)  pool = [2,2,2,4,4];
+  if (m >= 256) pool = [2,2,4,4,8];
+  const pick = () => pool[Math.floor(Math.random()*pool.length)];
+  return { a: pick(), b: pick() };
+}
+
+/* ---------- rendu ---------- */
+function makeTile(t){
+  const el = document.createElement("div");
+  el.className = "tile " + cls(t.value) + " new";
+  el.style.width = cell + "px"; el.style.height = cell + "px";
+  el.textContent = t.value;
+  el.style.fontSize = fontFor(t.value);
+  boardEl.appendChild(el);
+  t.el = el;
+  placeEl(el, t.r, t.c, true);
+  el.addEventListener("animationend", () => el.classList.remove("new","merged"), {once:false});
+}
+function render(){
+  for (const t of tiles){
+    if (!t.el) makeTile(t);
+    else {
+      if (el_text(t.el) !== String(t.value)){
+        t.el.textContent = t.value;
+        t.el.className = "tile " + cls(t.value) + " merged";
+        t.el.style.fontSize = fontFor(t.value);
+      }
+      placeEl(t.el, t.r, t.c, false);
+    }
+  }
+}
+const el_text = el => el.textContent;
+
+function buildCells(){
+  for (let r = 0; r < N; r++) for (let c = 0; c < N; c++){
+    const d = document.createElement("div");
+    d.className = "cell";
+    d.dataset.r = r; d.dataset.c = c;
+    boardEl.appendChild(d);
+  }
+}
+
+/* ---------- pièces (affichage) ---------- */
+function pieceEl(p, r, small){
+  const wrap = document.createElement("div");
+  const vert = (r === 1 || r === 3);
+  wrap.className = "piece" + (vert ? " vert" : "") + (small ? " small" : "");
+  const reversed = (r === 2 || r === 3);
+  const vals = reversed ? [p.b, p.a] : [p.a, p.b];
+  for (const v of vals){
+    const h = document.createElement("div");
+    h.className = "half " + cls(v);
+    h.textContent = v;
+    wrap.appendChild(h);
+  }
+  return wrap;
+}
+function drawPieces(){
+  curEl.innerHTML = ""; curEl.appendChild(pieceEl(piece, rot, false));
+  nxtEl.innerHTML = ""; nxtEl.appendChild(pieceEl(nextPiece, 0, true));
+  hintEl.textContent = ARROWS[rot];
+}
+
+/* ---------- placement ---------- */
+function cellsFor(r, c, rt){
+  const [dr, dc] = ROTS[rt];
+  return [[r,c],[r+dr,c+dc]];
+}
+const inB = (r,c) => r >= 0 && r < N && c >= 0 && c < N;
+function canPlaceAt(r, c, rt){
+  return cellsFor(r,c,rt).every(([rr,cc]) => inB(rr,cc) && !grid[rr][cc]);
+}
+function anyPlacement(){
+  for (let r = 0; r < N; r++) for (let c = 0; c < N; c++)
+    for (let k = 0; k < 4; k++) if (canPlaceAt(r,c,k)) return true;
+  return false;
+}
+function addTile(r, c, v, isNew){
+  const t = { id: uid++, value: v, r, c, merged:false };
+  grid[r][c] = t; tiles.push(t);
+  if (isNew) makeTile(t);
+  return t;
+}
+function place(r, c){
+  if (phase !== "place") return;
+  if (!canPlaceAt(r, c, rot)){ flash("Impossible ici — pivote (R) ou choisis une autre case."); return; }
+  const [[r1,c1],[r2,c2]] = cellsFor(r, c, rot);
+  addTile(r1, c1, piece.a, true);
+  addTile(r2, c2, piece.b, true);
+  piece = nextPiece; nextPiece = makePiece();
+  drawPieces(); clearGhost();
+  if (hasAnyMove()){ phase = "slide"; }
+  else { afterTurn(); }
+  say();
+}
+
+/* ---------- glissement 2048 ---------- */
+function hasAnyMove(){
+  return ["up","down","left","right"].some(canMove);
+}
+function canMove(dir){
+  const [dr,dc] = DIRS[dir];
+  for (let r = 0; r < N; r++) for (let c = 0; c < N; c++){
+    const t = grid[r][c]; if (!t) continue;
+    const nr = r + dr, nc = c + dc;
+    if (!inB(nr,nc)) continue;
+    const o = grid[nr][nc];
+    if (!o || o.value === t.value) return true;
+  }
+  return false;
+}
+function move(dir){
+  if (phase !== "slide") return;
+  if (!canMove(dir)){ flash("Aucun mouvement dans ce sens."); return; }
+  const [dr,dc] = DIRS[dir];
+  const idx = [...Array(N).keys()];
+  const rOrder = dr > 0 ? idx.slice().reverse() : idx;
+  const cOrder = dc > 0 ? idx.slice().reverse() : idx;
+  for (const t of tiles) t.merged = false;
+  let gained = 0;
+  const dying = [];
+
+  for (const r of rOrder) for (const c of cOrder){
+    const t = grid[r][c]; if (!t) continue;
+    let nr = r, nc = c, eaten = false;
+    for(;;){
+      const tr = nr + dr, tc = nc + dc;
+      if (!inB(tr,tc)) break;
+      const o = grid[tr][tc];
+      if (!o){ nr = tr; nc = tc; continue; }
+      if (o.value === t.value && !o.merged && !t.merged){
+        grid[r][c] = null;
+        o.value *= 2; o.merged = true;
+        gained += o.value;
+        if (o.value === 2048) won = won || "now";
+        t.r = tr; t.c = tc; dying.push(t);
+        eaten = true;
+      }
+      break;
+    }
+    if (eaten) continue;
+    if (nr !== r || nc !== c){ grid[r][c] = null; grid[nr][nc] = t; t.r = nr; t.c = nc; }
+  }
+
+  for (const t of dying){
+    tiles.splice(tiles.indexOf(t), 1);
+    t.el.classList.add("dying");
+    placeEl(t.el, t.r, t.c, false);
+    setTimeout(() => t.el.remove(), 140);
+  }
+  render();
+  if (gained) updateScore(gained);
+  afterTurn();
+}
+
+function afterTurn(){
+  if (won === "now"){ won = true; showOverlay("Gagné ! 🎉", "Tu as fabriqué la tuile 2048.", "Continuer"); }
+  if (!anyPlacement()){
+    phase = "over";
+    showOverlay("Partie terminée", "Score : " + score, "Rejouer");
+  } else {
+    phase = "place";
+  }
+  say();
+}
+
+/* ---------- score / UI ---------- */
+function updateScore(gained){
+  score += gained;
+  scoreEl.textContent = score;
+  if (score > best){ best = score; bestEl.textContent = best;
+    try { localStorage.setItem("domino2048.best", best); } catch(e){} }
+  if (gained > 0){
+    floatEl.textContent = "+" + gained;
+    floatEl.classList.remove("go"); void floatEl.offsetWidth; floatEl.classList.add("go");
+  }
+}
+let flashTimer = null;
+function flash(msg){
+  statusEl.textContent = msg;
+  statusEl.classList.add("warn");
+  clearTimeout(flashTimer);
+  flashTimer = setTimeout(say, 1600);
+}
+function say(){
+  statusEl.classList.remove("warn");
+  statusEl.textContent =
+    phase === "place" ? "Pose le domino : choisis une case (R / Pivoter pour le sens)." :
+    phase === "slide" ? "Glisse le plateau : ↑ ↓ ← → ou balaye." :
+    "Partie terminée.";
+}
+function showOverlay(title, text, btn){
+  document.getElementById("ovtitle").textContent = title;
+  document.getElementById("ovtext").textContent = text;
+  const b = document.getElementById("ovbtn");
+  b.textContent = btn;
+  overlayEl.classList.add("show");
+}
+
+/* ---------- aperçu fantôme ---------- */
+let ghosts = [];
+function clearGhost(){ ghosts.forEach(g => g.remove()); ghosts = []; }
+function showGhost(r, c){
+  clearGhost();
+  if (phase !== "place") return;
+  const ok = canPlaceAt(r, c, rot);
+  const [[r1,c1],[r2,c2]] = cellsFor(r, c, rot);
+  const spots = [[r1,c1,piece.a],[r2,c2,piece.b]];
+  for (const [rr,cc,v] of spots){
+    if (!inB(rr,cc)) continue;
+    const g = document.createElement("div");
+    g.className = "ghost " + (ok ? cls(v) : "bad");
+    g.style.width = cell + "px"; g.style.height = cell + "px";
+    g.style.fontSize = fontFor(v);
+    g.textContent = ok ? v : "✕";
+    boardEl.appendChild(g);
+    placeEl(g, rr, cc, true);
+    ghosts.push(g);
+  }
+}
+
+/* ---------- entrées ---------- */
+function cellFromPoint(x, y){
+  const b = boardEl.getBoundingClientRect();
+  const c = Math.floor((x - b.left - gap/2) / (cell + gap));
+  const r = Math.floor((y - b.top  - gap/2) / (cell + gap));
+  return inB(r,c) ? [r,c] : null;
+}
+boardEl.addEventListener("mousemove", e => {
+  const p = cellFromPoint(e.clientX, e.clientY);
+  if (p) showGhost(p[0], p[1]); else clearGhost();
+});
+boardEl.addEventListener("mouseleave", clearGhost);
+boardEl.addEventListener("click", e => {
+  const p = cellFromPoint(e.clientX, e.clientY);
+  if (p) place(p[0], p[1]);
+});
+
+document.getElementById("rotate").addEventListener("click", () => { rot = (rot + 1) % 4; drawPieces(); clearGhost(); });
+document.getElementById("restart").addEventListener("click", newGame);
+overlayEl.addEventListener("click", e => e.stopPropagation());
+document.getElementById("ovbtn").addEventListener("click", e => {
+  e.stopPropagation();
+  if (phase === "over") newGame();
+  else overlayEl.classList.remove("show");
+});
+
+document.addEventListener("keydown", e => {
+  const k = e.key.toLowerCase();
+  const map = {arrowup:"up", arrowdown:"down", arrowleft:"left", arrowright:"right",
+               z:"up", s:"down", q:"left", d:"right", w:"up", a:"left"};
+  if (k === "r" || k === " "){ e.preventDefault(); rot = (rot + 1) % 4; drawPieces(); clearGhost(); return; }
+  if (map[k]){
+    e.preventDefault();
+    if (phase === "place") flash("Pose d'abord ton domino sur le plateau.");
+    else move(map[k]);
+  }
+});
+
+/* tactile : tap = poser, balayage = glisser */
+let tStart = null;
+boardEl.addEventListener("touchstart", e => {
+  const t = e.touches[0];
+  tStart = {x:t.clientX, y:t.clientY, time:Date.now()};
+  if (phase === "place"){ const p = cellFromPoint(t.clientX, t.clientY); if (p) showGhost(p[0], p[1]); }
+}, {passive:true});
+boardEl.addEventListener("touchmove", e => { if (tStart) e.preventDefault(); }, {passive:false});
+boardEl.addEventListener("touchend", e => {
+  if (!tStart) return;
+  const t = e.changedTouches[0];
+  const dx = t.clientX - tStart.x, dy = t.clientY - tStart.y;
+  const dist = Math.hypot(dx, dy);
+  if (dist < 24){
+    clearGhost();
+    const p = cellFromPoint(t.clientX, t.clientY);
+    if (p) place(p[0], p[1]);
+  } else if (phase === "slide"){
+    move(Math.abs(dx) > Math.abs(dy) ? (dx > 0 ? "right" : "left") : (dy > 0 ? "down" : "up"));
+  } else {
+    clearGhost();
+    flash("Pose d'abord ton domino sur le plateau.");
+  }
+  tStart = null;
+}, {passive:true});
+
+window.addEventListener("resize", layout);
+
+/* ---------- démarrage ---------- */
+try { best = parseInt(localStorage.getItem("domino2048.best"), 10) || 0; } catch(e){ best = 0; }
+bestEl.textContent = best;
+buildCells();
+layout();
+newGame();
+layout();
+})();
+</script>
+</body>
+</html>
