@@ -113,8 +113,6 @@
   button:hover{background:var(--brass);color:var(--brass-ink)}
   button:active{transform:translateY(1px)}
   button[disabled]{opacity:.35;cursor:default;pointer-events:none}
-  button.pulse{animation:knock 1.1s ease-in-out infinite}
-  @keyframes knock{0%,100%{box-shadow:0 0 0 0 rgba(157,113,24,0)}50%{box-shadow:0 0 0 4px rgba(157,113,24,.22)}}
 
   .bar{display:flex;align-items:center;gap:10px;min-height:22px}
   .status{flex:1;font-size:13.5px;font-weight:600;margin:0;color:var(--muted)}
@@ -141,7 +139,7 @@
     transition:transform 150ms ease-in-out, opacity 150ms linear;z-index:2;
   }
   .tile.dying{z-index:1;opacity:.25}
-  /* tuile que le domino va accrocher */
+  /* tuile qui va fusionner avec la pose en cours */
   .tile.match{box-shadow:0 0 0 3px var(--brass), 0 2px 4px rgba(0,0,0,.22);z-index:4}
   .ghost{
     z-index:3;pointer-events:none;opacity:.88;border:2px dashed rgba(59,51,42,.75);
@@ -195,7 +193,7 @@
   }
   @media (prefers-reduced-motion: reduce){
     .tile{transition:none}
-    .tile.new,.tile.merged,.float.go,button.pulse{animation:none}
+    .tile.new,.tile.merged,.float.go{animation:none}
     .float.go{opacity:0}
   }
 </style>
@@ -205,7 +203,7 @@
   <header>
     <div class="brand">
       <h1>Domino <em>2048</em></h1>
-      <p>Accroche · Fusionne · Enchaîne</p>
+      <p>Pose · Fusionne · Enchaîne</p>
     </div>
     <div class="scores">
       <div class="score scorewrap"><span>Score</span><b id="score">0</b><div class="float" id="float"></div></div>
@@ -225,7 +223,6 @@
     </div>
     <div class="actions">
       <button id="rotate" class="primary" type="button">Pivoter ⟳</button>
-      <button id="draw" type="button" disabled>Piocher</button>
     </div>
   </div>
 
@@ -246,10 +243,10 @@
     <h2>Règle du jeu</h2>
     <ol>
       <li>Un domino de deux valeurs t'est proposé. <b>Choisis une case</b> (clic ou tap) : il occupe cette case et sa voisine.</li>
-      <li><b>Règle du domino :</b> au moins une de ses moitiés doit se poser <em>contre une tuile de même valeur</em>. Le tout premier domino se pose où tu veux.</li>
-      <li>Au contact, les valeurs égales <b>fusionnent aussitôt</b> : 2+2 donne 4, et chaque tuile identique de plus double encore le résultat (2+2+2 = 8). Les fusions s'<b>enchaînent en cascade</b>.</li>
-      <li><kbd>R</kbd>, les flèches ou <b>Pivoter</b> font tourner le domino. Si aucun placement n'est possible, tu <b>pioches</b>.</li>
-      <li>Objectif : la tuile <em>2048</em>. La partie s'arrête quand plus aucun domino ne peut s'accrocher.</li>
+      <li>Une fois posées, ses deux moitiés ne sont <b>plus solidaires</b> : ce sont deux tuiles ordinaires sur le tapis.</li>
+      <li>Seules les <em>valeurs égales qui se touchent</em> fusionnent, et elles le font aussitôt : deux 4 collés donnent un 8, qu'ils viennent du même domino ou de deux dominos différents. Chaque tuile identique de plus double encore le résultat (4+4+4 = 16), et les fusions s'<b>enchaînent en cascade</b>.</li>
+      <li><kbd>R</kbd>, les flèches ou <b>Pivoter</b> font tourner le domino. L'aperçu cercle en laiton les tuiles qui vont fusionner avec la pose.</li>
+      <li>Objectif : la tuile <em>2048</em>. La partie s'arrête quand il ne reste plus deux cases voisines libres.</li>
     </ol>
   </section>
 </div>
@@ -272,9 +269,8 @@ const statusEl  = document.getElementById("status");
 const curEl     = document.getElementById("cur");
 const nxtEl     = document.getElementById("nxt");
 const hintEl    = document.getElementById("hint");
-const drawBtn   = document.getElementById("draw");
 
-let grid, tiles, score, best, phase, rot, piece, nextPiece, uid, won, draws;
+let grid, tiles, score, best, phase, rot, piece, nextPiece, uid, won, placed;
 
 /* ---------- mise en page ---------- */
 let gap = 10, cell = 80;
@@ -397,38 +393,25 @@ function hooks(r, c, skipR, skipC, value){
   }
   return out;
 }
-// renvoie {ok, cells, hooks} pour une pose donnée
+// Le domino se pose partout où deux cases voisines sont libres. Une fois
+// posées, ses deux moitiés ne sont plus solidaires : ce sont deux tuiles
+// ordinaires, et seules les valeurs égales qui se touchent fusionnent.
+// hooks[] sert uniquement à montrer d'avance ce qui va fusionner.
 function tryPlace(r, c, rt, p){
   const cs = cellsFor(r, c, rt);
-  const free = cs.every(([rr,cc]) => inB(rr,cc) && !grid[rr][cc]);
-  if (!free) return { ok:false, reason:"place", cells:cs, hooks:[] };
-  if (tiles.length === 0) return { ok:true, cells:cs, hooks:[] };        // ouverture libre
+  if (!cs.every(([rr,cc]) => inB(rr,cc) && !grid[rr][cc]))
+    return { ok:false, cells:cs, hooks:[] };
   const [[r1,c1],[r2,c2]] = cs;
-  const h = hooks(r1,c1,r2,c2,p.a).concat(hooks(r2,c2,r1,c1,p.b));
-  return h.length ? { ok:true, cells:cs, hooks:h }
-                  : { ok:false, reason:"match", cells:cs, hooks:[] };
+  return { ok:true, cells:cs,
+           hooks: hooks(r1,c1,r2,c2,p.a).concat(hooks(r2,c2,r1,c1,p.b)) };
 }
-function pieceCanPlay(p){
-  for (let r = 0; r < N; r++) for (let c = 0; c < N; c++)
-    for (let k = 0; k < 4; k++) if (tryPlace(r,c,k,p).ok) return true;
-  return false;
-}
-// une pioche pourrait-elle donner un domino jouable ?
-// Le talon peut fournir n'importe quel numéro en jeu : il suffit donc d'une
-// paire de cases libres dont l'une touche une tuile.
-function anyPieceCanPlay(){
-  if (tiles.length === 0) return true;
+// reste-t-il deux cases voisines libres ?
+function canPlaceSomewhere(){
   for (let r = 0; r < N; r++) for (let c = 0; c < N; c++){
     if (grid[r][c]) continue;
     for (const [dr,dc] of [[0,1],[1,0]]){
       const rr = r + dr, cc = c + dc;
-      if (!inB(rr,cc) || grid[rr][cc]) continue;              // paire de cases libres
-      for (const [cr,cc2] of [[r,c],[rr,cc]]){
-        for (const [nr,nc] of NB){
-          const ar = cr + nr, ac = cc2 + nc;
-          if (inB(ar,ac) && grid[ar][ac]) return true;
-        }
-      }
+      if (inB(rr,cc) && !grid[rr][cc]) return true;
     }
   }
   return false;
@@ -493,40 +476,27 @@ async function resolve(){
 async function place(r, c){
   if (phase !== "place") return;
   const res = tryPlace(r, c, rot, piece);
-  if (!res.ok){
-    flash(res.reason === "match"
-      ? "Il faut accrocher une moitié à une tuile de même valeur."
-      : "Ces deux cases ne sont pas libres.");
-    return;
-  }
+  if (!res.ok){ flash("Il faut deux cases voisines libres."); return; }
   phase = "anim";
   clearGhost();
   const [[r1,c1],[r2,c2]] = res.cells;
   addTile(r1, c1, piece.a);
   addTile(r2, c2, piece.b);
+  placed++;
   piece = nextPiece; nextPiece = makePiece();
   drawPieces();
   await sleep(160);
   await resolve();
   nextTurn();
 }
-function drawPiece(){
-  if (phase !== "place" || pieceCanPlay(piece)) return;
-  draws++;
-  piece = nextPiece; nextPiece = makePiece();
-  drawPieces(); clearGhost(); nextTurn();
-}
 function nextTurn(){
   if (won === "now"){ won = true; showOverlay("2048 !", "Tu as monté la tuile. Continue si tu veux.", "Continuer"); }
-  const playable = pieceCanPlay(piece);
-  if (!playable && !anyPieceCanPlay()){
+  if (!canPlaceSomewhere()){
     phase = "over";
-    showOverlay("Plus rien à accrocher", "Score : " + score + (draws ? " · " + draws + " pioche" + (draws > 1 ? "s" : "") : ""), "Rejouer");
+    showOverlay("Le tapis est plein", "Score : " + score + " · " + placed + " dominos posés", "Rejouer");
   } else {
     phase = "place";
   }
-  drawBtn.disabled = playable || phase === "over";
-  drawBtn.classList.toggle("pulse", !drawBtn.disabled);
   say();
 }
 
@@ -548,11 +518,12 @@ function flash(msg){
 }
 function say(){
   statusEl.classList.remove("warn");
+  const free = N * N - tiles.length;
   statusEl.textContent =
-    phase === "over"  ? "Partie terminée." :
-    tiles.length === 0 ? "Ouverture : pose ton premier domino où tu veux." :
-    drawBtn.disabled  ? "Accroche une moitié à une tuile de même valeur." :
-                        "Ce domino ne s'accroche nulle part — pioche.";
+    phase === "over"   ? "Partie terminée." :
+    tiles.length === 0 ? "Pose ton domino sur deux cases voisines." :
+    free <= 6          ? "Plus que " + free + " cases libres — fais fusionner." :
+                         "Pose le domino contre les valeurs que tu veux fusionner.";
 }
 function showOverlay(title, text, btn){
   document.getElementById("ovtitle").textContent = title;
@@ -621,7 +592,6 @@ boardEl.addEventListener("touchend", e => {
 }, {passive:true});
 
 document.getElementById("rotate").addEventListener("click", rotate);
-document.getElementById("draw").addEventListener("click", drawPiece);
 document.getElementById("restart").addEventListener("click", newGame);
 overlayEl.addEventListener("click", e => e.stopPropagation());
 document.getElementById("ovbtn").addEventListener("click", e => {
@@ -632,8 +602,7 @@ document.getElementById("ovbtn").addEventListener("click", e => {
 
 document.addEventListener("keydown", e => {
   const k = e.key.toLowerCase();
-  if (k === "r" || k === " " || k.startsWith("arrow")){ e.preventDefault(); rotate(); return; }
-  if (k === "p" && !drawBtn.disabled){ e.preventDefault(); drawPiece(); }
+  if (k === "r" || k === " " || k.startsWith("arrow")){ e.preventDefault(); rotate(); }
 });
 window.addEventListener("resize", layout);
 
@@ -641,14 +610,13 @@ window.addEventListener("resize", layout);
 function newGame(){
   grid = Array.from({length:N}, () => Array(N).fill(null));
   tiles = [];
-  score = 0; uid = 1; rot = 0; won = false; draws = 0;
+  score = 0; uid = 1; rot = 0; won = false; placed = 0;
   boardEl.querySelectorAll(".tile,.ghost").forEach(e => e.remove());
   ghosts = [];
   piece = makePiece(); nextPiece = makePiece();
   overlayEl.classList.remove("show");
   phase = "place";
   scoreEl.textContent = "0";
-  drawBtn.disabled = true; drawBtn.classList.remove("pulse");
   drawPieces(); say();
 }
 for (let r = 0; r < N; r++) for (let c = 0; c < N; c++){
