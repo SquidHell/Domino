@@ -245,7 +245,7 @@
       <li>Un domino de deux valeurs t'est proposé. <b>Choisis une case</b> (clic ou tap) : il occupe cette case et sa voisine.</li>
       <li>Une fois posées, ses deux moitiés ne sont <b>plus solidaires</b> : ce sont deux tuiles ordinaires sur le tapis.</li>
       <li>Seules les <em>valeurs égales qui se touchent</em> fusionnent, et elles le font aussitôt : deux 4 collés donnent un 8, qu'ils viennent du même domino ou de deux dominos différents.</li>
-      <li>Une fusion ne réunit jamais que <b>deux tuiles à la fois</b> : trois 4 côte à côte donnent un 8 et un 4 qui reste. Les fusions s'enchaînent <b>une par une en cascade</b>, le jeu jouant toujours d'abord celle qui ouvre la <b>plus longue cascade</b>, et la tuile issue d'une fusion reste sur la case la plus récemment posée.</li>
+      <li>Une fusion ne réunit jamais que <b>deux tuiles à la fois</b> : trois 4 côte à côte donnent un 8 et un 4 qui reste. Les fusions s'enchaînent <b>une par une en cascade</b> et le jeu cherche l'ordre qui en produit le <b>plus grand nombre possible</b> — l'ordre compte, fusionner une paire peut en condamner une autre. La tuile issue d'une fusion reste sur la case la plus récemment posée.</li>
       <li><kbd>R</kbd>, les flèches ou <b>Pivoter</b> font tourner le domino. L'aperçu cercle en laiton les tuiles qui vont fusionner avec la pose.</li>
       <li>Objectif : la tuile <em>2048</em>. La partie s'arrête quand il ne reste plus deux cases voisines libres.</li>
     </ol>
@@ -424,6 +424,7 @@ function canPlaceSomewhere(){
    possibles en même temps, on cherche celle qui déclenche la plus longue
    cascade et on la joue en premier ; les autres suivent, une par une. */
 const MAX_DEPTH = 24;
+const MAX_NODES = 40000;
 
 // photo du tapis : uniquement valeur + ancienneté, de quoi simuler
 function snapshot(){
@@ -456,7 +457,7 @@ function applyPair(g, pair, nextId){
 }
 // Longueur de la réaction en chaîne déclenchée par une paire : on fusionne,
 // puis on ne poursuit qu'avec la tuile née de la fusion, en suivant la branche
-// la plus longue. C'est ça, « la plus grande cascade ».
+// la plus longue. Sert à jouer les fusions dans un ordre lisible.
 function chainFrom(g, pair, nextId, left){
   const st = applyPair(g, pair, nextId);
   let best = { depth:0, gain:0 };
@@ -478,35 +479,63 @@ function chainFrom(g, pair, nextId, left){
   }
   return { depth: 1 + best.depth, gain: st.gained + best.gain };
 }
-// parmi des paires candidates, celle qui ouvre la plus longue cascade
-// (à égalité de longueur, la plus rentable)
-function bestPair(g, nextId, candidates){
+
+// Combien de fusions au maximum peut-on encore tirer de ce tapis, en choisissant
+// le meilleur ordre ? (à nombre égal de fusions, le meilleur score) — l'ordre
+// compte : fusionner une paire peut en condamner une autre.
+function bestOutcome(g, nextId, budget){
+  const ps = listPairs(g);
+  if (!ps.length) return { count:0, gain:0 };
+  let best = { count:0, gain:0 };
+  for (const pair of ps){
+    const st = applyPair(g, pair, nextId);
+    let sub = { count:0, gain:0 };
+    if (budget.n > 0){ budget.n--; sub = bestOutcome(st.g, st.nextId, budget); }
+    const count = 1 + sub.count, gain = st.gained + sub.gain;
+    if (count > best.count || (count === best.count && gain > best.gain)) best = { count, gain };
+  }
+  return best;
+}
+
+// La fusion à jouer maintenant. Par ordre de priorité : celle qui mène au plus
+// grand nombre de fusions au total, puis au meilleur score, puis celle qui
+// poursuit la cascade en cours, puis celle qui ouvre la plus longue chaîne, et
+// enfin la plus grosse valeur — les trois derniers critères ne changent que
+// l'ordre d'affichage, jamais le résultat final.
+function better(a, b){
+  if (a.count !== b.count) return a.count > b.count;
+  if (a.gain  !== b.gain ) return a.gain  > b.gain;
+  if (a.chain !== b.chain) return a.chain > b.chain;
+  if (a.depth !== b.depth) return a.depth > b.depth;
+  return a.value > b.value;
+}
+function pickPair(g, nextId, from){
+  const ps = listPairs(g);
+  if (!ps.length) return null;
+  const budget = { n: MAX_NODES };
   let best = null;
-  for (const pair of candidates){
-    const s = chainFrom(g, pair, nextId, MAX_DEPTH);
-    if (!best || s.depth > best.depth || (s.depth === best.depth && s.gain > best.gain))
-      best = { pair, depth: s.depth, gain: s.gain };
+  for (const pair of ps){
+    const st  = applyPair(g, pair, nextId);
+    const sub = bestOutcome(st.g, st.nextId, budget);
+    const cand = {
+      pair,
+      count: 1 + sub.count,
+      gain : st.gained + sub.gain,
+      chain: from && pair.some(([r,c]) => r === from[0] && c === from[1]) ? 1 : 0,
+      depth: chainFrom(g, pair, nextId, MAX_DEPTH).depth,
+      value: g[pair[0][0]][pair[0][1]].v
+    };
+    if (!best || better(cand, best)) best = cand;
   }
   return best;
 }
 
 async function resolve(){
-  let chain = 0, total = 0, from = null;      // tuile née de la fusion précédente
+  let chain = 0, total = 0, from = null;      // case née de la fusion précédente
   for(;;){
-    const g = snapshot();
-    // on poursuit d'abord la cascade en cours, sinon on ouvre la meilleure
-    let cands = [];
-    if (from && grid[from.r][from.c] === from){
-      for (const [dr,dc] of NB){
-        const rr = from.r + dr, cc = from.c + dc;
-        if (inB(rr,cc) && grid[rr][cc] && grid[rr][cc].value === from.value)
-          cands.push([[from.r,from.c],[rr,cc]]);
-      }
-    }
-    if (!cands.length){ cands = listPairs(g); from = null; }
-    if (!cands.length) break;
-
-    const [[r1,c1],[r2,c2]] = bestPair(g, uid, cands).pair;
+    const best = pickPair(snapshot(), uid, from);
+    if (!best) break;
+    const [[r1,c1],[r2,c2]] = best.pair;
     const a = grid[r1][c1], b = grid[r2][c2];
     const anchor = a.id > b.id ? a : b;        // la plus récente reste en place
     const gone   = anchor === a ? b : a;
@@ -525,7 +554,8 @@ async function resolve(){
     anchor.id = uid++;                          // la fusion devient la plus récente
     if (value >= 2048 && !won) won = "now";
     refresh(anchor, true);
-    total += value; chain++; from = anchor;
+    total += value; chain++;
+    from = [anchor.r, anchor.c];
     await sleep(150);
   }
   if (total) addScore(total, chain);

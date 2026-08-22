@@ -19,11 +19,12 @@ Ouvre `index.html` dans un navigateur. C'est tout.
    dominos différents.
 4. Une fusion ne réunit jamais que **deux tuiles à la fois**, donc la somme du tapis est
    toujours exacte : trois 4 côte à côte donnent un 8 et un 4 qui reste, jamais 16. Les
-   fusions s'enchaînent **une par une en cascade** ; quand plusieurs sont possibles au même
-   moment, le jeu joue d'abord celle qui ouvre la **plus longue réaction en chaîne** (à
-   égalité, la plus rentable). La tuile issue d'une fusion reste sur la case la plus
-   récemment posée, ce qui rend la cascade prévisible. L'aperçu cercle en laiton les tuiles
-   qui vont fusionner avec la pose.
+   fusions s'enchaînent **une par une en cascade**, et le jeu résout la pose dans l'ordre
+   qui produit le **plus grand nombre de fusions possible** — l'ordre compte, car fusionner
+   une paire peut en condamner une autre. À nombre de fusions égal il prend le meilleur
+   score, puis, pour la lisibilité, poursuit la cascade en cours avant d'en ouvrir une
+   autre. La tuile issue d'une fusion reste sur la case la plus récemment posée. L'aperçu
+   cercle en laiton les tuiles qui vont fusionner avec la pose.
 5. **Le talon** contient des numéros réellement en jeu : une moitié reprend le plus
    souvent une valeur présente sur le tapis, l'autre apporte du matériel neuf, dont la
    taille suit la progression de la partie.
