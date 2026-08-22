@@ -244,7 +244,8 @@
     <ol>
       <li>Un domino de deux valeurs t'est proposé. <b>Choisis une case</b> (clic ou tap) : il occupe cette case et sa voisine.</li>
       <li>Une fois posées, ses deux moitiés ne sont <b>plus solidaires</b> : ce sont deux tuiles ordinaires sur le tapis.</li>
-      <li>Seules les <em>valeurs égales qui se touchent</em> fusionnent, et elles le font aussitôt : deux 4 collés donnent un 8, qu'ils viennent du même domino ou de deux dominos différents. Chaque tuile identique de plus double encore le résultat (4+4+4 = 16), et les fusions s'<b>enchaînent en cascade</b>.</li>
+      <li>Seules les <em>valeurs égales qui se touchent</em> fusionnent, et elles le font aussitôt : deux 4 collés donnent un 8, qu'ils viennent du même domino ou de deux dominos différents.</li>
+      <li>Une fusion ne réunit jamais que <b>deux tuiles à la fois</b> : trois 4 côte à côte donnent un 8 et un 4 qui reste. Les fusions s'enchaînent <b>une par une en cascade</b>, le jeu jouant toujours d'abord celle qui ouvre la <b>plus longue cascade</b>, et la tuile issue d'une fusion reste sur la case la plus récemment posée.</li>
       <li><kbd>R</kbd>, les flèches ou <b>Pivoter</b> font tourner le domino. L'aperçu cercle en laiton les tuiles qui vont fusionner avec la pose.</li>
       <li>Objectif : la tuile <em>2048</em>. La partie s'arrête quand il ne reste plus deux cases voisines libres.</li>
     </ol>
@@ -417,56 +418,115 @@ function canPlaceSomewhere(){
   return false;
 }
 
-/* ---------- fusions en cascade ---------- */
-function findGroups(){
-  const seen = new Set(), groups = [];
-  for (let r = 0; r < N; r++) for (let c = 0; c < N; c++){
-    const t = grid[r][c];
-    if (!t || seen.has(t.id)) continue;
-    const group = [], stack = [t];
-    seen.add(t.id);
-    while (stack.length){
-      const cur = stack.pop();
-      group.push(cur);
-      for (const [dr,dc] of NB){
-        const rr = cur.r + dr, cc = cur.c + dc;
-        if (!inB(rr,cc)) continue;
-        const o = grid[rr][cc];
-        if (o && !seen.has(o.id) && o.value === t.value){ seen.add(o.id); stack.push(o); }
-      }
-    }
-    if (group.length > 1) groups.push(group);
-  }
-  return groups;
+/* ---------- fusions en cascade ----------
+   Une fusion ne réunit jamais que DEUX tuiles voisines de même valeur : la
+   somme reste juste (4+4 = 8, jamais plus). Quand plusieurs fusions sont
+   possibles en même temps, on cherche celle qui déclenche la plus longue
+   cascade et on la joue en premier ; les autres suivent, une par une. */
+const MAX_DEPTH = 24;
+
+// photo du tapis : uniquement valeur + ancienneté, de quoi simuler
+function snapshot(){
+  return grid.map(row => row.map(t => t ? { v: t.value, id: t.id } : null));
 }
-async function resolve(){
-  let chain = 0, total = 0;
-  for(;;){
-    const groups = findGroups();
-    if (!groups.length) break;
-    chain++;
-    const anchors = [];
-    for (const g of groups){
-      const anchor = g.reduce((a,b) => b.id > a.id ? b : a);   // la plus récente
-      const value  = g[0].value * Math.pow(2, g.length - 1);
-      total += value;
-      for (const t of g){
-        if (t === anchor) continue;
-        grid[t.r][t.c] = null;
-        tiles.splice(tiles.indexOf(t), 1);
-        t.el.classList.add("dying");
-        t.r = anchor.r; t.c = anchor.c;
-        placeEl(t.el, t.r, t.c, false);
-        const el = t.el;
-        setTimeout(() => el.remove(), 170);
-      }
-      anchor.value = value;
-      if (value >= 2048 && !won) won = "now";
-      anchors.push(anchor);
+// toutes les paires voisines de même valeur (chacune comptée une fois)
+function listPairs(g){
+  const out = [];
+  for (let r = 0; r < N; r++) for (let c = 0; c < N; c++){
+    const t = g[r][c];
+    if (!t) continue;
+    for (const [dr,dc] of [[0,1],[1,0]]){
+      const rr = r + dr, cc = c + dc;
+      if (inB(rr,cc) && g[rr][cc] && g[rr][cc].v === t.v) out.push([[r,c],[rr,cc]]);
     }
-    await sleep(170);
-    for (const a of anchors) refresh(a, true);
-    await sleep(180);
+  }
+  return out;
+}
+// fusionne une paire dans une copie du tapis : la plus récente des deux reste
+function applyPair(g, pair, nextId){
+  const [[r1,c1],[r2,c2]] = pair;
+  const ng = g.map(row => row.slice());
+  const keepFirst = ng[r1][c1].id > ng[r2][c2].id;
+  const [kr,kc] = keepFirst ? [r1,c1] : [r2,c2];
+  const [dr2,dc2] = keepFirst ? [r2,c2] : [r1,c1];
+  const v = ng[r1][c1].v * 2;
+  ng[kr][kc] = { v, id: nextId };
+  ng[dr2][dc2] = null;
+  return { g: ng, nextId: nextId + 1, gained: v };
+}
+// Longueur de la réaction en chaîne déclenchée par une paire : on fusionne,
+// puis on ne poursuit qu'avec la tuile née de la fusion, en suivant la branche
+// la plus longue. C'est ça, « la plus grande cascade ».
+function chainFrom(g, pair, nextId, left){
+  const st = applyPair(g, pair, nextId);
+  let best = { depth:0, gain:0 };
+  if (left > 0){
+    let pr = -1, pc = -1;
+    for (let r = 0; r < N; r++) for (let c = 0; c < N; c++)
+      if (st.g[r][c] && st.g[r][c].id === nextId){ pr = r; pc = c; }
+    if (pr >= 0){
+      const v = st.g[pr][pc].v;
+      for (const [dr,dc] of NB){
+        const rr = pr + dr, cc = pc + dc;
+        if (!inB(rr,cc)) continue;
+        const o = st.g[rr][cc];
+        if (!o || o.v !== v) continue;
+        const sub = chainFrom(st.g, [[pr,pc],[rr,cc]], st.nextId, left - 1);
+        if (sub.depth > best.depth || (sub.depth === best.depth && sub.gain > best.gain)) best = sub;
+      }
+    }
+  }
+  return { depth: 1 + best.depth, gain: st.gained + best.gain };
+}
+// parmi des paires candidates, celle qui ouvre la plus longue cascade
+// (à égalité de longueur, la plus rentable)
+function bestPair(g, nextId, candidates){
+  let best = null;
+  for (const pair of candidates){
+    const s = chainFrom(g, pair, nextId, MAX_DEPTH);
+    if (!best || s.depth > best.depth || (s.depth === best.depth && s.gain > best.gain))
+      best = { pair, depth: s.depth, gain: s.gain };
+  }
+  return best;
+}
+
+async function resolve(){
+  let chain = 0, total = 0, from = null;      // tuile née de la fusion précédente
+  for(;;){
+    const g = snapshot();
+    // on poursuit d'abord la cascade en cours, sinon on ouvre la meilleure
+    let cands = [];
+    if (from && grid[from.r][from.c] === from){
+      for (const [dr,dc] of NB){
+        const rr = from.r + dr, cc = from.c + dc;
+        if (inB(rr,cc) && grid[rr][cc] && grid[rr][cc].value === from.value)
+          cands.push([[from.r,from.c],[rr,cc]]);
+      }
+    }
+    if (!cands.length){ cands = listPairs(g); from = null; }
+    if (!cands.length) break;
+
+    const [[r1,c1],[r2,c2]] = bestPair(g, uid, cands).pair;
+    const a = grid[r1][c1], b = grid[r2][c2];
+    const anchor = a.id > b.id ? a : b;        // la plus récente reste en place
+    const gone   = anchor === a ? b : a;
+    const value  = a.value * 2;
+
+    grid[gone.r][gone.c] = null;
+    tiles.splice(tiles.indexOf(gone), 1);
+    gone.el.classList.add("dying");
+    gone.r = anchor.r; gone.c = anchor.c;
+    placeEl(gone.el, gone.r, gone.c, false);
+    const el = gone.el;
+    setTimeout(() => el.remove(), 170);
+    await sleep(150);
+
+    anchor.value = value;
+    anchor.id = uid++;                          // la fusion devient la plus récente
+    if (value >= 2048 && !won) won = "now";
+    refresh(anchor, true);
+    total += value; chain++; from = anchor;
+    await sleep(150);
   }
   if (total) addScore(total, chain);
   return chain;

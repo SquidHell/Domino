@@ -16,13 +16,18 @@ Ouvre `index.html` dans un navigateur. C'est tout.
    ordinaires sur le tapis.
 3. **Fusion au contact** : seules les valeurs égales qui se touchent fusionnent, et elles
    le font aussitôt. Deux 4 collés donnent un 8, qu'ils viennent du même domino ou de deux
-   dominos différents. Chaque tuile identique de plus double encore le résultat
-   (`4+4+4 = 16`, `4+4+4+4 = 32`), et une fusion qui en déclenche une autre part en
-   **cascade**. L'aperçu cercle en laiton les tuiles qui vont fusionner avec la pose.
-4. **Le talon** contient des numéros réellement en jeu : une moitié reprend le plus
+   dominos différents.
+4. Une fusion ne réunit jamais que **deux tuiles à la fois**, donc la somme du tapis est
+   toujours exacte : trois 4 côte à côte donnent un 8 et un 4 qui reste, jamais 16. Les
+   fusions s'enchaînent **une par une en cascade** ; quand plusieurs sont possibles au même
+   moment, le jeu joue d'abord celle qui ouvre la **plus longue réaction en chaîne** (à
+   égalité, la plus rentable). La tuile issue d'une fusion reste sur la case la plus
+   récemment posée, ce qui rend la cascade prévisible. L'aperçu cercle en laiton les tuiles
+   qui vont fusionner avec la pose.
+5. **Le talon** contient des numéros réellement en jeu : une moitié reprend le plus
    souvent une valeur présente sur le tapis, l'autre apporte du matériel neuf, dont la
    taille suit la progression de la partie.
-5. Objectif : la tuile **2048**. La partie s'arrête quand il ne reste plus deux cases
+6. Objectif : la tuile **2048**. La partie s'arrête quand il ne reste plus deux cases
    voisines libres sur la grille 5×5.
 
 Le score augmente de la valeur de chaque fusion ; le record est conservé dans le
