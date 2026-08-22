@@ -27,9 +27,10 @@ Ouvre `index.html` dans un navigateur. C'est tout.
    continue. À hauteur égale le jeu prend le meilleur score, puis le plus grand nombre de
    fusions ; le reste ne règle que l'ordre d'affichage. L'aperçu cercle en laiton les
    tuiles qui vont fusionner avec la pose.
-5. **Le talon** contient des numéros réellement en jeu : une moitié reprend le plus
-   souvent une valeur présente sur le tapis, l'autre apporte du matériel neuf, dont la
-   taille suit la progression de la partie.
+5. **Le talon** ne contient que des **2, 4, 8 et 16**, et un numéro n'en sort qu'une fois
+   *débloqué* : la partie commence avec des 2 seulement, le 4 devient distribuable dès
+   qu'une fusion en a fabriqué un, puis le 8, puis le 16. Au-delà de 16, les grosses tuiles
+   ne s'obtiennent plus qu'en fusionnant. Chaque numéro débloqué a la même chance de sortir.
 6. Objectif : la tuile **2048**. La partie s'arrête quand il ne reste plus deux cases
    voisines libres sur la grille 5×5.
 
