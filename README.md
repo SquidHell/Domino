@@ -48,3 +48,23 @@ et un interstitiel entre deux parties, plafonné.
 Le jeu de ce dépôt ne contient aucun code publicitaire : il expose seulement
 `window.Domino.setAdProvider()`, et sans régie branchée aucun bouton de bonus n'apparaît.
 Voir `y8/README.md`.
+
+## Mesurer l'équilibrage
+
+`tools/simulate.mjs` rejoue le jeu sans navigateur : le moteur de fusion n'est pas
+réécrit, ses fonctions sont **extraites telles quelles de `index.html`**, seule la coque
+(talon, pose, boucle de tour) est rejouée. Une partie prend quelques dizaines de
+millisecondes au lieu de plusieurs minutes dans le navigateur.
+
+```sh
+node tools/verify-sim.mjs 3 22    # prouve la fidélité du simulateur
+node tools/stats.mjs 120          # 120 parties par profil de joueur
+```
+
+`tools/verify-sim.mjs` injecte le **même générateur pseudo-aléatoire** dans le simulateur
+et dans le vrai jeu, applique la même politique de pose, et compare le tapis case par case
+et le score après chaque tour : toute divergence sort en erreur. C'est ce qui rend les
+statistiques opposables.
+
+Quatre profils de joueur sont simulés, du plus négligent (`naive`) au plus fort
+(`expert`, qui joue avec deux coups d'avance en exploitant l'aperçu du domino suivant).

@@ -1,0 +1,4866 @@
+{
+ "naive": {
+  "desc": "pose sans réfléchir — première case libre venue",
+  "runs": [
+   {
+    "maxTile": 128,
+    "peak": 128,
+    "score": 704,
+    "turns": 28,
+    "merges": 35,
+    "cascades": 10,
+    "tilesLeft": 21,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 64,
+    "peak": 64,
+    "score": 568,
+    "turns": 27,
+    "merges": 32,
+    "cascades": 7,
+    "tilesLeft": 22,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 32,
+    "peak": 32,
+    "score": 172,
+    "turns": 17,
+    "merges": 13,
+    "cascades": 4,
+    "tilesLeft": 21,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 64,
+    "peak": 64,
+    "score": 324,
+    "turns": 17,
+    "merges": 18,
+    "cascades": 5,
+    "tilesLeft": 16,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 64,
+    "peak": 64,
+    "score": 520,
+    "turns": 24,
+    "merges": 29,
+    "cascades": 8,
+    "tilesLeft": 19,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 64,
+    "peak": 64,
+    "score": 348,
+    "turns": 20,
+    "merges": 20,
+    "cascades": 5,
+    "tilesLeft": 20,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 128,
+    "peak": 128,
+    "score": 672,
+    "turns": 26,
+    "merges": 33,
+    "cascades": 8,
+    "tilesLeft": 19,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 32,
+    "peak": 32,
+    "score": 200,
+    "turns": 18,
+    "merges": 16,
+    "cascades": 4,
+    "tilesLeft": 20,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 64,
+    "peak": 64,
+    "score": 612,
+    "turns": 27,
+    "merges": 35,
+    "cascades": 11,
+    "tilesLeft": 19,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 64,
+    "peak": 64,
+    "score": 412,
+    "turns": 24,
+    "merges": 28,
+    "cascades": 7,
+    "tilesLeft": 20,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 128,
+    "peak": 128,
+    "score": 856,
+    "turns": 29,
+    "merges": 39,
+    "cascades": 8,
+    "tilesLeft": 19,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 64,
+    "peak": 64,
+    "score": 428,
+    "turns": 22,
+    "merges": 26,
+    "cascades": 8,
+    "tilesLeft": 18,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 128,
+    "peak": 128,
+    "score": 1520,
+    "turns": 44,
+    "merges": 71,
+    "cascades": 24,
+    "tilesLeft": 17,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 64,
+    "peak": 64,
+    "score": 460,
+    "turns": 23,
+    "merges": 26,
+    "cascades": 8,
+    "tilesLeft": 20,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 64,
+    "peak": 64,
+    "score": 548,
+    "turns": 28,
+    "merges": 33,
+    "cascades": 10,
+    "tilesLeft": 23,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 64,
+    "peak": 64,
+    "score": 484,
+    "turns": 22,
+    "merges": 25,
+    "cascades": 8,
+    "tilesLeft": 19,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 64,
+    "peak": 64,
+    "score": 300,
+    "turns": 22,
+    "merges": 22,
+    "cascades": 6,
+    "tilesLeft": 22,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 64,
+    "peak": 64,
+    "score": 544,
+    "turns": 25,
+    "merges": 27,
+    "cascades": 8,
+    "tilesLeft": 23,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 32,
+    "peak": 32,
+    "score": 120,
+    "turns": 14,
+    "merges": 11,
+    "cascades": 4,
+    "tilesLeft": 17,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 32,
+    "peak": 32,
+    "score": 156,
+    "turns": 18,
+    "merges": 17,
+    "cascades": 6,
+    "tilesLeft": 19,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 32,
+    "peak": 32,
+    "score": 220,
+    "turns": 18,
+    "merges": 17,
+    "cascades": 3,
+    "tilesLeft": 19,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 32,
+    "peak": 32,
+    "score": 172,
+    "turns": 19,
+    "merges": 18,
+    "cascades": 4,
+    "tilesLeft": 20,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 64,
+    "peak": 64,
+    "score": 364,
+    "turns": 19,
+    "merges": 17,
+    "cascades": 5,
+    "tilesLeft": 21,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 128,
+    "peak": 128,
+    "score": 1076,
+    "turns": 31,
+    "merges": 43,
+    "cascades": 12,
+    "tilesLeft": 19,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 64,
+    "peak": 64,
+    "score": 268,
+    "turns": 20,
+    "merges": 20,
+    "cascades": 6,
+    "tilesLeft": 20,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 64,
+    "peak": 64,
+    "score": 564,
+    "turns": 24,
+    "merges": 29,
+    "cascades": 9,
+    "tilesLeft": 19,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 128,
+    "peak": 128,
+    "score": 1036,
+    "turns": 37,
+    "merges": 55,
+    "cascades": 15,
+    "tilesLeft": 19,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 64,
+    "peak": 64,
+    "score": 656,
+    "turns": 26,
+    "merges": 32,
+    "cascades": 8,
+    "tilesLeft": 20,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 64,
+    "peak": 64,
+    "score": 532,
+    "turns": 26,
+    "merges": 32,
+    "cascades": 9,
+    "tilesLeft": 20,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 128,
+    "peak": 128,
+    "score": 576,
+    "turns": 20,
+    "merges": 22,
+    "cascades": 7,
+    "tilesLeft": 18,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 128,
+    "peak": 128,
+    "score": 920,
+    "turns": 28,
+    "merges": 37,
+    "cascades": 13,
+    "tilesLeft": 19,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 64,
+    "peak": 64,
+    "score": 664,
+    "turns": 25,
+    "merges": 32,
+    "cascades": 7,
+    "tilesLeft": 18,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 128,
+    "peak": 128,
+    "score": 940,
+    "turns": 29,
+    "merges": 40,
+    "cascades": 11,
+    "tilesLeft": 18,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 64,
+    "peak": 64,
+    "score": 620,
+    "turns": 30,
+    "merges": 37,
+    "cascades": 12,
+    "tilesLeft": 23,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 32,
+    "peak": 32,
+    "score": 172,
+    "turns": 18,
+    "merges": 16,
+    "cascades": 4,
+    "tilesLeft": 20,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 64,
+    "peak": 64,
+    "score": 376,
+    "turns": 21,
+    "merges": 25,
+    "cascades": 7,
+    "tilesLeft": 17,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 64,
+    "peak": 64,
+    "score": 348,
+    "turns": 19,
+    "merges": 18,
+    "cascades": 6,
+    "tilesLeft": 20,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 128,
+    "peak": 128,
+    "score": 1084,
+    "turns": 30,
+    "merges": 41,
+    "cascades": 12,
+    "tilesLeft": 19,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 128,
+    "peak": 128,
+    "score": 1044,
+    "turns": 32,
+    "merges": 45,
+    "cascades": 12,
+    "tilesLeft": 19,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 64,
+    "peak": 64,
+    "score": 640,
+    "turns": 27,
+    "merges": 38,
+    "cascades": 11,
+    "tilesLeft": 16,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 32,
+    "peak": 32,
+    "score": 192,
+    "turns": 18,
+    "merges": 16,
+    "cascades": 5,
+    "tilesLeft": 20,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 64,
+    "peak": 64,
+    "score": 416,
+    "turns": 24,
+    "merges": 27,
+    "cascades": 9,
+    "tilesLeft": 21,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 64,
+    "peak": 64,
+    "score": 508,
+    "turns": 24,
+    "merges": 26,
+    "cascades": 7,
+    "tilesLeft": 22,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 64,
+    "peak": 64,
+    "score": 736,
+    "turns": 28,
+    "merges": 39,
+    "cascades": 13,
+    "tilesLeft": 17,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 64,
+    "peak": 64,
+    "score": 348,
+    "turns": 21,
+    "merges": 22,
+    "cascades": 7,
+    "tilesLeft": 20,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 64,
+    "peak": 64,
+    "score": 228,
+    "turns": 18,
+    "merges": 13,
+    "cascades": 3,
+    "tilesLeft": 23,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 64,
+    "peak": 64,
+    "score": 580,
+    "turns": 27,
+    "merges": 33,
+    "cascades": 9,
+    "tilesLeft": 21,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 64,
+    "peak": 64,
+    "score": 292,
+    "turns": 19,
+    "merges": 20,
+    "cascades": 3,
+    "tilesLeft": 18,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 128,
+    "peak": 128,
+    "score": 812,
+    "turns": 28,
+    "merges": 37,
+    "cascades": 10,
+    "tilesLeft": 19,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 64,
+    "peak": 64,
+    "score": 544,
+    "turns": 27,
+    "merges": 32,
+    "cascades": 10,
+    "tilesLeft": 22,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 64,
+    "peak": 64,
+    "score": 280,
+    "turns": 18,
+    "merges": 18,
+    "cascades": 6,
+    "tilesLeft": 18,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 128,
+    "peak": 128,
+    "score": 824,
+    "turns": 29,
+    "merges": 38,
+    "cascades": 14,
+    "tilesLeft": 20,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 32,
+    "peak": 32,
+    "score": 68,
+    "turns": 14,
+    "merges": 6,
+    "cascades": 1,
+    "tilesLeft": 22,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 128,
+    "peak": 128,
+    "score": 816,
+    "turns": 29,
+    "merges": 38,
+    "cascades": 10,
+    "tilesLeft": 20,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 64,
+    "peak": 64,
+    "score": 548,
+    "turns": 26,
+    "merges": 34,
+    "cascades": 8,
+    "tilesLeft": 18,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 64,
+    "peak": 64,
+    "score": 444,
+    "turns": 24,
+    "merges": 25,
+    "cascades": 8,
+    "tilesLeft": 23,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 64,
+    "peak": 64,
+    "score": 720,
+    "turns": 29,
+    "merges": 38,
+    "cascades": 12,
+    "tilesLeft": 20,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 64,
+    "peak": 64,
+    "score": 388,
+    "turns": 23,
+    "merges": 24,
+    "cascades": 7,
+    "tilesLeft": 22,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 128,
+    "peak": 128,
+    "score": 884,
+    "turns": 29,
+    "merges": 39,
+    "cascades": 12,
+    "tilesLeft": 19,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 64,
+    "peak": 64,
+    "score": 356,
+    "turns": 19,
+    "merges": 16,
+    "cascades": 5,
+    "tilesLeft": 22,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 32,
+    "peak": 32,
+    "score": 112,
+    "turns": 14,
+    "merges": 9,
+    "cascades": 2,
+    "tilesLeft": 19,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 64,
+    "peak": 64,
+    "score": 344,
+    "turns": 22,
+    "merges": 24,
+    "cascades": 6,
+    "tilesLeft": 20,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 128,
+    "peak": 128,
+    "score": 752,
+    "turns": 26,
+    "merges": 34,
+    "cascades": 9,
+    "tilesLeft": 18,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 64,
+    "peak": 64,
+    "score": 356,
+    "turns": 22,
+    "merges": 24,
+    "cascades": 8,
+    "tilesLeft": 20,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 64,
+    "peak": 64,
+    "score": 560,
+    "turns": 25,
+    "merges": 30,
+    "cascades": 9,
+    "tilesLeft": 20,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 64,
+    "peak": 64,
+    "score": 576,
+    "turns": 26,
+    "merges": 33,
+    "cascades": 8,
+    "tilesLeft": 19,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 64,
+    "peak": 64,
+    "score": 252,
+    "turns": 17,
+    "merges": 15,
+    "cascades": 5,
+    "tilesLeft": 19,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 64,
+    "peak": 64,
+    "score": 380,
+    "turns": 22,
+    "merges": 22,
+    "cascades": 7,
+    "tilesLeft": 22,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 128,
+    "peak": 128,
+    "score": 968,
+    "turns": 30,
+    "merges": 42,
+    "cascades": 12,
+    "tilesLeft": 18,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 32,
+    "peak": 32,
+    "score": 128,
+    "turns": 18,
+    "merges": 13,
+    "cascades": 2,
+    "tilesLeft": 23,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 64,
+    "peak": 64,
+    "score": 372,
+    "turns": 20,
+    "merges": 23,
+    "cascades": 7,
+    "tilesLeft": 17,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 128,
+    "peak": 128,
+    "score": 1276,
+    "turns": 38,
+    "merges": 56,
+    "cascades": 14,
+    "tilesLeft": 20,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 64,
+    "peak": 64,
+    "score": 772,
+    "turns": 29,
+    "merges": 37,
+    "cascades": 10,
+    "tilesLeft": 21,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 64,
+    "peak": 64,
+    "score": 388,
+    "turns": 23,
+    "merges": 26,
+    "cascades": 8,
+    "tilesLeft": 20,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 64,
+    "peak": 64,
+    "score": 784,
+    "turns": 31,
+    "merges": 43,
+    "cascades": 13,
+    "tilesLeft": 19,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 64,
+    "peak": 64,
+    "score": 388,
+    "turns": 22,
+    "merges": 23,
+    "cascades": 7,
+    "tilesLeft": 21,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 64,
+    "peak": 64,
+    "score": 424,
+    "turns": 25,
+    "merges": 30,
+    "cascades": 11,
+    "tilesLeft": 20,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 32,
+    "peak": 32,
+    "score": 136,
+    "turns": 15,
+    "merges": 12,
+    "cascades": 4,
+    "tilesLeft": 18,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 32,
+    "peak": 32,
+    "score": 148,
+    "turns": 17,
+    "merges": 14,
+    "cascades": 4,
+    "tilesLeft": 20,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 128,
+    "peak": 128,
+    "score": 584,
+    "turns": 24,
+    "merges": 26,
+    "cascades": 8,
+    "tilesLeft": 22,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 64,
+    "peak": 64,
+    "score": 640,
+    "turns": 27,
+    "merges": 34,
+    "cascades": 11,
+    "tilesLeft": 20,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 128,
+    "peak": 128,
+    "score": 740,
+    "turns": 26,
+    "merges": 33,
+    "cascades": 10,
+    "tilesLeft": 19,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 64,
+    "peak": 64,
+    "score": 304,
+    "turns": 19,
+    "merges": 20,
+    "cascades": 7,
+    "tilesLeft": 18,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 64,
+    "peak": 64,
+    "score": 324,
+    "turns": 20,
+    "merges": 19,
+    "cascades": 6,
+    "tilesLeft": 21,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 64,
+    "peak": 64,
+    "score": 472,
+    "turns": 21,
+    "merges": 24,
+    "cascades": 6,
+    "tilesLeft": 18,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 64,
+    "peak": 64,
+    "score": 380,
+    "turns": 21,
+    "merges": 25,
+    "cascades": 6,
+    "tilesLeft": 17,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 64,
+    "peak": 64,
+    "score": 404,
+    "turns": 22,
+    "merges": 24,
+    "cascades": 7,
+    "tilesLeft": 20,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 64,
+    "peak": 64,
+    "score": 452,
+    "turns": 23,
+    "merges": 26,
+    "cascades": 9,
+    "tilesLeft": 20,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 32,
+    "peak": 32,
+    "score": 112,
+    "turns": 15,
+    "merges": 9,
+    "cascades": 3,
+    "tilesLeft": 21,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 64,
+    "peak": 64,
+    "score": 360,
+    "turns": 21,
+    "merges": 22,
+    "cascades": 6,
+    "tilesLeft": 20,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 128,
+    "peak": 128,
+    "score": 1152,
+    "turns": 31,
+    "merges": 42,
+    "cascades": 11,
+    "tilesLeft": 20,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 64,
+    "peak": 64,
+    "score": 436,
+    "turns": 19,
+    "merges": 19,
+    "cascades": 5,
+    "tilesLeft": 19,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 64,
+    "peak": 64,
+    "score": 436,
+    "turns": 20,
+    "merges": 23,
+    "cascades": 8,
+    "tilesLeft": 17,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 64,
+    "peak": 64,
+    "score": 320,
+    "turns": 21,
+    "merges": 22,
+    "cascades": 5,
+    "tilesLeft": 20,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 64,
+    "peak": 64,
+    "score": 552,
+    "turns": 26,
+    "merges": 32,
+    "cascades": 10,
+    "tilesLeft": 20,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 64,
+    "peak": 64,
+    "score": 228,
+    "turns": 17,
+    "merges": 14,
+    "cascades": 4,
+    "tilesLeft": 20,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 128,
+    "peak": 128,
+    "score": 696,
+    "turns": 27,
+    "merges": 32,
+    "cascades": 10,
+    "tilesLeft": 22,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 64,
+    "peak": 64,
+    "score": 736,
+    "turns": 30,
+    "merges": 40,
+    "cascades": 12,
+    "tilesLeft": 20,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 128,
+    "peak": 128,
+    "score": 820,
+    "turns": 28,
+    "merges": 37,
+    "cascades": 12,
+    "tilesLeft": 19,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 64,
+    "peak": 64,
+    "score": 364,
+    "turns": 22,
+    "merges": 24,
+    "cascades": 7,
+    "tilesLeft": 20,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 32,
+    "peak": 32,
+    "score": 204,
+    "turns": 20,
+    "merges": 19,
+    "cascades": 5,
+    "tilesLeft": 21,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 64,
+    "peak": 64,
+    "score": 292,
+    "turns": 17,
+    "merges": 16,
+    "cascades": 5,
+    "tilesLeft": 18,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 64,
+    "peak": 64,
+    "score": 816,
+    "turns": 35,
+    "merges": 49,
+    "cascades": 16,
+    "tilesLeft": 21,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 128,
+    "peak": 128,
+    "score": 740,
+    "turns": 27,
+    "merges": 33,
+    "cascades": 10,
+    "tilesLeft": 21,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 128,
+    "peak": 128,
+    "score": 920,
+    "turns": 29,
+    "merges": 40,
+    "cascades": 13,
+    "tilesLeft": 18,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 64,
+    "peak": 64,
+    "score": 452,
+    "turns": 24,
+    "merges": 30,
+    "cascades": 9,
+    "tilesLeft": 18,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 128,
+    "peak": 128,
+    "score": 1068,
+    "turns": 31,
+    "merges": 42,
+    "cascades": 15,
+    "tilesLeft": 20,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 128,
+    "peak": 128,
+    "score": 980,
+    "turns": 35,
+    "merges": 48,
+    "cascades": 13,
+    "tilesLeft": 22,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 32,
+    "peak": 32,
+    "score": 112,
+    "turns": 15,
+    "merges": 10,
+    "cascades": 2,
+    "tilesLeft": 20,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 64,
+    "peak": 64,
+    "score": 404,
+    "turns": 22,
+    "merges": 26,
+    "cascades": 8,
+    "tilesLeft": 18,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 64,
+    "peak": 64,
+    "score": 404,
+    "turns": 23,
+    "merges": 27,
+    "cascades": 9,
+    "tilesLeft": 19,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 64,
+    "peak": 64,
+    "score": 344,
+    "turns": 19,
+    "merges": 22,
+    "cascades": 6,
+    "tilesLeft": 16,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 64,
+    "peak": 64,
+    "score": 324,
+    "turns": 19,
+    "merges": 16,
+    "cascades": 3,
+    "tilesLeft": 22,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 64,
+    "peak": 64,
+    "score": 680,
+    "turns": 27,
+    "merges": 34,
+    "cascades": 9,
+    "tilesLeft": 20,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 64,
+    "peak": 64,
+    "score": 548,
+    "turns": 23,
+    "merges": 28,
+    "cascades": 9,
+    "tilesLeft": 18,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 64,
+    "peak": 64,
+    "score": 716,
+    "turns": 27,
+    "merges": 35,
+    "cascades": 11,
+    "tilesLeft": 19,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 128,
+    "peak": 128,
+    "score": 1000,
+    "turns": 32,
+    "merges": 43,
+    "cascades": 15,
+    "tilesLeft": 21,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 128,
+    "peak": 128,
+    "score": 1024,
+    "turns": 36,
+    "merges": 51,
+    "cascades": 14,
+    "tilesLeft": 21,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 64,
+    "peak": 64,
+    "score": 312,
+    "turns": 19,
+    "merges": 18,
+    "cascades": 5,
+    "tilesLeft": 20,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 128,
+    "peak": 128,
+    "score": 912,
+    "turns": 32,
+    "merges": 43,
+    "cascades": 10,
+    "tilesLeft": 21,
+    "unlocked": 16
+   }
+  ],
+  "dist": {
+   "32": 16,
+   "64": 74,
+   "128": 30
+  },
+  "moyenne": 75.73333333333333,
+  "mediane": 64,
+  "record": 128,
+  "geo": 69.39051969929076,
+  "score": 534.0333333333333,
+  "tours": 24.016666666666666
+ },
+ "greedy": {
+  "desc": "cherche la fusion immédiate la plus grosse",
+  "runs": [
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 3484,
+    "turns": 71,
+    "merges": 125,
+    "cascades": 40,
+    "tilesLeft": 17,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 128,
+    "peak": 128,
+    "score": 2540,
+    "turns": 59,
+    "merges": 100,
+    "cascades": 33,
+    "tilesLeft": 18,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 128,
+    "peak": 128,
+    "score": 2424,
+    "turns": 60,
+    "merges": 101,
+    "cascades": 34,
+    "tilesLeft": 19,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 128,
+    "peak": 128,
+    "score": 1692,
+    "turns": 46,
+    "merges": 72,
+    "cascades": 24,
+    "tilesLeft": 20,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 2920,
+    "turns": 62,
+    "merges": 106,
+    "cascades": 32,
+    "tilesLeft": 18,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 2164,
+    "turns": 48,
+    "merges": 79,
+    "cascades": 26,
+    "tilesLeft": 17,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 128,
+    "peak": 128,
+    "score": 1556,
+    "turns": 46,
+    "merges": 72,
+    "cascades": 26,
+    "tilesLeft": 20,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 3808,
+    "turns": 70,
+    "merges": 122,
+    "cascades": 35,
+    "tilesLeft": 18,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 3208,
+    "turns": 70,
+    "merges": 123,
+    "cascades": 34,
+    "tilesLeft": 17,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 128,
+    "peak": 128,
+    "score": 1840,
+    "turns": 49,
+    "merges": 81,
+    "cascades": 27,
+    "tilesLeft": 17,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 2536,
+    "turns": 54,
+    "merges": 90,
+    "cascades": 31,
+    "tilesLeft": 18,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 3048,
+    "turns": 67,
+    "merges": 114,
+    "cascades": 35,
+    "tilesLeft": 20,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 128,
+    "peak": 128,
+    "score": 2028,
+    "turns": 53,
+    "merges": 89,
+    "cascades": 31,
+    "tilesLeft": 17,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 2836,
+    "turns": 60,
+    "merges": 102,
+    "cascades": 34,
+    "tilesLeft": 18,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 2368,
+    "turns": 48,
+    "merges": 82,
+    "cascades": 26,
+    "tilesLeft": 14,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 3180,
+    "turns": 64,
+    "merges": 108,
+    "cascades": 34,
+    "tilesLeft": 20,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 2744,
+    "turns": 53,
+    "merges": 87,
+    "cascades": 28,
+    "tilesLeft": 19,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 512,
+    "peak": 512,
+    "score": 4448,
+    "turns": 74,
+    "merges": 131,
+    "cascades": 42,
+    "tilesLeft": 17,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 128,
+    "peak": 128,
+    "score": 2304,
+    "turns": 60,
+    "merges": 98,
+    "cascades": 33,
+    "tilesLeft": 22,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 2732,
+    "turns": 58,
+    "merges": 97,
+    "cascades": 30,
+    "tilesLeft": 19,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 3420,
+    "turns": 63,
+    "merges": 111,
+    "cascades": 35,
+    "tilesLeft": 15,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 3492,
+    "turns": 63,
+    "merges": 109,
+    "cascades": 38,
+    "tilesLeft": 17,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 512,
+    "peak": 512,
+    "score": 5540,
+    "turns": 90,
+    "merges": 162,
+    "cascades": 51,
+    "tilesLeft": 18,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 128,
+    "peak": 128,
+    "score": 1648,
+    "turns": 48,
+    "merges": 78,
+    "cascades": 24,
+    "tilesLeft": 18,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 2652,
+    "turns": 60,
+    "merges": 99,
+    "cascades": 34,
+    "tilesLeft": 21,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 3468,
+    "turns": 69,
+    "merges": 119,
+    "cascades": 39,
+    "tilesLeft": 19,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 2796,
+    "turns": 59,
+    "merges": 99,
+    "cascades": 28,
+    "tilesLeft": 19,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 128,
+    "peak": 128,
+    "score": 1916,
+    "turns": 48,
+    "merges": 78,
+    "cascades": 25,
+    "tilesLeft": 18,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 128,
+    "peak": 128,
+    "score": 2276,
+    "turns": 58,
+    "merges": 98,
+    "cascades": 29,
+    "tilesLeft": 18,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 128,
+    "peak": 128,
+    "score": 1164,
+    "turns": 34,
+    "merges": 49,
+    "cascades": 15,
+    "tilesLeft": 19,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 2908,
+    "turns": 62,
+    "merges": 104,
+    "cascades": 29,
+    "tilesLeft": 20,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 128,
+    "peak": 128,
+    "score": 2136,
+    "turns": 52,
+    "merges": 89,
+    "cascades": 27,
+    "tilesLeft": 15,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 128,
+    "peak": 128,
+    "score": 2488,
+    "turns": 56,
+    "merges": 94,
+    "cascades": 34,
+    "tilesLeft": 18,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 128,
+    "peak": 128,
+    "score": 2160,
+    "turns": 52,
+    "merges": 85,
+    "cascades": 28,
+    "tilesLeft": 19,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 128,
+    "peak": 128,
+    "score": 2136,
+    "turns": 50,
+    "merges": 83,
+    "cascades": 27,
+    "tilesLeft": 17,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 128,
+    "peak": 128,
+    "score": 2780,
+    "turns": 62,
+    "merges": 106,
+    "cascades": 32,
+    "tilesLeft": 18,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 128,
+    "peak": 128,
+    "score": 2208,
+    "turns": 51,
+    "merges": 84,
+    "cascades": 27,
+    "tilesLeft": 18,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 3376,
+    "turns": 72,
+    "merges": 125,
+    "cascades": 38,
+    "tilesLeft": 19,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 3236,
+    "turns": 69,
+    "merges": 120,
+    "cascades": 42,
+    "tilesLeft": 18,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 128,
+    "peak": 128,
+    "score": 2084,
+    "turns": 52,
+    "merges": 84,
+    "cascades": 26,
+    "tilesLeft": 20,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 128,
+    "peak": 128,
+    "score": 2360,
+    "turns": 57,
+    "merges": 96,
+    "cascades": 33,
+    "tilesLeft": 18,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 2932,
+    "turns": 61,
+    "merges": 104,
+    "cascades": 36,
+    "tilesLeft": 18,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 128,
+    "peak": 128,
+    "score": 2328,
+    "turns": 55,
+    "merges": 93,
+    "cascades": 31,
+    "tilesLeft": 17,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 2032,
+    "turns": 47,
+    "merges": 76,
+    "cascades": 24,
+    "tilesLeft": 18,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 128,
+    "peak": 128,
+    "score": 1868,
+    "turns": 47,
+    "merges": 78,
+    "cascades": 23,
+    "tilesLeft": 16,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 2596,
+    "turns": 54,
+    "merges": 92,
+    "cascades": 31,
+    "tilesLeft": 16,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 128,
+    "peak": 128,
+    "score": 1632,
+    "turns": 40,
+    "merges": 64,
+    "cascades": 21,
+    "tilesLeft": 16,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 128,
+    "peak": 128,
+    "score": 2288,
+    "turns": 61,
+    "merges": 105,
+    "cascades": 36,
+    "tilesLeft": 17,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 2948,
+    "turns": 61,
+    "merges": 104,
+    "cascades": 33,
+    "tilesLeft": 18,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 2656,
+    "turns": 59,
+    "merges": 102,
+    "cascades": 33,
+    "tilesLeft": 16,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 2624,
+    "turns": 59,
+    "merges": 100,
+    "cascades": 34,
+    "tilesLeft": 18,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 2712,
+    "turns": 61,
+    "merges": 102,
+    "cascades": 30,
+    "tilesLeft": 20,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 3324,
+    "turns": 68,
+    "merges": 116,
+    "cascades": 41,
+    "tilesLeft": 20,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 3000,
+    "turns": 60,
+    "merges": 103,
+    "cascades": 33,
+    "tilesLeft": 17,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 2600,
+    "turns": 59,
+    "merges": 100,
+    "cascades": 33,
+    "tilesLeft": 18,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 3028,
+    "turns": 67,
+    "merges": 116,
+    "cascades": 39,
+    "tilesLeft": 18,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 3656,
+    "turns": 74,
+    "merges": 129,
+    "cascades": 39,
+    "tilesLeft": 19,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 3348,
+    "turns": 75,
+    "merges": 129,
+    "cascades": 40,
+    "tilesLeft": 21,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 128,
+    "peak": 128,
+    "score": 2120,
+    "turns": 51,
+    "merges": 83,
+    "cascades": 22,
+    "tilesLeft": 19,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 3048,
+    "turns": 64,
+    "merges": 110,
+    "cascades": 36,
+    "tilesLeft": 18,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 2468,
+    "turns": 52,
+    "merges": 87,
+    "cascades": 28,
+    "tilesLeft": 17,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 2924,
+    "turns": 62,
+    "merges": 104,
+    "cascades": 32,
+    "tilesLeft": 20,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 2860,
+    "turns": 65,
+    "merges": 108,
+    "cascades": 38,
+    "tilesLeft": 22,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 2940,
+    "turns": 60,
+    "merges": 102,
+    "cascades": 31,
+    "tilesLeft": 18,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 2508,
+    "turns": 55,
+    "merges": 92,
+    "cascades": 26,
+    "tilesLeft": 18,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 3756,
+    "turns": 70,
+    "merges": 122,
+    "cascades": 40,
+    "tilesLeft": 18,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 128,
+    "peak": 128,
+    "score": 2100,
+    "turns": 48,
+    "merges": 79,
+    "cascades": 25,
+    "tilesLeft": 17,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 128,
+    "peak": 128,
+    "score": 2080,
+    "turns": 52,
+    "merges": 88,
+    "cascades": 28,
+    "tilesLeft": 16,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 3096,
+    "turns": 61,
+    "merges": 106,
+    "cascades": 34,
+    "tilesLeft": 16,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 128,
+    "peak": 128,
+    "score": 2388,
+    "turns": 59,
+    "merges": 99,
+    "cascades": 34,
+    "tilesLeft": 19,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 2768,
+    "turns": 60,
+    "merges": 101,
+    "cascades": 33,
+    "tilesLeft": 19,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 2544,
+    "turns": 56,
+    "merges": 96,
+    "cascades": 30,
+    "tilesLeft": 16,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 3412,
+    "turns": 71,
+    "merges": 122,
+    "cascades": 35,
+    "tilesLeft": 20,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 2868,
+    "turns": 56,
+    "merges": 96,
+    "cascades": 26,
+    "tilesLeft": 16,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 3292,
+    "turns": 68,
+    "merges": 117,
+    "cascades": 38,
+    "tilesLeft": 19,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 128,
+    "peak": 128,
+    "score": 1944,
+    "turns": 51,
+    "merges": 84,
+    "cascades": 28,
+    "tilesLeft": 18,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 128,
+    "peak": 128,
+    "score": 2268,
+    "turns": 56,
+    "merges": 93,
+    "cascades": 33,
+    "tilesLeft": 19,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 128,
+    "peak": 128,
+    "score": 2304,
+    "turns": 50,
+    "merges": 85,
+    "cascades": 28,
+    "tilesLeft": 15,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 2780,
+    "turns": 56,
+    "merges": 93,
+    "cascades": 31,
+    "tilesLeft": 19,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 4480,
+    "turns": 74,
+    "merges": 130,
+    "cascades": 39,
+    "tilesLeft": 18,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 4056,
+    "turns": 74,
+    "merges": 130,
+    "cascades": 42,
+    "tilesLeft": 18,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 4032,
+    "turns": 71,
+    "merges": 126,
+    "cascades": 39,
+    "tilesLeft": 16,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 128,
+    "peak": 128,
+    "score": 1988,
+    "turns": 53,
+    "merges": 87,
+    "cascades": 29,
+    "tilesLeft": 19,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 2876,
+    "turns": 64,
+    "merges": 108,
+    "cascades": 34,
+    "tilesLeft": 20,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 4120,
+    "turns": 76,
+    "merges": 132,
+    "cascades": 41,
+    "tilesLeft": 20,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 2784,
+    "turns": 64,
+    "merges": 109,
+    "cascades": 34,
+    "tilesLeft": 19,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 2536,
+    "turns": 52,
+    "merges": 89,
+    "cascades": 28,
+    "tilesLeft": 15,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 3168,
+    "turns": 66,
+    "merges": 112,
+    "cascades": 37,
+    "tilesLeft": 20,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 3292,
+    "turns": 72,
+    "merges": 126,
+    "cascades": 40,
+    "tilesLeft": 18,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 128,
+    "peak": 128,
+    "score": 1652,
+    "turns": 43,
+    "merges": 68,
+    "cascades": 23,
+    "tilesLeft": 18,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 2852,
+    "turns": 64,
+    "merges": 110,
+    "cascades": 34,
+    "tilesLeft": 18,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 128,
+    "peak": 128,
+    "score": 1860,
+    "turns": 52,
+    "merges": 85,
+    "cascades": 26,
+    "tilesLeft": 19,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 3172,
+    "turns": 66,
+    "merges": 113,
+    "cascades": 32,
+    "tilesLeft": 19,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 3020,
+    "turns": 64,
+    "merges": 106,
+    "cascades": 32,
+    "tilesLeft": 22,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 128,
+    "peak": 128,
+    "score": 2012,
+    "turns": 43,
+    "merges": 69,
+    "cascades": 19,
+    "tilesLeft": 17,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 3444,
+    "turns": 68,
+    "merges": 117,
+    "cascades": 38,
+    "tilesLeft": 19,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 128,
+    "peak": 128,
+    "score": 1908,
+    "turns": 55,
+    "merges": 90,
+    "cascades": 28,
+    "tilesLeft": 20,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 128,
+    "peak": 128,
+    "score": 2320,
+    "turns": 55,
+    "merges": 91,
+    "cascades": 29,
+    "tilesLeft": 19,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 3116,
+    "turns": 60,
+    "merges": 104,
+    "cascades": 35,
+    "tilesLeft": 16,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 128,
+    "peak": 128,
+    "score": 1596,
+    "turns": 44,
+    "merges": 71,
+    "cascades": 23,
+    "tilesLeft": 17,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 2908,
+    "turns": 57,
+    "merges": 96,
+    "cascades": 31,
+    "tilesLeft": 18,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 3644,
+    "turns": 59,
+    "merges": 102,
+    "cascades": 28,
+    "tilesLeft": 16,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 3136,
+    "turns": 69,
+    "merges": 120,
+    "cascades": 37,
+    "tilesLeft": 18,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 3952,
+    "turns": 74,
+    "merges": 131,
+    "cascades": 40,
+    "tilesLeft": 17,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 128,
+    "peak": 128,
+    "score": 1888,
+    "turns": 45,
+    "merges": 71,
+    "cascades": 21,
+    "tilesLeft": 19,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 2704,
+    "turns": 58,
+    "merges": 97,
+    "cascades": 28,
+    "tilesLeft": 19,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 2488,
+    "turns": 53,
+    "merges": 89,
+    "cascades": 26,
+    "tilesLeft": 17,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 128,
+    "peak": 128,
+    "score": 1200,
+    "turns": 39,
+    "merges": 61,
+    "cascades": 18,
+    "tilesLeft": 17,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 128,
+    "peak": 128,
+    "score": 2652,
+    "turns": 59,
+    "merges": 101,
+    "cascades": 31,
+    "tilesLeft": 17,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 128,
+    "peak": 128,
+    "score": 1864,
+    "turns": 46,
+    "merges": 75,
+    "cascades": 22,
+    "tilesLeft": 17,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 2668,
+    "turns": 53,
+    "merges": 89,
+    "cascades": 32,
+    "tilesLeft": 17,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 128,
+    "peak": 128,
+    "score": 1976,
+    "turns": 52,
+    "merges": 86,
+    "cascades": 26,
+    "tilesLeft": 18,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 3108,
+    "turns": 66,
+    "merges": 113,
+    "cascades": 33,
+    "tilesLeft": 19,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 3836,
+    "turns": 71,
+    "merges": 123,
+    "cascades": 38,
+    "tilesLeft": 19,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 128,
+    "peak": 128,
+    "score": 2148,
+    "turns": 52,
+    "merges": 86,
+    "cascades": 32,
+    "tilesLeft": 18,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 128,
+    "peak": 128,
+    "score": 2324,
+    "turns": 53,
+    "merges": 88,
+    "cascades": 26,
+    "tilesLeft": 18,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 4228,
+    "turns": 79,
+    "merges": 137,
+    "cascades": 41,
+    "tilesLeft": 21,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 128,
+    "peak": 128,
+    "score": 1700,
+    "turns": 43,
+    "merges": 71,
+    "cascades": 23,
+    "tilesLeft": 15,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 128,
+    "peak": 128,
+    "score": 1716,
+    "turns": 44,
+    "merges": 68,
+    "cascades": 20,
+    "tilesLeft": 20,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 128,
+    "peak": 128,
+    "score": 1848,
+    "turns": 51,
+    "merges": 84,
+    "cascades": 26,
+    "tilesLeft": 18,
+    "unlocked": 16
+   }
+  ],
+  "dist": {
+   "128": 47,
+   "256": 71,
+   "512": 2
+  },
+  "moyenne": 210.13333333333333,
+  "mediane": 256,
+  "record": 512,
+  "geo": 197.40298565221644,
+  "score": 2703.4666666666667,
+  "tours": 58.608333333333334
+ },
+ "tactique": {
+  "desc": "fusionne, mais juge aussi le tapis qu'il laisse derrière",
+  "runs": [
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 3652,
+    "turns": 70,
+    "merges": 122,
+    "cascades": 39,
+    "tilesLeft": 18,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 3872,
+    "turns": 71,
+    "merges": 126,
+    "cascades": 40,
+    "tilesLeft": 16,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 3680,
+    "turns": 70,
+    "merges": 121,
+    "cascades": 39,
+    "tilesLeft": 19,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 128,
+    "peak": 128,
+    "score": 2624,
+    "turns": 60,
+    "merges": 103,
+    "cascades": 34,
+    "tilesLeft": 17,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 128,
+    "peak": 128,
+    "score": 2688,
+    "turns": 65,
+    "merges": 110,
+    "cascades": 34,
+    "tilesLeft": 20,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 3752,
+    "turns": 78,
+    "merges": 138,
+    "cascades": 44,
+    "tilesLeft": 18,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 128,
+    "peak": 128,
+    "score": 2520,
+    "turns": 63,
+    "merges": 108,
+    "cascades": 33,
+    "tilesLeft": 18,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 3676,
+    "turns": 82,
+    "merges": 145,
+    "cascades": 52,
+    "tilesLeft": 19,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 3552,
+    "turns": 68,
+    "merges": 118,
+    "cascades": 39,
+    "tilesLeft": 18,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 5020,
+    "turns": 94,
+    "merges": 170,
+    "cascades": 54,
+    "tilesLeft": 18,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 128,
+    "peak": 128,
+    "score": 2680,
+    "turns": 59,
+    "merges": 101,
+    "cascades": 33,
+    "tilesLeft": 17,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 3236,
+    "turns": 66,
+    "merges": 113,
+    "cascades": 39,
+    "tilesLeft": 19,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 2952,
+    "turns": 59,
+    "merges": 99,
+    "cascades": 31,
+    "tilesLeft": 19,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 2808,
+    "turns": 65,
+    "merges": 110,
+    "cascades": 37,
+    "tilesLeft": 20,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 4196,
+    "turns": 80,
+    "merges": 144,
+    "cascades": 40,
+    "tilesLeft": 16,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 128,
+    "peak": 128,
+    "score": 2704,
+    "turns": 61,
+    "merges": 103,
+    "cascades": 34,
+    "tilesLeft": 19,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 128,
+    "peak": 128,
+    "score": 2400,
+    "turns": 56,
+    "merges": 94,
+    "cascades": 29,
+    "tilesLeft": 18,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 3184,
+    "turns": 64,
+    "merges": 110,
+    "cascades": 34,
+    "tilesLeft": 18,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 128,
+    "peak": 128,
+    "score": 2476,
+    "turns": 59,
+    "merges": 98,
+    "cascades": 33,
+    "tilesLeft": 20,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 128,
+    "peak": 128,
+    "score": 3396,
+    "turns": 70,
+    "merges": 121,
+    "cascades": 36,
+    "tilesLeft": 19,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 128,
+    "peak": 128,
+    "score": 2268,
+    "turns": 57,
+    "merges": 93,
+    "cascades": 32,
+    "tilesLeft": 21,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 2848,
+    "turns": 58,
+    "merges": 99,
+    "cascades": 31,
+    "tilesLeft": 17,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 4204,
+    "turns": 82,
+    "merges": 145,
+    "cascades": 44,
+    "tilesLeft": 19,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 3396,
+    "turns": 73,
+    "merges": 129,
+    "cascades": 43,
+    "tilesLeft": 17,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 128,
+    "peak": 128,
+    "score": 2528,
+    "turns": 56,
+    "merges": 95,
+    "cascades": 33,
+    "tilesLeft": 17,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 4836,
+    "turns": 86,
+    "merges": 155,
+    "cascades": 47,
+    "tilesLeft": 17,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 4168,
+    "turns": 80,
+    "merges": 141,
+    "cascades": 49,
+    "tilesLeft": 19,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 4348,
+    "turns": 81,
+    "merges": 145,
+    "cascades": 44,
+    "tilesLeft": 17,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 3480,
+    "turns": 69,
+    "merges": 120,
+    "cascades": 42,
+    "tilesLeft": 18,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 128,
+    "peak": 128,
+    "score": 1656,
+    "turns": 50,
+    "merges": 81,
+    "cascades": 23,
+    "tilesLeft": 19,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 4672,
+    "turns": 87,
+    "merges": 154,
+    "cascades": 50,
+    "tilesLeft": 20,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 128,
+    "peak": 128,
+    "score": 3304,
+    "turns": 70,
+    "merges": 123,
+    "cascades": 38,
+    "tilesLeft": 17,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 512,
+    "peak": 512,
+    "score": 5984,
+    "turns": 94,
+    "merges": 170,
+    "cascades": 54,
+    "tilesLeft": 18,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 2696,
+    "turns": 57,
+    "merges": 96,
+    "cascades": 34,
+    "tilesLeft": 18,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 2840,
+    "turns": 59,
+    "merges": 100,
+    "cascades": 33,
+    "tilesLeft": 18,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 128,
+    "peak": 128,
+    "score": 3476,
+    "turns": 79,
+    "merges": 140,
+    "cascades": 42,
+    "tilesLeft": 18,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 3620,
+    "turns": 71,
+    "merges": 121,
+    "cascades": 41,
+    "tilesLeft": 21,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 3240,
+    "turns": 68,
+    "merges": 116,
+    "cascades": 37,
+    "tilesLeft": 20,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 3640,
+    "turns": 71,
+    "merges": 122,
+    "cascades": 38,
+    "tilesLeft": 20,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 128,
+    "peak": 128,
+    "score": 1652,
+    "turns": 41,
+    "merges": 67,
+    "cascades": 20,
+    "tilesLeft": 15,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 128,
+    "peak": 128,
+    "score": 2592,
+    "turns": 64,
+    "merges": 109,
+    "cascades": 31,
+    "tilesLeft": 19,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 5272,
+    "turns": 96,
+    "merges": 172,
+    "cascades": 53,
+    "tilesLeft": 20,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 4852,
+    "turns": 90,
+    "merges": 160,
+    "cascades": 51,
+    "tilesLeft": 20,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 128,
+    "peak": 128,
+    "score": 2464,
+    "turns": 52,
+    "merges": 87,
+    "cascades": 27,
+    "tilesLeft": 17,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 128,
+    "peak": 128,
+    "score": 1932,
+    "turns": 52,
+    "merges": 88,
+    "cascades": 29,
+    "tilesLeft": 16,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 128,
+    "peak": 128,
+    "score": 2756,
+    "turns": 66,
+    "merges": 114,
+    "cascades": 38,
+    "tilesLeft": 18,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 3680,
+    "turns": 74,
+    "merges": 131,
+    "cascades": 40,
+    "tilesLeft": 17,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 128,
+    "peak": 128,
+    "score": 2764,
+    "turns": 67,
+    "merges": 112,
+    "cascades": 39,
+    "tilesLeft": 22,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 3292,
+    "turns": 72,
+    "merges": 125,
+    "cascades": 41,
+    "tilesLeft": 19,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 128,
+    "peak": 128,
+    "score": 2884,
+    "turns": 70,
+    "merges": 122,
+    "cascades": 44,
+    "tilesLeft": 18,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 3336,
+    "turns": 74,
+    "merges": 128,
+    "cascades": 40,
+    "tilesLeft": 20,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 2684,
+    "turns": 62,
+    "merges": 103,
+    "cascades": 28,
+    "tilesLeft": 21,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 128,
+    "peak": 128,
+    "score": 2660,
+    "turns": 58,
+    "merges": 96,
+    "cascades": 30,
+    "tilesLeft": 20,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 3516,
+    "turns": 68,
+    "merges": 118,
+    "cascades": 35,
+    "tilesLeft": 18,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 128,
+    "peak": 128,
+    "score": 2952,
+    "turns": 66,
+    "merges": 113,
+    "cascades": 35,
+    "tilesLeft": 19,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 128,
+    "peak": 128,
+    "score": 2592,
+    "turns": 59,
+    "merges": 101,
+    "cascades": 30,
+    "tilesLeft": 17,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 5292,
+    "turns": 96,
+    "merges": 173,
+    "cascades": 56,
+    "tilesLeft": 19,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 4884,
+    "turns": 84,
+    "merges": 150,
+    "cascades": 47,
+    "tilesLeft": 18,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 4800,
+    "turns": 84,
+    "merges": 150,
+    "cascades": 44,
+    "tilesLeft": 18,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 2700,
+    "turns": 57,
+    "merges": 94,
+    "cascades": 28,
+    "tilesLeft": 20,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 128,
+    "peak": 128,
+    "score": 2636,
+    "turns": 60,
+    "merges": 102,
+    "cascades": 36,
+    "tilesLeft": 18,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 5080,
+    "turns": 97,
+    "merges": 175,
+    "cascades": 48,
+    "tilesLeft": 19,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 4456,
+    "turns": 79,
+    "merges": 143,
+    "cascades": 45,
+    "tilesLeft": 15,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 3448,
+    "turns": 65,
+    "merges": 112,
+    "cascades": 35,
+    "tilesLeft": 18,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 3120,
+    "turns": 62,
+    "merges": 107,
+    "cascades": 31,
+    "tilesLeft": 17,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 128,
+    "peak": 128,
+    "score": 1992,
+    "turns": 48,
+    "merges": 74,
+    "cascades": 22,
+    "tilesLeft": 22,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 3372,
+    "turns": 70,
+    "merges": 124,
+    "cascades": 43,
+    "tilesLeft": 16,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 128,
+    "peak": 128,
+    "score": 2292,
+    "turns": 55,
+    "merges": 93,
+    "cascades": 30,
+    "tilesLeft": 17,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 128,
+    "peak": 128,
+    "score": 1516,
+    "turns": 41,
+    "merges": 67,
+    "cascades": 23,
+    "tilesLeft": 15,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 3352,
+    "turns": 68,
+    "merges": 118,
+    "cascades": 38,
+    "tilesLeft": 18,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 3672,
+    "turns": 75,
+    "merges": 130,
+    "cascades": 41,
+    "tilesLeft": 20,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 4580,
+    "turns": 86,
+    "merges": 156,
+    "cascades": 48,
+    "tilesLeft": 16,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 2580,
+    "turns": 57,
+    "merges": 95,
+    "cascades": 32,
+    "tilesLeft": 19,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 2984,
+    "turns": 61,
+    "merges": 105,
+    "cascades": 32,
+    "tilesLeft": 17,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 128,
+    "peak": 128,
+    "score": 2300,
+    "turns": 65,
+    "merges": 110,
+    "cascades": 30,
+    "tilesLeft": 20,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 5224,
+    "turns": 92,
+    "merges": 164,
+    "cascades": 50,
+    "tilesLeft": 20,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 5164,
+    "turns": 93,
+    "merges": 169,
+    "cascades": 52,
+    "tilesLeft": 17,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 2976,
+    "turns": 60,
+    "merges": 101,
+    "cascades": 34,
+    "tilesLeft": 19,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 3440,
+    "turns": 68,
+    "merges": 122,
+    "cascades": 41,
+    "tilesLeft": 14,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 3784,
+    "turns": 68,
+    "merges": 119,
+    "cascades": 36,
+    "tilesLeft": 17,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 4848,
+    "turns": 78,
+    "merges": 139,
+    "cascades": 39,
+    "tilesLeft": 17,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 2932,
+    "turns": 62,
+    "merges": 104,
+    "cascades": 32,
+    "tilesLeft": 20,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 3548,
+    "turns": 69,
+    "merges": 120,
+    "cascades": 39,
+    "tilesLeft": 18,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 2848,
+    "turns": 58,
+    "merges": 98,
+    "cascades": 32,
+    "tilesLeft": 18,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 128,
+    "peak": 128,
+    "score": 1856,
+    "turns": 50,
+    "merges": 82,
+    "cascades": 27,
+    "tilesLeft": 18,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 4092,
+    "turns": 76,
+    "merges": 134,
+    "cascades": 41,
+    "tilesLeft": 18,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 128,
+    "peak": 128,
+    "score": 2908,
+    "turns": 66,
+    "merges": 114,
+    "cascades": 37,
+    "tilesLeft": 18,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 2948,
+    "turns": 61,
+    "merges": 104,
+    "cascades": 35,
+    "tilesLeft": 18,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 3012,
+    "turns": 60,
+    "merges": 104,
+    "cascades": 36,
+    "tilesLeft": 16,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 4504,
+    "turns": 82,
+    "merges": 144,
+    "cascades": 47,
+    "tilesLeft": 20,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 128,
+    "peak": 128,
+    "score": 1560,
+    "turns": 46,
+    "merges": 73,
+    "cascades": 25,
+    "tilesLeft": 19,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 3584,
+    "turns": 65,
+    "merges": 114,
+    "cascades": 34,
+    "tilesLeft": 16,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 4024,
+    "turns": 84,
+    "merges": 150,
+    "cascades": 45,
+    "tilesLeft": 18,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 3328,
+    "turns": 70,
+    "merges": 122,
+    "cascades": 38,
+    "tilesLeft": 18,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 128,
+    "peak": 128,
+    "score": 2552,
+    "turns": 55,
+    "merges": 92,
+    "cascades": 30,
+    "tilesLeft": 18,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 3636,
+    "turns": 72,
+    "merges": 126,
+    "cascades": 39,
+    "tilesLeft": 18,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 128,
+    "peak": 128,
+    "score": 2828,
+    "turns": 64,
+    "merges": 110,
+    "cascades": 37,
+    "tilesLeft": 18,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 3956,
+    "turns": 70,
+    "merges": 125,
+    "cascades": 36,
+    "tilesLeft": 15,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 128,
+    "peak": 128,
+    "score": 1676,
+    "turns": 43,
+    "merges": 65,
+    "cascades": 21,
+    "tilesLeft": 21,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 128,
+    "peak": 128,
+    "score": 2684,
+    "turns": 61,
+    "merges": 103,
+    "cascades": 30,
+    "tilesLeft": 19,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 128,
+    "peak": 128,
+    "score": 1912,
+    "turns": 52,
+    "merges": 86,
+    "cascades": 28,
+    "tilesLeft": 18,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 2720,
+    "turns": 60,
+    "merges": 100,
+    "cascades": 34,
+    "tilesLeft": 20,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 5788,
+    "turns": 98,
+    "merges": 177,
+    "cascades": 52,
+    "tilesLeft": 19,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 3648,
+    "turns": 69,
+    "merges": 123,
+    "cascades": 36,
+    "tilesLeft": 15,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 128,
+    "peak": 128,
+    "score": 2436,
+    "turns": 56,
+    "merges": 91,
+    "cascades": 29,
+    "tilesLeft": 21,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 3952,
+    "turns": 77,
+    "merges": 135,
+    "cascades": 45,
+    "tilesLeft": 19,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 4248,
+    "turns": 82,
+    "merges": 145,
+    "cascades": 45,
+    "tilesLeft": 19,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 3652,
+    "turns": 70,
+    "merges": 122,
+    "cascades": 42,
+    "tilesLeft": 18,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 2616,
+    "turns": 53,
+    "merges": 88,
+    "cascades": 24,
+    "tilesLeft": 18,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 128,
+    "peak": 128,
+    "score": 2412,
+    "turns": 56,
+    "merges": 91,
+    "cascades": 27,
+    "tilesLeft": 21,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 3816,
+    "turns": 71,
+    "merges": 123,
+    "cascades": 35,
+    "tilesLeft": 19,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 5156,
+    "turns": 93,
+    "merges": 167,
+    "cascades": 53,
+    "tilesLeft": 19,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 512,
+    "peak": 512,
+    "score": 6232,
+    "turns": 98,
+    "merges": 177,
+    "cascades": 55,
+    "tilesLeft": 19,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 3700,
+    "turns": 78,
+    "merges": 134,
+    "cascades": 44,
+    "tilesLeft": 22,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 128,
+    "peak": 128,
+    "score": 3176,
+    "turns": 63,
+    "merges": 112,
+    "cascades": 35,
+    "tilesLeft": 14,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 3904,
+    "turns": 72,
+    "merges": 124,
+    "cascades": 40,
+    "tilesLeft": 20,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 128,
+    "peak": 128,
+    "score": 3000,
+    "turns": 67,
+    "merges": 116,
+    "cascades": 35,
+    "tilesLeft": 18,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 128,
+    "peak": 128,
+    "score": 2752,
+    "turns": 61,
+    "merges": 107,
+    "cascades": 34,
+    "tilesLeft": 15,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 4344,
+    "turns": 76,
+    "merges": 135,
+    "cascades": 44,
+    "tilesLeft": 17,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 128,
+    "peak": 128,
+    "score": 2436,
+    "turns": 57,
+    "merges": 98,
+    "cascades": 32,
+    "tilesLeft": 16,
+    "unlocked": 16
+   }
+  ],
+  "dist": {
+   "128": 42,
+   "256": 76,
+   "512": 2
+  },
+  "moyenne": 215.46666666666667,
+  "mediane": 256,
+  "record": 512,
+  "geo": 203.18733465192958,
+  "score": 3375.1666666666665,
+  "tours": 68.59166666666667
+ },
+ "expert": {
+  "desc": "deux coups d'avance, en exploitant l'aperçu du domino suivant",
+  "runs": [
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 5648,
+    "turns": 95,
+    "merges": 172,
+    "cascades": 50,
+    "tilesLeft": 18,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 3580,
+    "turns": 74,
+    "merges": 129,
+    "cascades": 36,
+    "tilesLeft": 19,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 512,
+    "peak": 512,
+    "score": 6876,
+    "turns": 117,
+    "merges": 216,
+    "cascades": 68,
+    "tilesLeft": 18,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 4864,
+    "turns": 98,
+    "merges": 175,
+    "cascades": 50,
+    "tilesLeft": 21,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 5332,
+    "turns": 87,
+    "merges": 154,
+    "cascades": 49,
+    "tilesLeft": 20,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 3424,
+    "turns": 69,
+    "merges": 119,
+    "cascades": 38,
+    "tilesLeft": 19,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 4596,
+    "turns": 91,
+    "merges": 161,
+    "cascades": 46,
+    "tilesLeft": 21,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 3912,
+    "turns": 72,
+    "merges": 126,
+    "cascades": 34,
+    "tilesLeft": 18,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 4472,
+    "turns": 80,
+    "merges": 144,
+    "cascades": 41,
+    "tilesLeft": 16,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 3368,
+    "turns": 69,
+    "merges": 121,
+    "cascades": 39,
+    "tilesLeft": 17,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 5168,
+    "turns": 88,
+    "merges": 158,
+    "cascades": 49,
+    "tilesLeft": 18,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 5064,
+    "turns": 88,
+    "merges": 159,
+    "cascades": 48,
+    "tilesLeft": 17,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 5168,
+    "turns": 90,
+    "merges": 164,
+    "cascades": 45,
+    "tilesLeft": 16,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 4948,
+    "turns": 89,
+    "merges": 156,
+    "cascades": 51,
+    "tilesLeft": 22,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 4656,
+    "turns": 84,
+    "merges": 151,
+    "cascades": 44,
+    "tilesLeft": 17,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 3300,
+    "turns": 65,
+    "merges": 116,
+    "cascades": 34,
+    "tilesLeft": 14,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 5276,
+    "turns": 90,
+    "merges": 163,
+    "cascades": 49,
+    "tilesLeft": 17,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 3200,
+    "turns": 63,
+    "merges": 111,
+    "cascades": 34,
+    "tilesLeft": 15,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 3452,
+    "turns": 69,
+    "merges": 121,
+    "cascades": 34,
+    "tilesLeft": 17,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 3840,
+    "turns": 78,
+    "merges": 137,
+    "cascades": 42,
+    "tilesLeft": 19,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 5292,
+    "turns": 90,
+    "merges": 165,
+    "cascades": 47,
+    "tilesLeft": 15,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 3700,
+    "turns": 73,
+    "merges": 126,
+    "cascades": 40,
+    "tilesLeft": 20,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 5432,
+    "turns": 87,
+    "merges": 156,
+    "cascades": 45,
+    "tilesLeft": 18,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 5312,
+    "turns": 99,
+    "merges": 179,
+    "cascades": 47,
+    "tilesLeft": 19,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 5820,
+    "turns": 97,
+    "merges": 176,
+    "cascades": 55,
+    "tilesLeft": 18,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 5056,
+    "turns": 88,
+    "merges": 155,
+    "cascades": 48,
+    "tilesLeft": 21,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 5556,
+    "turns": 99,
+    "merges": 179,
+    "cascades": 57,
+    "tilesLeft": 19,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 3868,
+    "turns": 78,
+    "merges": 141,
+    "cascades": 42,
+    "tilesLeft": 15,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 5176,
+    "turns": 97,
+    "merges": 173,
+    "cascades": 51,
+    "tilesLeft": 21,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 512,
+    "peak": 512,
+    "score": 5304,
+    "turns": 84,
+    "merges": 149,
+    "cascades": 44,
+    "tilesLeft": 19,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 4344,
+    "turns": 80,
+    "merges": 143,
+    "cascades": 43,
+    "tilesLeft": 17,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 4808,
+    "turns": 89,
+    "merges": 159,
+    "cascades": 49,
+    "tilesLeft": 19,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 3320,
+    "turns": 72,
+    "merges": 129,
+    "cascades": 39,
+    "tilesLeft": 15,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 4912,
+    "turns": 88,
+    "merges": 158,
+    "cascades": 50,
+    "tilesLeft": 18,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 3556,
+    "turns": 62,
+    "merges": 105,
+    "cascades": 26,
+    "tilesLeft": 19,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 4996,
+    "turns": 95,
+    "merges": 173,
+    "cascades": 52,
+    "tilesLeft": 17,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 3724,
+    "turns": 75,
+    "merges": 132,
+    "cascades": 39,
+    "tilesLeft": 18,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 4744,
+    "turns": 84,
+    "merges": 149,
+    "cascades": 46,
+    "tilesLeft": 19,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 4132,
+    "turns": 78,
+    "merges": 138,
+    "cascades": 43,
+    "tilesLeft": 18,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 4896,
+    "turns": 89,
+    "merges": 159,
+    "cascades": 46,
+    "tilesLeft": 19,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 3984,
+    "turns": 78,
+    "merges": 136,
+    "cascades": 43,
+    "tilesLeft": 20,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 3904,
+    "turns": 73,
+    "merges": 130,
+    "cascades": 41,
+    "tilesLeft": 16,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 6468,
+    "turns": 113,
+    "merges": 208,
+    "cascades": 65,
+    "tilesLeft": 18,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 512,
+    "peak": 512,
+    "score": 5872,
+    "turns": 93,
+    "merges": 169,
+    "cascades": 51,
+    "tilesLeft": 17,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 5332,
+    "turns": 94,
+    "merges": 172,
+    "cascades": 49,
+    "tilesLeft": 16,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 6608,
+    "turns": 108,
+    "merges": 196,
+    "cascades": 57,
+    "tilesLeft": 20,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 3348,
+    "turns": 66,
+    "merges": 112,
+    "cascades": 33,
+    "tilesLeft": 20,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 512,
+    "peak": 512,
+    "score": 4968,
+    "turns": 83,
+    "merges": 146,
+    "cascades": 42,
+    "tilesLeft": 20,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 5764,
+    "turns": 101,
+    "merges": 185,
+    "cascades": 55,
+    "tilesLeft": 17,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 4748,
+    "turns": 85,
+    "merges": 150,
+    "cascades": 45,
+    "tilesLeft": 20,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 3068,
+    "turns": 66,
+    "merges": 114,
+    "cascades": 37,
+    "tilesLeft": 18,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 512,
+    "peak": 512,
+    "score": 5008,
+    "turns": 82,
+    "merges": 147,
+    "cascades": 43,
+    "tilesLeft": 17,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 128,
+    "peak": 128,
+    "score": 2812,
+    "turns": 64,
+    "merges": 111,
+    "cascades": 32,
+    "tilesLeft": 17,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 5432,
+    "turns": 96,
+    "merges": 173,
+    "cascades": 51,
+    "tilesLeft": 19,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 3996,
+    "turns": 74,
+    "merges": 131,
+    "cascades": 37,
+    "tilesLeft": 17,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 5084,
+    "turns": 90,
+    "merges": 164,
+    "cascades": 50,
+    "tilesLeft": 16,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 5292,
+    "turns": 88,
+    "merges": 159,
+    "cascades": 49,
+    "tilesLeft": 17,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 3428,
+    "turns": 67,
+    "merges": 116,
+    "cascades": 35,
+    "tilesLeft": 18,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 128,
+    "peak": 128,
+    "score": 3388,
+    "turns": 72,
+    "merges": 125,
+    "cascades": 38,
+    "tilesLeft": 19,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 4356,
+    "turns": 80,
+    "merges": 143,
+    "cascades": 45,
+    "tilesLeft": 17,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 4300,
+    "turns": 85,
+    "merges": 150,
+    "cascades": 48,
+    "tilesLeft": 20,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 4200,
+    "turns": 84,
+    "merges": 150,
+    "cascades": 48,
+    "tilesLeft": 18,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 4876,
+    "turns": 83,
+    "merges": 150,
+    "cascades": 40,
+    "tilesLeft": 16,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 5672,
+    "turns": 98,
+    "merges": 180,
+    "cascades": 51,
+    "tilesLeft": 16,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 4336,
+    "turns": 87,
+    "merges": 153,
+    "cascades": 52,
+    "tilesLeft": 21,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 4272,
+    "turns": 74,
+    "merges": 133,
+    "cascades": 43,
+    "tilesLeft": 15,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 4452,
+    "turns": 80,
+    "merges": 141,
+    "cascades": 43,
+    "tilesLeft": 19,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 128,
+    "peak": 128,
+    "score": 2784,
+    "turns": 64,
+    "merges": 110,
+    "cascades": 34,
+    "tilesLeft": 18,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 4932,
+    "turns": 84,
+    "merges": 150,
+    "cascades": 42,
+    "tilesLeft": 18,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 3892,
+    "turns": 72,
+    "merges": 126,
+    "cascades": 37,
+    "tilesLeft": 18,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 5172,
+    "turns": 91,
+    "merges": 164,
+    "cascades": 48,
+    "tilesLeft": 18,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 4392,
+    "turns": 83,
+    "merges": 145,
+    "cascades": 44,
+    "tilesLeft": 21,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 5244,
+    "turns": 91,
+    "merges": 162,
+    "cascades": 45,
+    "tilesLeft": 20,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 2836,
+    "turns": 58,
+    "merges": 98,
+    "cascades": 29,
+    "tilesLeft": 18,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 4044,
+    "turns": 79,
+    "merges": 141,
+    "cascades": 44,
+    "tilesLeft": 17,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 512,
+    "peak": 512,
+    "score": 7388,
+    "turns": 106,
+    "merges": 194,
+    "cascades": 60,
+    "tilesLeft": 18,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 4204,
+    "turns": 86,
+    "merges": 155,
+    "cascades": 50,
+    "tilesLeft": 17,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 3848,
+    "turns": 72,
+    "merges": 129,
+    "cascades": 37,
+    "tilesLeft": 15,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 4456,
+    "turns": 84,
+    "merges": 152,
+    "cascades": 45,
+    "tilesLeft": 16,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 512,
+    "peak": 512,
+    "score": 6336,
+    "turns": 106,
+    "merges": 194,
+    "cascades": 58,
+    "tilesLeft": 18,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 4276,
+    "turns": 78,
+    "merges": 144,
+    "cascades": 44,
+    "tilesLeft": 12,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 4376,
+    "turns": 82,
+    "merges": 149,
+    "cascades": 47,
+    "tilesLeft": 15,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 4660,
+    "turns": 85,
+    "merges": 147,
+    "cascades": 44,
+    "tilesLeft": 23,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 3904,
+    "turns": 79,
+    "merges": 139,
+    "cascades": 45,
+    "tilesLeft": 19,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 512,
+    "peak": 512,
+    "score": 6264,
+    "turns": 101,
+    "merges": 185,
+    "cascades": 49,
+    "tilesLeft": 17,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 128,
+    "peak": 128,
+    "score": 2776,
+    "turns": 67,
+    "merges": 116,
+    "cascades": 36,
+    "tilesLeft": 18,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 512,
+    "peak": 512,
+    "score": 6980,
+    "turns": 110,
+    "merges": 203,
+    "cascades": 60,
+    "tilesLeft": 17,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 5716,
+    "turns": 100,
+    "merges": 181,
+    "cascades": 56,
+    "tilesLeft": 19,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 5180,
+    "turns": 96,
+    "merges": 174,
+    "cascades": 52,
+    "tilesLeft": 18,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 512,
+    "peak": 512,
+    "score": 6224,
+    "turns": 99,
+    "merges": 179,
+    "cascades": 51,
+    "tilesLeft": 19,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 4288,
+    "turns": 76,
+    "merges": 134,
+    "cascades": 37,
+    "tilesLeft": 18,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 5340,
+    "turns": 92,
+    "merges": 165,
+    "cascades": 49,
+    "tilesLeft": 19,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 128,
+    "peak": 128,
+    "score": 2592,
+    "turns": 60,
+    "merges": 102,
+    "cascades": 33,
+    "tilesLeft": 18,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 3392,
+    "turns": 72,
+    "merges": 128,
+    "cascades": 38,
+    "tilesLeft": 16,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 3856,
+    "turns": 81,
+    "merges": 145,
+    "cascades": 45,
+    "tilesLeft": 17,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 5168,
+    "turns": 93,
+    "merges": 167,
+    "cascades": 50,
+    "tilesLeft": 19,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 512,
+    "peak": 512,
+    "score": 6516,
+    "turns": 103,
+    "merges": 187,
+    "cascades": 58,
+    "tilesLeft": 19,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 4860,
+    "turns": 88,
+    "merges": 159,
+    "cascades": 46,
+    "tilesLeft": 17,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 4452,
+    "turns": 83,
+    "merges": 145,
+    "cascades": 42,
+    "tilesLeft": 21,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 4024,
+    "turns": 77,
+    "merges": 136,
+    "cascades": 42,
+    "tilesLeft": 18,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 4076,
+    "turns": 77,
+    "merges": 136,
+    "cascades": 40,
+    "tilesLeft": 18,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 6172,
+    "turns": 100,
+    "merges": 183,
+    "cascades": 57,
+    "tilesLeft": 17,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 5640,
+    "turns": 104,
+    "merges": 188,
+    "cascades": 56,
+    "tilesLeft": 20,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 4488,
+    "turns": 80,
+    "merges": 145,
+    "cascades": 44,
+    "tilesLeft": 15,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 6012,
+    "turns": 100,
+    "merges": 183,
+    "cascades": 56,
+    "tilesLeft": 17,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 5236,
+    "turns": 92,
+    "merges": 166,
+    "cascades": 48,
+    "tilesLeft": 18,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 5720,
+    "turns": 94,
+    "merges": 169,
+    "cascades": 48,
+    "tilesLeft": 19,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 4320,
+    "turns": 79,
+    "merges": 139,
+    "cascades": 44,
+    "tilesLeft": 19,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 512,
+    "peak": 512,
+    "score": 5932,
+    "turns": 90,
+    "merges": 160,
+    "cascades": 45,
+    "tilesLeft": 20,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 4792,
+    "turns": 79,
+    "merges": 142,
+    "cascades": 44,
+    "tilesLeft": 16,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 4948,
+    "turns": 92,
+    "merges": 166,
+    "cascades": 49,
+    "tilesLeft": 18,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 5076,
+    "turns": 91,
+    "merges": 162,
+    "cascades": 46,
+    "tilesLeft": 20,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 3708,
+    "turns": 74,
+    "merges": 130,
+    "cascades": 42,
+    "tilesLeft": 18,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 3344,
+    "turns": 72,
+    "merges": 128,
+    "cascades": 39,
+    "tilesLeft": 16,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 3332,
+    "turns": 73,
+    "merges": 126,
+    "cascades": 43,
+    "tilesLeft": 20,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 3516,
+    "turns": 73,
+    "merges": 129,
+    "cascades": 39,
+    "tilesLeft": 17,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 5208,
+    "turns": 89,
+    "merges": 158,
+    "cascades": 45,
+    "tilesLeft": 20,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 3580,
+    "turns": 67,
+    "merges": 116,
+    "cascades": 34,
+    "tilesLeft": 18,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 3276,
+    "turns": 70,
+    "merges": 122,
+    "cascades": 37,
+    "tilesLeft": 18,
+    "unlocked": 16
+   },
+   {
+    "maxTile": 256,
+    "peak": 256,
+    "score": 4172,
+    "turns": 72,
+    "merges": 127,
+    "cascades": 38,
+    "tilesLeft": 17,
+    "unlocked": 16
+   }
+  ],
+  "dist": {
+   "128": 5,
+   "256": 103,
+   "512": 12
+  },
+  "moyenne": 276.26666666666665,
+  "mediane": 256,
+  "record": 512,
+  "geo": 266.56311104891046,
+  "score": 4633.166666666667,
+  "tours": 84.08333333333333
+ }
+}
