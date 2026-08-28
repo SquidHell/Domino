@@ -36,3 +36,15 @@ Ouvre `index.html` dans un navigateur. C'est tout.
 
 Le score augmente de la valeur de chaque fusion ; le record est conservé dans le
 navigateur (`localStorage`). Un aperçu du domino suivant permet d'anticiper.
+
+## Build Y8
+
+Une build prête pour [Y8](https://www.y8.com) vit dans `y8/` : le jeu, le minimal SDK Y8 2.0
+et un adaptateur publicitaire réunis en un seul `y8/index.html`, régénérable avec
+`python3 tools/build-y8.py`. Elle ajoute cinq bonus débloqués par une publicité récompensée
+(continuer la partie, doubler le score, annuler le coup, changer de domino, retirer une tuile)
+et un interstitiel entre deux parties, plafonné.
+
+Le jeu de ce dépôt ne contient aucun code publicitaire : il expose seulement
+`window.Domino.setAdProvider()`, et sans régie branchée aucun bouton de bonus n'apparaît.
+Voir `y8/README.md`.
