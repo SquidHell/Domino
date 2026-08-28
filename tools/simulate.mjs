@@ -11,11 +11,19 @@ import { fileURLToPath } from 'url';
 const ROOT = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
 const SRC  = fs.readFileSync(path.join(ROOT, 'index.html'), 'utf8');
 
-const N = 5, CAP = 16;
-const inB = (r, c) => r >= 0 && r < N && c >= 0 && c < N;
+// Les réglages sont lus dans le jeu lui-même : le simulateur suit
+// automatiquement index.html, et verify-sim.mjs le vérifie.
+const read = (re, def) => { const m = SRC.match(re); return m ? Number(m[1]) : def; };
+export const CONF = {
+  N:   read(/const N = (\d+);/, 5),
+  CAP: read(/const CAP = (\d+);/, 16),
+  WEIGHT: (SRC.match(/const DEAL_WEIGHT = "([a-z]+)";/) || [,'uniforme'])[1]
+};
 const NB   = [[-1,0],[1,0],[0,-1],[0,1]];
 const ROTS = [[0,1],[1,0],[0,-1],[-1,0]];
 const MAX_DEPTH = 24, MAX_NODES = 40000;
+let N = CONF.N, CAP = CONF.CAP, WEIGHT = CONF.WEIGHT;
+const inB = (r, c) => r >= 0 && r < N && c >= 0 && c < N;
 
 // --- moteur de fusion, prélevé mot pour mot dans le jeu ---
 function grab(name){
@@ -29,9 +37,24 @@ function grab(name){
   throw new Error('accolade non fermée : ' + name);
 }
 const ENGINE = ['listMoves','applyMove','chainFrom','betterOutcome','bestOutcome','better','pickMove'];
-export const engine = new Function('N','inB','NB','MAX_DEPTH','MAX_NODES',
-  ENGINE.map(grab).join('\n') + `\nreturn {${ENGINE.join(',')}};`)(N, inB, NB, MAX_DEPTH, MAX_NODES);
-const { listMoves, applyMove, pickMove } = engine;
+const ENGINE_SRC = ENGINE.map(grab).join('\n');
+// le moteur dépend de la taille de grille : une instance par taille
+const engines = new Map();
+export function makeEngine(n){
+  if (!engines.has(n))
+    engines.set(n, new Function('N','inB','NB','MAX_DEPTH','MAX_NODES',
+      ENGINE_SRC + `\nreturn {${ENGINE.join(',')}};`)(
+        n, (r,c) => r >= 0 && r < n && c >= 0 && c < n, NB, MAX_DEPTH, MAX_NODES));
+  return engines.get(n);
+}
+export const engine = makeEngine(N);
+let { listMoves, applyMove, pickMove } = engine;
+// bascule globale, utilisée par le balayage de réglages (tools/sweep.mjs)
+export function configure(opts = {}){
+  N = opts.N ?? CONF.N; CAP = opts.CAP ?? CONF.CAP; WEIGHT = opts.WEIGHT ?? CONF.WEIGHT;
+  ({ listMoves, applyMove, pickMove } = makeEngine(N));
+  return { N, CAP, WEIGHT };
+}
 
 // --- générateur reproductible ---
 export function mulberry32(seed){
@@ -62,6 +85,16 @@ class Game {
   dealValue(){
     const vals = [];
     for (let v = 2; v <= this.unlocked; v *= 2) vals.push(v);
+    // "uniforme" : toutes les valeurs débloquées à égalité
+    // "modere"   : poids ∝ √valeur — penche vers le haut sans étouffer les petits
+    // "croissant": poids ∝ valeur  — les gros numéros dominent
+    if (WEIGHT !== "uniforme"){
+      const w = vals.map(v => WEIGHT === "croissant" ? v : Math.sqrt(v));
+      const total = w.reduce((a,x) => a + x, 0);
+      let x = this.rand() * total;
+      for (let i = 0; i < vals.length; i++){ x -= w[i]; if (x <= 0) return vals[i]; }
+      return vals[vals.length - 1];
+    }
     return vals[Math.floor(this.rand() * vals.length)];
   }
   deal(){ return { a: this.dealValue(), b: this.dealValue() }; }
@@ -232,7 +265,7 @@ export function playGame(seed, policyName){
     tilesLeft: game.tiles().length, unlocked: game.unlocked
   };
 }
-export { Game, POLICIES, N, CAP };
+export { Game, POLICIES };
 
 // --- exécution en ligne de commande ---
 if (process.argv[1] && process.argv[1].endsWith('simulate.mjs')){

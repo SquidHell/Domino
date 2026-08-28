@@ -3,11 +3,11 @@
    politique de pose est appliquée, et le tapis est comparé case par case après
    chaque tour. Toute divergence entre le simulateur et index.html sort ici. */
 import { chromium } from '/opt/node22/lib/node_modules/playwright/index.mjs';
-import { Game, POLICIES, mulberry32 } from './simulate.mjs';
+import { Game, POLICIES, mulberry32, CONF } from './simulate.mjs';
 
 const SEEDS = Number(process.argv[2] || 3);
 const TURNS = Number(process.argv[3] || 22);
-const N = 5;
+const N = CONF.N;          // la taille de grille est lue dans le jeu
 
 const b = await chromium.launch();
 let mismatches = [], checked = 0;
@@ -35,17 +35,17 @@ for (let seed = 1; seed <= SEEDS; seed++){
              cell: parseFloat(getComputedStyle(b).getPropertyValue('--cell')) }; });
   const pt = (r,c) => ({ x: box.x + g.gap + c*(g.cell+g.gap) + g.cell/2,
                          y: box.y + g.gap + r*(g.cell+g.gap) + g.cell/2 });
-  const readBoard = () => p.evaluate(({gap,cell}) => {
-    const G = Array.from({length:5}, () => Array(5).fill(0));
+  const readBoard = () => p.evaluate(({gap,cell,n}) => {
+    const G = Array.from({length:n}, () => Array(n).fill(0));
     for (const el of document.querySelectorAll('.tile:not(.dying)')){
       const m = new DOMMatrixReadOnly(getComputedStyle(el).transform);
       const c = Math.round((m.m41-gap)/(cell+gap)), r = Math.round((m.m42-gap)/(cell+gap));
-      if (r>=0&&r<5&&c>=0&&c<5) G[r][c] = +el.textContent;
+      if (r>=0&&r<n&&c>=0&&c<n) G[r][c] = +el.textContent;
     }
     return { G, score: +document.getElementById('score').textContent,
              phase: window.Domino.state().phase,
              busy: document.querySelectorAll('.tile.dying').length };
-  }, g);
+  }, {...g, n:N});
   const settle = async () => { for (let i=0;i<60;i++){ await p.waitForTimeout(120);
     const s = await readBoard(); if (!s.busy && s.phase !== 'anim') return s; } return readBoard(); };
 

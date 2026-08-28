@@ -27,12 +27,14 @@ Ouvre `index.html` dans un navigateur. C'est tout.
    continue. À hauteur égale le jeu prend le meilleur score, puis le plus grand nombre de
    fusions ; le reste ne règle que l'ordre d'affichage. L'aperçu cercle en laiton les
    tuiles qui vont fusionner avec la pose.
-5. **Le talon** ne contient que des **2, 4, 8 et 16**, et un numéro n'en sort qu'une fois
-   *débloqué* : la partie commence avec des 2 seulement, le 4 devient distribuable dès
-   qu'une fusion en a fabriqué un, puis le 8, puis le 16. Au-delà de 16, les grosses tuiles
-   ne s'obtiennent plus qu'en fusionnant. Chaque numéro débloqué a la même chance de sortir.
-6. Objectif : la tuile **2048**. La partie s'arrête quand il ne reste plus deux cases
-   voisines libres sur la grille 5×5.
+5. **Le talon** ne sort un numéro qu'une fois *débloqué* : la partie commence avec des 2
+   seulement, le 4 devient distribuable dès qu'une fusion en a fabriqué un, puis le 8, le
+   16, le 32 et enfin le **64**. Au-delà de 64, les grosses tuiles ne s'obtiennent plus
+   qu'en fusionnant. Le tirage penche vers le haut — le poids d'un numéro est sa valeur —
+   sans quoi la matière distribuée reste trop maigre pour bâtir un 2048.
+6. Objectif : la tuile **2048**, atteignable pour qui joue bien. Le **4096** existe, mais il
+   ne se voit presque jamais. La partie s'arrête quand il ne reste plus deux cases voisines
+   libres sur la grille 6×6.
 
 Le score augmente de la valeur de chaque fusion ; le record est conservé dans le
 navigateur (`localStorage`). Un aperçu du domino suivant permet d'anticiper.
@@ -68,3 +70,10 @@ statistiques opposables.
 
 Quatre profils de joueur sont simulés, du plus négligent (`naive`) au plus fort
 (`expert`, qui joue avec deux coups d'avance en exploitant l'aperçu du domino suivant).
+
+### Réglage retenu
+
+Grille **6×6**, talon débloqué jusqu'à **64**, tirage pondéré par la valeur. `tools/sweep.mjs`
+balaie taille de grille × plafond du talon × pondération et mesure la part des parties qui
+atteignent chaque palier ; ce réglage est celui qui rend le 2048 réellement atteignable tout
+en gardant le 4096 exceptionnel.

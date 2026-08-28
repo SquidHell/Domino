@@ -282,9 +282,9 @@
       <li>Une fois posées, ses deux moitiés ne sont <b>plus solidaires</b> : ce sont deux tuiles ordinaires sur le tapis.</li>
       <li>Seules les <em>valeurs égales qui se touchent</em> fusionnent, et elles le font aussitôt : deux 4 collés donnent un 8, qu'ils viennent du même domino ou de deux dominos différents.</li>
       <li>Une fusion ne réunit jamais que <b>deux tuiles à la fois</b> : trois 4 côte à côte donnent un 8 et un 4 qui reste. Les fusions s'enchaînent <b>une par une en cascade</b>, et le jeu cherche toujours à <em>monter le plus haut possible</em> : il choisit l'ordre des fusions <b>et la case où chacune se dépose</b> pour qu'un 2 devienne 4, puis 8, puis 16 chaque fois que c'est faisable.</li>
-      <li><b>Le talon</b> ne contient que des <em>2, 4, 8 et 16</em>, et un numéro n'en sort qu'une fois <b>débloqué</b> : tu commences avec des 2, le 4 arrive dès qu'une fusion en a fabriqué un, puis le 8, puis le 16. Au-delà, les grosses tuiles ne se gagnent qu'en fusionnant.</li>
+      <li><b>Le talon</b> ne sort un numéro qu'une fois <b>débloqué</b> : tu commences avec des 2, le 4 arrive dès qu'une fusion en a fabriqué un, puis le 8, le 16, le 32 et enfin le <em>64</em>. Au-delà, les grosses tuiles ne se gagnent qu'en fusionnant. Plus un numéro est gros, plus il est fréquent une fois débloqué.</li>
       <li><kbd>R</kbd>, les flèches ou <b>Pivoter</b> font tourner le domino. L'aperçu cercle en laiton les tuiles qui vont fusionner avec la pose.</li>
-      <li>Objectif : la tuile <em>2048</em>. La partie s'arrête quand il ne reste plus deux cases voisines libres.</li>
+      <li>Objectif : la tuile <em>2048</em>. Le <em>4096</em> existe, mais il ne se voit presque jamais. La partie s'arrête quand il ne reste plus deux cases voisines libres.</li>
     </ol>
   </section>
 </div>
@@ -293,7 +293,7 @@
 (function(){
 "use strict";
 
-const N = 5;
+const N = 6;
 const ROTS   = [[0,1],[1,0],[0,-1],[-1,0]];   // droite, bas, gauche, haut
 const ARROWS = ["→","↓","←","↑"];
 const NB     = [[-1,0],[1,0],[0,-1],[0,1]];
@@ -344,19 +344,24 @@ const inB   = (r,c) => r >= 0 && r < N && c >= 0 && c < N;
 const sleep = ms => new Promise(res => setTimeout(res, ms));
 
 /* ---------- le talon ----------
-   Les dominos ne portent que 2, 4, 8 et 16. Un numéro ne sort du talon qu'une
-   fois débloqué, c'est-à-dire une fois qu'une fusion l'a fait apparaître sur le
-   tapis : on commence donc avec des 2, le 4 arrive quand un 4 a été fabriqué,
-   et ainsi de suite jusqu'à 16. Au-delà, les grosses tuiles ne se gagnent plus
-   qu'en fusionnant. */
-const CAP = 16;
+   Un numéro ne sort du talon qu'une fois débloqué, c'est-à-dire une fois qu'une
+   fusion l'a fait apparaître sur le tapis : on commence avec des 2, le 4 arrive
+   quand un 4 a été fabriqué, puis le 8, et ainsi de suite jusqu'à 64. Au-delà,
+   les grosses tuiles ne se gagnent qu'en fusionnant.
+   Le tirage penche vers le haut — le poids d'un numéro est sa valeur — sinon la
+   matière distribuée reste trop maigre pour bâtir un 2048. */
+const CAP = 64;
+const DEAL_WEIGHT = "croissant";
 function unlock(v){
   if (v <= CAP && v > unlocked){ unlocked = v; justUnlocked = v; }
 }
 function dealValue(){
   const vals = [];
   for (let v = 2; v <= unlocked; v *= 2) vals.push(v);
-  return vals[Math.floor(Math.random() * vals.length)];
+  const total = vals.reduce((a,v) => a + v, 0);
+  let x = Math.random() * total;
+  for (const v of vals){ x -= v; if (x <= 0) return v; }
+  return vals[vals.length - 1];
 }
 function makePiece(){ return { a: dealValue(), b: dealValue() }; }
 
@@ -618,7 +623,7 @@ async function place(r, c){
   nextTurn();
 }
 function nextTurn(){
-  if (won === "now"){ won = true; showOverlay("2048 !", "Tu as monté la tuile. Continue si tu veux.", "Continuer"); }
+  if (won === "now"){ won = true; showOverlay("2048 !", "Tu as monté la tuile. Continue : le 4096 existe, mais presque personne ne le voit.", "Continuer"); }
   if (!canPlaceSomewhere()){
     phase = "over";
     showOverlay("Le tapis est plein", "Score : " + score + " · " + placed + " dominos posés", "Rejouer");
