@@ -6,6 +6,10 @@ Un petit jeu HTML (un seul fichier, sans dépendance) qui mélange les **dominos
 
 Ouvre `index.html` dans un navigateur. C'est tout.
 
+L'interface reprend la palette du 2048 d'origine : fond crème, plateau taupe, tuiles ivoire
+puis ambre, angles à peine arrondis. Les règles ne sont plus imprimées sur la page — elles
+sont ci-dessous.
+
 ## Règles
 
 1. À chaque tour, un domino de deux valeurs t'est proposé (ex. `4|8`). **Choisis une case**
@@ -25,8 +29,8 @@ Ouvre `index.html` dans un navigateur. C'est tout.
    Les deux comptent : sur `4 2 2`, si le 4 issu des deux 2 se déposait à droite il
    perdrait le contact avec le 4 déjà posé — il se dépose donc à gauche et l'escalade
    continue. À hauteur égale le jeu prend le meilleur score, puis le plus grand nombre de
-   fusions ; le reste ne règle que l'ordre d'affichage. L'aperçu cercle en laiton les
-   tuiles qui vont fusionner avec la pose.
+   fusions ; le reste ne règle que l'ordre d'affichage. L'aperçu cerne les tuiles
+   qui vont fusionner avec la pose.
 5. **Le talon** ne sort un numéro qu'une fois *débloqué* : la partie commence avec des 2
    seulement, le 4 devient distribuable dès qu'une fusion en a fabriqué un, puis le 8, le
    16, le 32 et enfin le **64**. Au-delà de 64, les grosses tuiles ne s'obtiennent plus

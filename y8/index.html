@@ -7,49 +7,64 @@
 <!-- build Y8 : jeu + minimal-sdk 2.0 -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;600;700;800&family=Instrument+Serif:ital@0;1&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;700;800&display=swap">
 <style>
-  /* ---- jetons : thème clair par défaut ---- */
+  /* ---- palette 2048 d'origine ----
+     Le fond crème, le plateau taupe, les cases ivoire et les boutons bruns
+     viennent du jeu de Gabriele Cirulli ; les tuiles gardent ses valeurs exactes.
+     Les angles restent volontairement peu arrondis (3 px), comme à l'époque. */
   :root{
-    --ground:#efe9dc;
-    --panel:#e3dbc9;
-    --ink:#37463e;
-    --muted:#6e7c73;
-    --line:rgba(55,70,62,.16);
-    --felt:#37705a;
-    --felt-cell:#43836b;
-    --brass:#9d7118;
-    --brass-ink:#fdf6e6;
-    --danger:#c2502f;
-    --lift:0 1px 0 rgba(255,255,255,.5), 0 10px 26px rgba(40,55,48,.14);
+    --ground:#faf8ef;
+    --panel:#eee4da;
+    --board:#bbada0;
+    --cell-bg:rgba(238,228,218,.35);
+    --ghost-line:rgba(119,110,101,.55);
+    --ink:#776e65;
+    --ink-2:#8d8378;
+    --muted:#a89e94;
+    --line:rgba(119,110,101,.18);
+    --btn:#8f7a66;
+    --btn-ink:#f9f6f2;
+    --danger:#c05a45;
+    --veil:rgba(238,228,218,.86);
+    --veil-ink:#776e65;
+    --score-label:#eee4da;
   }
   @media (prefers-color-scheme: dark){
     :root:not([data-theme="light"]){
-      --ground:#111a16;
-      --panel:#1a2620;
-      --ink:#e1e8e2;
-      --muted:#8fa298;
-      --line:rgba(225,232,226,.14);
-      --felt:#204639;
-      --felt-cell:#2b5546;
-      --brass:#d9b04a;
-      --brass-ink:#171103;
-      --danger:#f08b6a;
-      --lift:0 1px 0 rgba(255,255,255,.06), 0 14px 34px rgba(0,0,0,.5);
+      --ground:#17140f;
+      --panel:#2a2520;
+      --board:#3c3a32;
+      --cell-bg:rgba(238,228,218,.13);
+      --ghost-line:rgba(238,228,218,.5);
+      --ink:#f2ece3;
+      --ink-2:#cdc3b8;
+      --muted:#a2988d;
+      --line:rgba(238,228,218,.16);
+      --btn:#8f7a66;
+      --btn-ink:#f9f6f2;
+      --danger:#e08064;
+      --veil:rgba(23,20,15,.9);
+      --veil-ink:#f2ece3;
+      --score-label:#cdc1b4;
     }
   }
   :root[data-theme="dark"]{
-    --ground:#111a16;
-    --panel:#1a2620;
-    --ink:#e1e8e2;
-    --muted:#8fa298;
-    --line:rgba(225,232,226,.14);
-    --felt:#204639;
-    --felt-cell:#2b5546;
-    --brass:#d9b04a;
-    --brass-ink:#171103;
-    --danger:#f08b6a;
-    --lift:0 1px 0 rgba(255,255,255,.06), 0 14px 34px rgba(0,0,0,.5);
+    --ground:#17140f;
+    --panel:#2a2520;
+    --board:#3c3a32;
+    --cell-bg:rgba(238,228,218,.13);
+    --ghost-line:rgba(238,228,218,.5);
+    --ink:#f2ece3;
+    --ink-2:#cdc3b8;
+    --muted:#a2988d;
+    --line:rgba(238,228,218,.16);
+    --btn:#8f7a66;
+    --btn-ink:#f9f6f2;
+    --danger:#e08064;
+    --veil:rgba(23,20,15,.9);
+    --veil-ink:#f2ece3;
+    --score-label:#cdc1b4;
   }
 
   *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
@@ -57,175 +72,177 @@
   body{
     background:var(--ground);
     color:var(--ink);
-    font-family:Archivo,"Helvetica Neue",Arial,sans-serif;
-    font-size:16px;
+    font-family:Rubik,"Clear Sans","Helvetica Neue",Arial,sans-serif;
+    font-size:15px;
     display:flex;flex-direction:column;align-items:center;
-    padding:20px 14px 40px;
+    padding:22px 14px 40px;
     min-height:100vh;
   }
-  :focus-visible{outline:2px solid var(--brass);outline-offset:2px}
-  .wrap{width:min(94vw,470px);display:flex;flex-direction:column;gap:12px}
+  :focus-visible{outline:3px solid var(--btn);outline-offset:2px}
+  .wrap{width:min(94vw,470px);display:flex;flex-direction:column;gap:13px}
 
   /* ---- en-tête ---- */
-  header{display:flex;align-items:flex-end;justify-content:space-between;gap:12px}
+  header{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
   .brand h1{
-    font-family:"Instrument Serif",Georgia,serif;
-    font-weight:400;font-size:clamp(34px,9vw,52px);line-height:.95;margin:0;
-    letter-spacing:-.5px;
+    font-weight:800;font-size:clamp(29px,8vw,45px);line-height:1;margin:0;
+    letter-spacing:-1.1px;color:var(--ink);
   }
-  .brand h1 em{font-style:italic;color:var(--brass)}
   .brand p{
-    margin:6px 0 0;font-size:10px;font-weight:700;letter-spacing:.22em;
-    text-transform:uppercase;color:var(--muted);
+    margin:8px 0 0;font-size:12px;font-weight:500;letter-spacing:.04em;
+    color:var(--ink-2);
   }
-  .scores{display:flex;gap:8px}
+  .scores{display:flex;gap:6px;flex:none}
   .score{
-    background:var(--panel);border:1px solid var(--line);border-radius:10px;
-    padding:7px 12px;text-align:right;min-width:76px;
+    background:var(--board);border-radius:3px;padding:6px 14px;text-align:center;min-width:74px;
   }
-  .score span{display:block;font-size:9px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--muted)}
-  .score b{font-size:23px;font-weight:800;font-variant-numeric:tabular-nums;line-height:1.15}
+  .score span{
+    display:block;font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;
+    color:var(--score-label);
+  }
+  .score b{font-size:22px;font-weight:800;font-variant-numeric:tabular-nums;line-height:1.2;color:#fff}
 
   /* ---- bandeau de jeu ---- */
   .panel{
     display:flex;align-items:center;gap:14px;
-    background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:11px 13px;
+    background:var(--panel);border-radius:5px;padding:12px 13px;
   }
-  .lbl{font-size:9px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
+  .lbl{
+    font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;
+    color:var(--muted);margin-bottom:6px;
+  }
   .slot{display:flex;flex-direction:column;align-items:center}
-  .slot.next{opacity:.8}
-  /* le domino : plaque d'ivoire, moitiés séparées par la rainure */
-  .piece{
-    display:flex;gap:5px;padding:5px;border-radius:7px;
-    background:#3b332a;box-shadow:var(--lift);
-  }
+  .slot.next{opacity:.85}
+  /* le domino : plaque posée, moitiés séparées par la rainure */
+  .piece{display:flex;gap:4px;padding:4px;border-radius:4px;background:var(--board)}
   .piece.vert{flex-direction:column}
   .half{
-    width:36px;height:36px;border-radius:4px;display:flex;align-items:center;justify-content:center;
-    font-weight:800;font-size:17px;font-variant-numeric:tabular-nums;
+    width:38px;height:38px;border-radius:3px;display:flex;align-items:center;justify-content:center;
+    font-weight:800;font-size:18px;font-variant-numeric:tabular-nums;
   }
-  .piece.small{padding:4px;gap:4px}
-  .piece.small .half{width:23px;height:23px;font-size:11px;border-radius:3px}
-  .arrowhint{font-size:15px;color:var(--brass);margin-top:5px;height:18px;font-weight:700}
-  .actions{margin-left:auto;display:flex;flex-direction:column;gap:7px}
-  button{
-    font-family:inherit;font-weight:700;font-size:12.5px;letter-spacing:.02em;
-    border-radius:8px;padding:9px 15px;cursor:pointer;border:1px solid var(--brass);
-    background:transparent;color:var(--brass);transition:background .15s,color .15s;
-  }
-  button.primary{background:var(--brass);color:var(--brass-ink)}
-  button:hover{background:var(--brass);color:var(--brass-ink)}
-  button:active{transform:translateY(1px)}
-  button[disabled]{opacity:.35;cursor:default;pointer-events:none}
+  .piece.small{padding:3px;gap:3px}
+  .piece.small .half{width:24px;height:24px;font-size:12px}
+  .arrowhint{font-size:16px;color:var(--muted);margin-top:5px;height:18px;font-weight:700}
 
-  .rewards{display:flex;flex-wrap:wrap;gap:7px}
+  button{
+    font-family:inherit;font-weight:700;font-size:13px;
+    border-radius:3px;padding:9px 14px;cursor:pointer;border:0;
+    background:var(--btn);color:var(--btn-ink);
+  }
+  button:hover:not([disabled]){filter:brightness(1.09)}
+  button:active:not([disabled]){transform:translateY(1px)}
+  button[disabled]{opacity:.4;cursor:default}
+  /* l'action principale : gros bouton, à portée de pouce */
+  #rotate{
+    margin-left:auto;align-self:stretch;min-width:132px;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;
+    font-size:15px;font-weight:800;letter-spacing:.01em;padding:12px 18px;
+  }
+  #rotate .glyph{font-size:26px;line-height:1;font-weight:400}
+  @media (max-width:400px){ #rotate{min-width:104px;padding:10px 12px} }
+
+  /* ---- barre d'état et actions ---- */
+  .bar{display:flex;align-items:center;gap:10px;min-height:24px;flex-wrap:wrap}
+  .status{flex:1;font-size:13px;font-weight:500;margin:0;color:var(--ink-2);min-width:150px}
+  .status.warn{color:var(--danger);font-weight:700}
+  .status.good{color:var(--btn);font-weight:700}
+  .acts{display:flex;gap:6px;margin-left:auto}
+  .acts button{
+    background:transparent;color:var(--muted);border:2px solid var(--line);
+    padding:6px 11px;font-size:12px;
+  }
+  .acts button:hover:not([disabled]){background:var(--btn);color:var(--btn-ink);border-color:var(--btn);filter:none}
+  .acts button.armed{color:var(--danger);border-color:var(--danger)}
+  .acts button.armed:hover{background:var(--danger);color:var(--ground);border-color:var(--danger)}
+
+  /* ---- bonus ---- */
+  .rewards{display:flex;flex-wrap:wrap;gap:6px}
   .rewards[hidden],.ovrewards[hidden]{display:none}
   .rewards button,.ovrewards button{
-    display:inline-flex;align-items:center;gap:7px;padding:8px 12px;font-size:12px;
-    border-color:var(--line);color:var(--ink);background:var(--panel);
+    display:inline-flex;align-items:center;gap:7px;padding:8px 12px;font-size:12.5px;
+    background:var(--panel);color:var(--ink);border:2px solid var(--line);
   }
   .rewards button:hover:not([disabled]),.ovrewards button:hover:not([disabled]){
-    background:var(--brass);color:var(--brass-ink);border-color:var(--brass);
+    background:var(--btn);color:var(--btn-ink);border-color:var(--btn);filter:none;
   }
   .rewards button.offer{
-    border-color:var(--brass);color:var(--brass-ink);background:var(--brass);
+    background:var(--btn);color:var(--btn-ink);border-color:var(--btn);
     animation:offer 1.4s ease-in-out infinite;
   }
-  .rewards button.offer .ad{background:var(--brass-ink);color:var(--brass)}
-  @keyframes offer{0%,100%{box-shadow:0 0 0 0 rgba(157,113,24,0)}50%{box-shadow:0 0 0 5px rgba(157,113,24,.22)}}
+  .rewards button.offer .ad{background:var(--btn-ink);color:var(--btn)}
+  @keyframes offer{0%,100%{box-shadow:0 0 0 0 rgba(143,122,102,0)}50%{box-shadow:0 0 0 5px rgba(143,122,102,.3)}}
   .ad{
-    font-size:8.5px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;
-    background:var(--brass);color:var(--brass-ink);border-radius:3px;padding:2px 4px;line-height:1;
+    font-size:8.5px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;
+    background:var(--btn);color:var(--btn-ink);border-radius:2px;padding:2px 4px;line-height:1;
   }
   .rewards button:hover:not([disabled]) .ad,.ovrewards button:hover:not([disabled]) .ad{
-    background:var(--brass-ink);color:var(--brass);
+    background:var(--btn-ink);color:var(--btn);
   }
   .ovrewards{display:flex;flex-direction:column;gap:8px;align-items:stretch}
-  .ovrewards button{justify-content:center;background:transparent;color:#f4efe2;border-color:rgba(244,239,226,.45)}
+  .ovrewards button{justify-content:center;background:transparent;color:var(--veil-ink);border-color:var(--veil-ink)}
 
-  .bar{display:flex;align-items:center;gap:10px;min-height:22px;flex-wrap:wrap}
-  .acts{display:flex;gap:7px;margin-left:auto}
-  .status{flex:1;font-size:13.5px;font-weight:600;margin:0;color:var(--muted)}
-  .status.warn{color:var(--danger)}
-  .status.good{color:var(--brass)}
-  .bar button{padding:6px 11px;font-size:11.5px;border-color:var(--line);color:var(--muted)}
-  .bar button:hover:not([disabled]){background:var(--muted);color:var(--ground);border-color:var(--muted)}
-  /* état « clique encore pour confirmer » */
-  .bar button.armed{color:var(--danger);border-color:var(--danger);font-weight:800}
-  .bar button.armed:hover{background:var(--danger);color:var(--ground);border-color:var(--danger)}
-
-  /* ---- le tapis ---- */
+  /* ---- le plateau ---- */
   .board{
     position:relative;width:100%;aspect-ratio:1/1;
-    background:var(--felt);border-radius:12px;
-    box-shadow:inset 0 2px 10px rgba(0,0,0,.28), var(--lift);
+    background:var(--board);border-radius:6px;
     touch-action:none;user-select:none;
     --gap:10px;--cell:80px;
   }
-  .cell,.tile,.ghost{position:absolute;border-radius:6px}
-  .cell{background:var(--felt-cell)}
+  .cell,.tile,.ghost{position:absolute;border-radius:3px}
+  .cell{background:var(--cell-bg)}
   .tile{
     display:flex;align-items:center;justify-content:center;font-weight:800;
-    font-variant-numeric:tabular-nums;
-    box-shadow:0 2px 4px rgba(0,0,0,.22);
+    font-variant-numeric:tabular-nums;letter-spacing:-.02em;
     transition:transform 150ms ease-in-out, opacity 150ms linear;z-index:2;
   }
   .tile.dying{z-index:1;opacity:.25}
   /* tuile qui va fusionner avec la pose en cours */
-  .tile.match{box-shadow:0 0 0 3px var(--brass), 0 2px 4px rgba(0,0,0,.22);z-index:4}
+  .tile.match{box-shadow:0 0 0 3px var(--btn);z-index:4}
   /* tuile visée par le marteau */
-  .tile.doomed{box-shadow:0 0 0 3px #e2503a, 0 2px 4px rgba(0,0,0,.22);z-index:4}
+  .tile.doomed{box-shadow:0 0 0 3px var(--danger);z-index:4}
   .board.smashing{cursor:crosshair}
   .ghost{
-    z-index:3;pointer-events:none;opacity:.88;border:2px dashed rgba(59,51,42,.75);
+    z-index:3;pointer-events:none;opacity:.9;border:3px dashed var(--ghost-line);
     display:flex;align-items:center;justify-content:center;font-weight:800;
   }
-  .ghost.bad{background:rgba(178,58,38,.85);border-color:#ffd9d2;color:#fff}
+  .ghost.bad{background:#c05a45;border-color:#eee4da;color:#f9f6f2}
   @keyframes pop{0%{transform:var(--tf) scale(.35);opacity:0}100%{transform:var(--tf) scale(1);opacity:1}}
   @keyframes bump{0%{transform:var(--tf) scale(1)}45%{transform:var(--tf) scale(1.2)}100%{transform:var(--tf) scale(1)}}
   .tile.new{animation:pop 150ms ease-out}
   .tile.merged{animation:bump 200ms ease-in-out}
 
-  /* tuiles : palette 2048, os puis ambre — identique dans les deux thèmes */
-  .v2{background:#eee4da;color:#6b6156}
-  .v4{background:#ede0c8;color:#6b6156}
-  .v8{background:#f2b179;color:#fff8f0}
-  .v16{background:#f59563;color:#fff8f0}
-  .v32{background:#f67c5f;color:#fff8f0}
-  .v64{background:#f65e3b;color:#fff8f0}
-  .v128{background:#edcf72;color:#fff8f0}
-  .v256{background:#edcc61;color:#fff8f0}
-  .v512{background:#edc850;color:#fff8f0}
-  .v1024{background:#edc53f;color:#fff8f0}
-  .v2048{background:#edc22e;color:#fff8f0;box-shadow:0 0 24px rgba(243,215,116,.75)}
-  .vbig{background:#2f2b23;color:#f6efdf}
+  /* tuiles : les couleurs exactes du 2048 d'origine */
+  .v2{background:#eee4da;color:#776e65}
+  .v4{background:#ede0c8;color:#776e65}
+  .v8{background:#f2b179;color:#f9f6f2}
+  .v16{background:#f59563;color:#f9f6f2}
+  .v32{background:#f67c5f;color:#f9f6f2}
+  .v64{background:#f65e3b;color:#f9f6f2}
+  .v128{background:#edcf72;color:#f9f6f2}
+  .v256{background:#edcc61;color:#f9f6f2}
+  .v512{background:#edc850;color:#f9f6f2}
+  .v1024{background:#edc53f;color:#f9f6f2}
+  .v2048{background:#edc22e;color:#f9f6f2;box-shadow:0 0 30px 10px rgba(243,215,116,.48)}
+  .vbig{background:#3c3a32;color:#f9f6f2}
 
   .overlay{
-    position:absolute;inset:0;border-radius:12px;z-index:10;
-    background:color-mix(in srgb, var(--felt) 82%, #000 18%);
-    display:none;flex-direction:column;align-items:center;justify-content:center;gap:14px;text-align:center;padding:20px;
-    color:#f4efe2;
+    position:absolute;inset:0;border-radius:6px;z-index:10;
+    background:var(--veil);color:var(--veil-ink);
+    display:none;flex-direction:column;align-items:center;justify-content:center;
+    gap:16px;text-align:center;padding:22px;
   }
   .overlay.show{display:flex}
-  .overlay h2{margin:0;font-family:"Instrument Serif",Georgia,serif;font-weight:400;font-size:clamp(30px,8vw,44px);line-height:1}
-  .overlay p{margin:0;font-weight:600;font-size:14px;opacity:.85}
-  .overlay button{border-color:var(--brass);background:var(--brass);color:var(--brass-ink)}
+  .overlay h2{margin:0;font-size:clamp(34px,9vw,52px);font-weight:800;line-height:1;letter-spacing:-1px}
+  .overlay p{margin:0;font-weight:500;font-size:14px;opacity:.9}
+  .overlay button{background:var(--btn);color:var(--btn-ink);border:0;font-size:14px;padding:11px 20px}
 
-  .float{position:absolute;right:12px;top:8px;font-weight:800;color:var(--brass);opacity:0;pointer-events:none;white-space:nowrap}
-  @keyframes rise{0%{opacity:1;transform:translateY(0)}100%{opacity:0;transform:translateY(-26px)}}
+  .float{
+    position:absolute;right:10px;top:26px;font-weight:800;font-size:17px;color:var(--btn);
+    opacity:0;pointer-events:none;white-space:nowrap;
+  }
+  @keyframes rise{0%{opacity:1;transform:translateY(0)}100%{opacity:0;transform:translateY(-20px)}}
   .float.go{animation:rise 760ms ease-out}
   .scorewrap{position:relative}
 
-  /* ---- règles ---- */
-  .help{font-size:13.5px;line-height:1.6;border-top:1px solid var(--line);padding-top:14px;margin-top:2px}
-  .help h2{font-size:10px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);margin:0 0 8px}
-  .help ol{margin:0;padding-left:19px;display:flex;flex-direction:column;gap:6px}
-  .help b{font-weight:700}
-  .help em{font-style:normal;color:var(--brass);font-weight:700}
-  kbd{
-    background:var(--panel);border:1px solid var(--line);border-bottom-width:2px;border-radius:4px;
-    padding:1px 5px;font-size:11.5px;font-family:inherit;font-weight:700;
-  }
   @media (prefers-reduced-motion: reduce){
     .tile{transition:none}
     .tile.new,.tile.merged,.float.go,.rewards button.offer{animation:none}
@@ -238,7 +255,7 @@
 <div class="wrap">
   <header>
     <div class="brand">
-      <h1>Domino <em>2048</em></h1>
+      <h1>Domino 2048</h1>
       <p>Pose · Fusionne · Enchaîne</p>
     </div>
     <div class="scores">
@@ -257,9 +274,7 @@
       <div class="lbl">Suivant</div>
       <div id="nxt"></div>
     </div>
-    <div class="actions">
-      <button id="rotate" class="primary" type="button">Pivoter ⟳</button>
-    </div>
+    <button id="rotate" type="button" title="Fait tourner le domino"><span class="glyph">⟳</span>Pivoter</button>
   </div>
 
   <div class="bar">
@@ -288,19 +303,6 @@
       <div><button id="ovbtn" type="button"></button></div>
     </div>
   </div>
-
-  <section class="help">
-    <h2>Règle du jeu</h2>
-    <ol>
-      <li>Un domino de deux valeurs t'est proposé. <b>Choisis une case</b> (clic ou tap) : il occupe cette case et sa voisine.</li>
-      <li>Une fois posées, ses deux moitiés ne sont <b>plus solidaires</b> : ce sont deux tuiles ordinaires sur le tapis.</li>
-      <li>Seules les <em>valeurs égales qui se touchent</em> fusionnent, et elles le font aussitôt : deux 4 collés donnent un 8, qu'ils viennent du même domino ou de deux dominos différents.</li>
-      <li>Une fusion ne réunit jamais que <b>deux tuiles à la fois</b> : trois 4 côte à côte donnent un 8 et un 4 qui reste. Les fusions s'enchaînent <b>une par une en cascade</b>, et le jeu cherche toujours à <em>monter le plus haut possible</em> : il choisit l'ordre des fusions <b>et la case où chacune se dépose</b> pour qu'un 2 devienne 4, puis 8, puis 16 chaque fois que c'est faisable.</li>
-      <li><b>Le talon</b> ne sort un numéro qu'une fois <b>débloqué</b> : tu commences avec des 2, le 4 arrive dès qu'une fusion en a fabriqué un, puis le 8, le 16, le 32 et enfin le <em>64</em>. Au-delà, les grosses tuiles ne se gagnent qu'en fusionnant. Plus un numéro est gros, plus il est fréquent une fois débloqué.</li>
-      <li><kbd>R</kbd>, les flèches ou <b>Pivoter</b> font tourner le domino. L'aperçu cercle en laiton les tuiles qui vont fusionner avec la pose.</li>
-      <li>Objectif : la tuile <em>2048</em>. Le <em>4096</em> existe, mais il ne se voit presque jamais. La partie s'arrête quand il ne reste plus deux cases voisines libres.</li>
-    </ol>
-  </section>
 </div>
 
 <script>
@@ -738,10 +740,9 @@ function say(){
   statusEl.classList.remove("warn","good");
   const free = N * N - tiles.length;
   statusEl.textContent =
-    phase === "over"   ? "Partie terminée." :
-    tiles.length === 0 ? "Pose ton domino sur deux cases voisines." :
-    free <= 6          ? "Plus que " + free + " cases libres — fais fusionner." :
-                         "Pose le domino contre les valeurs que tu veux fusionner.";
+    phase === "over" ? "Partie terminée." :
+    free <= 6        ? "Plus que " + free + " cases libres." :
+                       "À toi de jouer.";
 }
 function showOverlay(title, text, btn){
   document.getElementById("ovtitle").textContent = title;
