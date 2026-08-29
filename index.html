@@ -13,6 +13,7 @@
      viennent du jeu de Gabriele Cirulli ; les tuiles gardent ses valeurs exactes.
      Les angles restent volontairement peu arrondis (3 px), comme à l'époque. */
   :root{
+    color-scheme:light;      /* une seule ambiance, celle du 2048 d'origine */
     --ground:#faf8ef;
     --panel:#eee4da;
     --board:#bbada0;
@@ -28,42 +29,6 @@
     --veil:rgba(238,228,218,.86);
     --veil-ink:#776e65;
     --score-label:#eee4da;
-  }
-  @media (prefers-color-scheme: dark){
-    :root:not([data-theme="light"]){
-      --ground:#17140f;
-      --panel:#2a2520;
-      --board:#3c3a32;
-      --cell-bg:rgba(238,228,218,.13);
-      --ghost-line:rgba(238,228,218,.5);
-      --ink:#f2ece3;
-      --ink-2:#cdc3b8;
-      --muted:#a2988d;
-      --line:rgba(238,228,218,.16);
-      --btn:#8f7a66;
-      --btn-ink:#f9f6f2;
-      --danger:#e08064;
-      --veil:rgba(23,20,15,.9);
-      --veil-ink:#f2ece3;
-      --score-label:#cdc1b4;
-    }
-  }
-  :root[data-theme="dark"]{
-    --ground:#17140f;
-    --panel:#2a2520;
-    --board:#3c3a32;
-    --cell-bg:rgba(238,228,218,.13);
-    --ghost-line:rgba(238,228,218,.5);
-    --ink:#f2ece3;
-    --ink-2:#cdc3b8;
-    --muted:#a2988d;
-    --line:rgba(238,228,218,.16);
-    --btn:#8f7a66;
-    --btn-ink:#f9f6f2;
-    --danger:#e08064;
-    --veil:rgba(23,20,15,.9);
-    --veil-ink:#f2ece3;
-    --score-label:#cdc1b4;
   }
 
   *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
@@ -179,6 +144,32 @@
   .ovrewards{display:flex;flex-direction:column;gap:8px;align-items:stretch}
   .ovrewards button{justify-content:center;background:transparent;color:var(--veil-ink);border-color:var(--veil-ink)}
 
+  /* ---- classement ---- */
+  .lb{display:flex;flex-direction:column;gap:8px;margin:0}
+  .lb[hidden]{display:none}
+  .lb h2{
+    display:flex;align-items:baseline;gap:8px;margin:0;
+    font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);
+  }
+  .lb h2 span{font-size:11px;font-weight:500;letter-spacing:0;text-transform:none}
+  .lb ol{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:2px}
+  .lb li{
+    display:grid;grid-template-columns:26px 1fr auto;align-items:center;gap:10px;
+    background:var(--panel);border-radius:3px;padding:6px 10px;font-size:13px;
+  }
+  .lb .rk{color:var(--muted);font-weight:700;font-variant-numeric:tabular-nums;text-align:right}
+  .lb .nm{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .lb b{font-weight:800;font-variant-numeric:tabular-nums}
+
+  .publish{display:flex;gap:6px;justify-content:center;flex-wrap:wrap}
+  .publish[hidden]{display:none}
+  .publish input{
+    font-family:inherit;font-size:14px;font-weight:600;padding:9px 12px;
+    border:2px solid var(--veil-ink);border-radius:3px;background:transparent;
+    color:var(--veil-ink);width:150px;
+  }
+  .publish input::placeholder{color:var(--veil-ink);opacity:.55}
+
   /* ---- le plateau ---- */
   .board{
     position:relative;width:100%;aspect-ratio:1/1;
@@ -291,6 +282,11 @@
     <button type="button" data-reward="boost" class="offer" hidden>×2 sur ce domino<span class="ad">pub</span></button>
   </div>
 
+  <section class="lb" id="lb" hidden>
+    <h2>Classement<span id="lbstate"></span></h2>
+    <ol id="lblist"></ol>
+  </section>
+
   <div class="board" id="board">
     <div class="overlay" id="overlay">
       <h2 id="ovtitle"></h2>
@@ -298,6 +294,11 @@
       <div class="ovrewards" id="ovrewards" hidden>
         <button type="button" data-reward="revive">↺ Continuer la partie<span class="ad">pub</span></button>
       </div>
+      <form class="publish" id="publish" hidden>
+        <input id="pubname" type="text" maxlength="16" placeholder="Ton pseudo"
+               autocomplete="nickname" aria-label="Ton pseudo pour le classement">
+        <button type="submit" id="pubbtn">Publier</button>
+      </form>
       <div><button id="ovbtn" type="button"></button></div>
     </div>
   </div>
@@ -325,6 +326,7 @@ const hintEl    = document.getElementById("hint");
 let grid, tiles, score, best, phase, rot, piece, nextPiece, uid, won, placed, unlocked, justUnlocked;
 let history, hammer, revives, paused, adBusy, games, forfeited;
 let boostTurns, boostOffer;   // les deux moments où l'offre « ×2 » se présente
+let published;                // score de la partie déjà envoyé au classement ?
 let ads = null;                                 // régie publicitaire branchée, si build partenaire
 
 /* ---------- mise en page ---------- */
@@ -708,6 +710,7 @@ function forfeit(){
 }
 function syncButtons(){
   forfeitBtn.disabled = !(phase === "place" && placed > 0);
+  syncPublish();
   if (armed && armed.el.disabled){ disarm(); say(); }
 }
 restartBtn.addEventListener("click", () => ask(restartBtn, newGame,
@@ -833,6 +836,7 @@ function grant(name){
     piece = { a: piece.a * 2, b: piece.b * 2 };
     boostTurns = boostTurns.filter(t => t !== placed);   // offre consommée
     boostOffer = false;
+  published = false;
     drawPieces(); clearGhost(); syncRewards();
     return flash("Domino doublé : " + piece.a + " et " + piece.b + ".", "good");
   }
@@ -890,6 +894,80 @@ function showGhost(r, c){
     ghosts.push(g);
   });
   for (const t of res.hooks) t.el.classList.add("match");
+}
+
+/* ---------- classement ----------
+   Le jeu ne dépend d'aucun serveur : sans adresse configurée, le panneau reste
+   masqué et rien n'est envoyé. L'adresse se pose à la construction ci-dessous,
+   ou à chaud via Domino.setLeaderboard(). Le serveur vit dans server/ (Worker
+   Cloudflare + D1) ; il reçoit pseudo, score et nombre de coups, mais n'affiche
+   jamais le nombre de coups — il ne sert qu'à repérer une partie douteuse. */
+const LEADERBOARD_API = "";        // ex. "https://domino-2048-leaderboard.xxx.workers.dev"
+let api = null;
+
+function setLbState(msg){ document.getElementById("lbstate").textContent = msg || ""; }
+
+async function loadBoard(){
+  if (!api) return;
+  try {
+    const res = await fetch(api + "/scores?limit=10", { headers: { accept: "application/json" } });
+    if (!res.ok) throw new Error(res.status);
+    const data = await res.json();
+    const list = document.getElementById("lblist");
+    list.textContent = "";
+    for (const s of data.scores || []){
+      const li = document.createElement("li");
+      const rk = document.createElement("span"); rk.className = "rk"; rk.textContent = s.rank;
+      const nm = document.createElement("span"); nm.className = "nm";
+      nm.textContent = s.name;                       // texte, jamais du HTML
+      const sc = document.createElement("b");
+      sc.textContent = Number(s.score).toLocaleString("fr-FR");
+      li.append(rk, nm, sc);
+      list.appendChild(li);
+    }
+    setLbState((data.scores || []).length ? "" : "personne encore");
+  } catch {
+    setLbState("indisponible");
+  }
+}
+
+function syncPublish(){
+  const form = document.getElementById("publish");
+  form.hidden = !(api && phase === "over" && score > 0 && !published);
+}
+
+document.getElementById("publish").addEventListener("submit", async e => {
+  e.preventDefault(); e.stopPropagation();
+  const input = document.getElementById("pubname");
+  const btn = document.getElementById("pubbtn");
+  const name = input.value.trim();
+  if (!name || !api){ input.focus(); return; }
+  try { localStorage.setItem("domino2048.name", name); } catch(err){}
+  btn.disabled = true; btn.textContent = "Envoi…";
+  try {
+    const res = await fetch(api + "/scores", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ name, score, moves: placed })
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(data.error || res.status);
+    published = true;
+    document.getElementById("ovtext").textContent =
+      "Publié · " + data.rank + (data.rank === 1 ? "er" : "e") + " au classement";
+    syncPublish();
+    loadBoard();
+  } catch (err){
+    btn.disabled = false; btn.textContent = "Publier";
+    setLbState("envoi impossible");
+  }
+});
+
+function useLeaderboard(url){
+  api = url ? String(url).trim().replace(/\/+$/, "") : null;
+  document.getElementById("lb").hidden = !api;
+  syncPublish();
+  if (api) loadBoard();
 }
 
 /* ---------- entrées ---------- */
@@ -957,6 +1035,7 @@ function newGame(){
   const first = 3 + sideRand(7);
   boostTurns = [first, first + 6 + sideRand(8)];
   boostOffer = false;
+  published = false;
   boardEl.querySelectorAll(".tile,.ghost").forEach(e => e.remove());
   ghosts = [];
   piece = makePiece(); nextPiece = makePiece();
@@ -974,15 +1053,22 @@ for (let r = 0; r < N; r++) for (let c = 0; c < N; c++){
   boardEl.appendChild(d);
 }
 games = 0; adBusy = false;
+try {
+  const saved = localStorage.getItem("domino2048.name");
+  if (saved) document.getElementById("pubname").value = saved;
+} catch(e){}
 try { best = parseInt(localStorage.getItem("domino2048.best"), 10) || 0; } catch(e){ best = 0; }
 bestEl.textContent = best;
 newGame();
 layout();
+useLeaderboard(typeof window.DOMINO_API === "string" ? window.DOMINO_API : LEADERBOARD_API);
 
 /* ---------- point de branchement pour une build partenaire ---------- */
 window.Domino = {
   // régie : { showRewarded(nom, {granted, skipped}), showInterstitial(nom) }
   setAdProvider(provider){ ads = provider || null; syncRewards(); },
+  // adresse du service de classement ; sans elle, aucun appel réseau
+  setLeaderboard(url){ useLeaderboard(url); },
   pause (){ paused = true; },
   resume(){ paused = false; },
   state (){ return { score, best, placed, phase, unlocked, tiles: tiles.length, revives,

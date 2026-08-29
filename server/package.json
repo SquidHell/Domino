@@ -1,0 +1,16 @@
+{
+  "name": "domino-2048-leaderboard",
+  "private": true,
+  "type": "module",
+  "description": "Classement Domino 2048 — Cloudflare Worker + D1, sans dépendance",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "db:local": "wrangler d1 execute domino-2048 --local --file=./schema.sql",
+    "db:remote": "wrangler d1 execute domino-2048 --remote --file=./schema.sql",
+    "test": "node --experimental-sqlite test/worker.test.mjs"
+  },
+  "devDependencies": {
+    "wrangler": "^4.0.0"
+  }
+}

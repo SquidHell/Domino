@@ -7,8 +7,8 @@ Un petit jeu HTML (un seul fichier, sans dépendance) qui mélange les **dominos
 Ouvre `index.html` dans un navigateur. C'est tout.
 
 L'interface reprend la palette du 2048 d'origine : fond crème, plateau taupe, tuiles ivoire
-puis ambre, angles à peine arrondis. Les règles ne sont plus imprimées sur la page — elles
-sont ci-dessous.
+puis ambre, angles à peine arrondis, une seule ambiance (pas de mode sombre). Les règles
+ne sont plus imprimées sur la page — elles sont ci-dessous.
 
 ## Règles
 
@@ -89,3 +89,15 @@ Grille **6×6**, talon débloqué jusqu'à **64**, tirage pondéré par la valeu
 balaie taille de grille × plafond du talon × pondération et mesure la part des parties qui
 atteignent chaque palier ; ce réglage est celui qui rend le 2048 réellement atteignable tout
 en gardant le 4096 exceptionnel.
+
+## Classement en ligne
+
+Un service de classement vit dans `server/` : un Cloudflare Worker sans dépendance et une
+base D1, déployés depuis ce dépôt par `.github/workflows/deploy-leaderboard.yml`. Il reçoit
+pseudo, score et nombre de coups ; **le nombre de coups n'est jamais affiché** au classement
+— il ne sert qu'à repérer une partie douteuse depuis la vue d'administration, avec des
+marqueurs automatiques de plausibilité. **Aucune adresse IP n'est lue ni stockée**, et la
+modération se fait à la main.
+
+Le jeu n'en dépend pas : tant que `LEADERBOARD_API` est vide en tête du script, aucun appel
+réseau n'est émis et le panneau reste masqué. Voir `server/README.md`.
