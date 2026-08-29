@@ -39,6 +39,13 @@ Ouvre `index.html` dans un navigateur. C'est tout.
 Le score augmente de la valeur de chaque fusion ; le record est conservé dans le
 navigateur (`localStorage`). Un aperçu du domino suivant permet d'anticiper.
 
+**Deux boutons mettent fin à une partie**, et tous deux demandent confirmation quand il y a
+quelque chose à perdre : un premier clic arme le bouton (« Confirmer ? »), un second exécute,
+et n'importe quelle autre action — poser un domino, pivoter, cliquer ailleurs — annule, tout
+comme les 5 secondes d'inactivité. **Nouvelle partie** repart de zéro, sans rien demander sur
+un tapis vierge ou après une fin de partie. **Déclarer forfait** met fin à la partie en cours
+et affiche l'écran de défaite ; il est désactivé tant qu'aucun domino n'est posé.
+
 ## Build Y8
 
 Une build prête pour [Y8](https://www.y8.com) vit dans `y8/` : le jeu, le minimal SDK Y8 2.0

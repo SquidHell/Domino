@@ -20,6 +20,7 @@
     --felt-cell:#43836b;
     --brass:#9d7118;
     --brass-ink:#fdf6e6;
+    --danger:#c2502f;
     --lift:0 1px 0 rgba(255,255,255,.5), 0 10px 26px rgba(40,55,48,.14);
   }
   @media (prefers-color-scheme: dark){
@@ -33,6 +34,7 @@
       --felt-cell:#2b5546;
       --brass:#d9b04a;
       --brass-ink:#171103;
+      --danger:#f08b6a;
       --lift:0 1px 0 rgba(255,255,255,.06), 0 14px 34px rgba(0,0,0,.5);
     }
   }
@@ -46,6 +48,7 @@
     --felt-cell:#2b5546;
     --brass:#d9b04a;
     --brass-ink:#171103;
+    --danger:#f08b6a;
     --lift:0 1px 0 rgba(255,255,255,.06), 0 14px 34px rgba(0,0,0,.5);
   }
 
@@ -134,14 +137,16 @@
   .ovrewards{display:flex;flex-direction:column;gap:8px;align-items:stretch}
   .ovrewards button{justify-content:center;background:transparent;color:#f4efe2;border-color:rgba(244,239,226,.45)}
 
-  .bar{display:flex;align-items:center;gap:10px;min-height:22px}
+  .bar{display:flex;align-items:center;gap:10px;min-height:22px;flex-wrap:wrap}
+  .acts{display:flex;gap:7px;margin-left:auto}
   .status{flex:1;font-size:13.5px;font-weight:600;margin:0;color:var(--muted)}
-  .status.warn{color:#c2502f}
+  .status.warn{color:var(--danger)}
   .status.good{color:var(--brass)}
-  @media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .status.warn{color:#f08b6a}}
-  :root[data-theme="dark"] .status.warn{color:#f08b6a}
   .bar button{padding:6px 11px;font-size:11.5px;border-color:var(--line);color:var(--muted)}
-  .bar button:hover{background:var(--muted);color:var(--ground);border-color:var(--muted)}
+  .bar button:hover:not([disabled]){background:var(--muted);color:var(--ground);border-color:var(--muted)}
+  /* état « clique encore pour confirmer » */
+  .bar button.armed{color:var(--danger);border-color:var(--danger);font-weight:800}
+  .bar button.armed:hover{background:var(--danger);color:var(--ground);border-color:var(--danger)}
 
   /* ---- le tapis ---- */
   .board{
@@ -252,8 +257,11 @@
   </div>
 
   <div class="bar">
-    <p class="status" id="status"></p>
-    <button id="restart" type="button">Nouvelle partie</button>
+    <p class="status" id="status" role="status" aria-live="polite"></p>
+    <div class="acts">
+      <button id="forfeit" type="button" title="Met fin à la partie en cours">Déclarer forfait</button>
+      <button id="restart" type="button" title="Repart de zéro">Nouvelle partie</button>
+    </div>
   </div>
 
   <!-- Bonus : masqués tant qu'aucune régie publicitaire n'est branchée -->
@@ -309,7 +317,7 @@ const nxtEl     = document.getElementById("nxt");
 const hintEl    = document.getElementById("hint");
 
 let grid, tiles, score, best, phase, rot, piece, nextPiece, uid, won, placed, unlocked, justUnlocked;
-let history, hammer, revives, doubled, paused, adBusy, games;
+let history, hammer, revives, doubled, paused, adBusy, games, forfeited;
 let ads = null;                                 // régie publicitaire branchée, si build partenaire
 
 /* ---------- mise en page ---------- */
@@ -607,6 +615,7 @@ async function resolve(){
 /* ---------- tour de jeu ---------- */
 async function place(r, c){
   if (phase !== "place" || paused) return;
+  disarm();
   const res = tryPlace(r, c, rot, piece);
   if (!res.ok){ flash("Il faut deux cases voisines libres."); return; }
   phase = "anim";
@@ -634,8 +643,55 @@ function nextTurn(){
     const v = justUnlocked; justUnlocked = null;
     flash("Le " + v + " est débloqué : il peut désormais sortir du talon.", "good");
   } else say();
-  syncRewards();
+  syncButtons(); syncRewards();
 }
+
+/* ---------- abandon et redémarrage ----------
+   Les deux boutons mettent fin à une partie en cours : ils demandent donc une
+   confirmation, mais seulement quand il y a quelque chose à perdre. Un second
+   clic confirme, tout le reste annule. */
+const restartBtn = document.getElementById("restart");
+const forfeitBtn = document.getElementById("forfeit");
+let armed = null, armTimer = null;
+
+function disarm(){
+  if (!armed) return;
+  armed.el.textContent = armed.label;
+  armed.el.classList.remove("armed");
+  clearTimeout(armTimer);
+  armed = null;
+}
+function arm(el, action, question){
+  disarm();
+  armed = { el, label: el.textContent, action };
+  el.textContent = "Confirmer ?";
+  el.classList.add("armed");
+  flash(question);
+  armTimer = setTimeout(() => { disarm(); say(); }, 5000);
+}
+function ask(el, action, question, needed){
+  if (armed && armed.el === el){ const go = armed.action; disarm(); go(); return; }
+  if (!needed){ disarm(); action(); return; }
+  arm(el, action, question);
+}
+function forfeit(){
+  forfeited = true;
+  hammer = false; boardEl.classList.remove("smashing");
+  clearGhost();
+  phase = "over";
+  showOverlay("Forfait", "Score : " + score + " · " + placed + " dominos posés", "Rejouer");
+  syncButtons(); syncRewards(); say();
+}
+function syncButtons(){
+  forfeitBtn.disabled = !(phase === "place" && placed > 0);
+  if (armed && armed.el.disabled){ disarm(); say(); }
+}
+restartBtn.addEventListener("click", () => ask(restartBtn, newGame,
+  "Partie en cours — clique encore pour tout effacer.",
+  phase !== "over" && placed > 0));
+forfeitBtn.addEventListener("click", () => ask(forfeitBtn, forfeit,
+  "Clique encore pour abandonner la partie.",
+  true));
 
 /* ---------- score / messages ---------- */
 function addScore(gained, chain){
@@ -679,7 +735,7 @@ const REWARDS = {
   undo:   { can: () => !!history && (phase === "place" || phase === "over") },
   swap:   { can: () => phase === "place" && !hammer },
   hammer: { can: () => phase === "place" && !hammer && tiles.length > 0 },
-  revive: { can: () => phase === "over" && revives < 2 },
+  revive: { can: () => phase === "over" && !forfeited && revives < 2 },
   double: { can: () => phase === "over" && !doubled && score > 0 }
 };
 
@@ -821,7 +877,7 @@ function cellFromPoint(x, y){
   const r = Math.floor((y - b.top  - gap/2) / (cell + gap));
   return inB(r,c) ? [r,c] : null;
 }
-function rotate(){ if (paused || hammer) return; rot = (rot + 1) % 4; drawPieces(); clearGhost(); }
+function rotate(){ disarm(); if (paused || hammer) return; rot = (rot + 1) % 4; drawPieces(); clearGhost(); }
 
 boardEl.addEventListener("mousemove", e => {
   const p = cellFromPoint(e.clientX, e.clientY);
@@ -830,6 +886,7 @@ boardEl.addEventListener("mousemove", e => {
 boardEl.addEventListener("mouseleave", clearGhost);
 boardEl.addEventListener("click", e => {
   const p = cellFromPoint(e.clientX, e.clientY);
+  disarm();
   if (!p || paused) return;
   if (hammer) smash(p[0], p[1]); else place(p[0], p[1]);
 });
@@ -852,7 +909,6 @@ boardEl.addEventListener("touchend", e => {
 }, {passive:true});
 
 document.getElementById("rotate").addEventListener("click", rotate);
-document.getElementById("restart").addEventListener("click", newGame);
 overlayEl.addEventListener("click", e => e.stopPropagation());
 document.getElementById("ovbtn").addEventListener("click", e => {
   e.stopPropagation();
@@ -873,6 +929,7 @@ function newGame(){
   score = 0; uid = 1; rot = 0; won = false; placed = 0;
   unlocked = 2; justUnlocked = null;
   history = null; hammer = false; revives = 0; doubled = false; paused = false;
+  forfeited = false; disarm();
   boardEl.querySelectorAll(".tile,.ghost").forEach(e => e.remove());
   ghosts = [];
   piece = makePiece(); nextPiece = makePiece();
@@ -880,7 +937,7 @@ function newGame(){
   phase = "place";
   scoreEl.textContent = "0";
   boardEl.classList.remove("smashing");
-  drawPieces(); say(); syncRewards();
+  drawPieces(); say(); syncButtons(); syncRewards();
   if (ads && games > 0) ads.showInterstitial("new-game");
   games++;
 }
