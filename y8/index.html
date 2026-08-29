@@ -116,6 +116,7 @@
     padding:6px 11px;font-size:12px;
   }
   .acts button:hover:not([disabled]){background:var(--btn);color:var(--btn-ink);border-color:var(--btn);filter:none}
+  .acts button.mute.off{opacity:.45;text-decoration:line-through}
   .acts button.armed{color:var(--danger);border-color:var(--danger)}
   .acts button.armed:hover{background:var(--danger);color:var(--ground);border-color:var(--danger)}
 
@@ -271,6 +272,7 @@
   <div class="bar">
     <p class="status" id="status" role="status" aria-live="polite"></p>
     <div class="acts">
+      <button id="mute" type="button" class="mute" aria-pressed="false" title="Couper le son">Son</button>
       <button id="forfeit" type="button" title="Met fin à la partie en cours">Déclarer forfait</button>
       <button id="restart" type="button" title="Repart de zéro">Nouvelle partie</button>
     </div>
@@ -330,6 +332,153 @@ let history, hammer, revives, paused, adBusy, games, forfeited;
 let boostTurns, boostOffer;   // les deux moments où l'offre « ×2 » se présente
 let published;                // score de la partie déjà envoyé au classement ?
 let ads = null;                                 // régie publicitaire branchée, si build partenaire
+
+/* ---------- bruitages ----------
+   Tout est synthétisé à la volée : aucun fichier audio, donc rien à charger et
+   rien qu'une politique de sécurité puisse bloquer. La matière sonore vient du
+   domino lui-même — un claquement de plaque sur le tapis — et les fusions
+   chantent une gamme pentatonique qui monte avec la valeur de la tuile : une
+   cascade joue donc un arpège, sans qu'on ait rien à composer.
+   Tout passe par un passe-bas : rond, feutré, jamais claquant. */
+const SFX = (function(){
+  const VOLUME = 0.26;
+  // La mineure pentatonique. L'indice suit log2(valeur) − 2 : 4 → 0, 8 → 1, …
+  const SCALE = [220.00, 261.63, 293.66, 329.63, 392.00,
+                 440.00, 523.25, 587.33, 659.25, 784.00,
+                 880.00, 1046.50, 1174.66];
+  let ctx = null, master = null, noise = null, off = false, ducked = false;
+
+  function ensure(){
+    if (ctx) return ctx;
+    const AC = window.AudioContext || window.webkitAudioContext;
+    if (!AC) return null;
+    try { ctx = new AC(); } catch(e){ return null; }
+    master = ctx.createGain();
+    master.gain.value = off ? 0 : VOLUME;
+    const soften = ctx.createBiquadFilter();   // on coupe les aigus agressifs
+    soften.type = "lowpass";
+    soften.frequency.value = 4200;
+    master.connect(soften);
+    soften.connect(ctx.destination);
+    // Un souffle de bruit blanc, réutilisé pour tous les claquements. Il est
+    // tiré d'un générateur local et NON de Math.random : le talon doit rester
+    // le seul consommateur de cette suite, sinon deux parties de même graine
+    // ne se rejouent plus à l'identique (tools/verify-sim.mjs le vérifie).
+    noise = ctx.createBuffer(1, ctx.sampleRate * 0.25, ctx.sampleRate);
+    const d = noise.getChannelData(0);
+    let seed = 0x9e3779b9;
+    for (let i = 0; i < d.length; i++){
+      seed ^= seed << 13; seed ^= seed >>> 17; seed ^= seed << 5;
+      d[i] = (seed >>> 0) / 2147483648 - 1;
+    }
+    return ctx;
+  }
+  function level(){
+    if (!master) return;
+    master.gain.setTargetAtTime(off || ducked ? 0 : VOLUME, ctx.currentTime, 0.02);
+  }
+
+  /* une note douce, attaque lente et longue décroissance : timbre de kalimba */
+  function note(freq, when, { dur = 0.9, gain = 0.5, detune = 0 } = {}){
+    const t = when;
+    const g = ctx.createGain();
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.linearRampToValueAtTime(gain, t + 0.02);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    const o1 = ctx.createOscillator();
+    o1.type = "sine"; o1.frequency.value = freq; o1.detune.value = detune;
+    const o2 = ctx.createOscillator();          // harmonique discrète, du corps
+    o2.type = "triangle"; o2.frequency.value = freq * 2;
+    const g2 = ctx.createGain(); g2.gain.value = 0.12;
+    o1.connect(g); o2.connect(g2); g2.connect(g); g.connect(master);
+    o1.start(t); o2.start(t);
+    o1.stop(t + dur + 0.05); o2.stop(t + dur + 0.05);
+  }
+
+  /* la plaque qui tombe sur le tapis : souffle filtré + résonance boisée */
+  function clack(when, { gain = 0.5, tone = 1 } = {}){
+    const t = when;
+    const src = ctx.createBufferSource(); src.buffer = noise;
+    const bp = ctx.createBiquadFilter();
+    bp.type = "bandpass"; bp.frequency.value = 1250 * tone; bp.Q.value = 1.1;
+    const g = ctx.createGain();
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.linearRampToValueAtTime(gain, t + 0.004);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + 0.085);
+    src.connect(bp); bp.connect(g); g.connect(master);
+    src.start(t); src.stop(t + 0.12);
+
+    const body = ctx.createOscillator();        // le bois sous l'os
+    body.type = "sine"; body.frequency.setValueAtTime(230 * tone, t);
+    body.frequency.exponentialRampToValueAtTime(150 * tone, t + 0.07);
+    const bg = ctx.createGain();
+    bg.gain.setValueAtTime(gain * 0.55, t);
+    bg.gain.exponentialRampToValueAtTime(0.0001, t + 0.11);
+    body.connect(bg); bg.connect(master);
+    body.start(t); body.stop(t + 0.14);
+  }
+
+  /* un souffle grave et mat : marteau, pose refusée, fin de partie */
+  function thud(when, { gain = 0.45, freq = 110 } = {}){
+    const t = when;
+    const o = ctx.createOscillator();
+    o.type = "sine";
+    o.frequency.setValueAtTime(freq, t);
+    o.frequency.exponentialRampToValueAtTime(freq * 0.55, t + 0.18);
+    const g = ctx.createGain();
+    g.gain.setValueAtTime(gain, t);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + 0.26);
+    o.connect(g); g.connect(master);
+    o.start(t); o.stop(t + 0.3);
+  }
+
+  const VOICES = {
+    // les deux moitiés touchent le tapis à un cheveu d'intervalle
+    pose:    t => { clack(t, { gain:.5, tone:1 }); clack(t + 0.035, { gain:.38, tone:1.18 }); },
+    pivot:   t => clack(t, { gain:.16, tone:1.9 }),
+    refus:   t => thud(t, { gain:.3, freq:80 }),
+    marteau: t => { thud(t, { gain:.42, freq:95 }); clack(t + 0.02, { gain:.3, tone:.7 }); },
+    // la fusion chante sa valeur : plus la tuile est grosse, plus la note monte
+    fusion:  (t, v) => {
+      const i = Math.max(0, Math.min(SCALE.length - 1, Math.round(Math.log2(v || 4)) - 2));
+      note(SCALE[i], t, { dur: .55 + i * .05, gain: .34 });
+      clack(t, { gain: .12, tone: 1.5 });
+    },
+    debloque: t => { note(SCALE[4], t, { gain:.3, dur:.9 }); note(SCALE[7], t + .12, { gain:.26, dur:1.1 }); },
+    offre:    t => { note(SCALE[9], t, { gain:.24, dur:.7 }); note(SCALE[11], t + .09, { gain:.2, dur:.9 }); },
+    bonus:    t => { [0,2,4].forEach((s,k) => note(SCALE[s+4], t + k*.07, { gain:.28, dur:.8 })); },
+    annule:   t => { note(SCALE[6], t, { gain:.26, dur:.4 }); note(SCALE[3], t + .09, { gain:.24, dur:.6 }); },
+    reprise:  t => { [0,2,4,6].forEach((s,k) => note(SCALE[s], t + k*.06, { gain:.24, dur:.9 })); },
+    publie:   t => { note(SCALE[5], t, { gain:.26, dur:.5 }); note(SCALE[9], t + .1, { gain:.24, dur:.8 }); },
+    fin:      t => { thud(t, { gain:.4, freq:130 }); note(SCALE[2], t + .06, { gain:.24, dur:1.2 });
+                     note(SCALE[0], t + .3, { gain:.22, dur:1.6 }); },
+    gagne:    t => { [0,2,4,7,9].forEach((s,k) => note(SCALE[s], t + k*.1, { gain:.3, dur:1.4 })); }
+  };
+
+  return {
+    play(name, arg){
+      if (off || !VOICES[name]) return;
+      const c = ensure();
+      if (!c) return;
+      if (c.state === "suspended") c.resume().catch(() => {});
+      try { VOICES[name](c.currentTime + 0.008, arg); } catch(e){}
+    },
+    // pendant une publicité, le jeu se tait sans oublier le réglage du joueur
+    duck(on){ ducked = !!on; level(); },
+    muted(){ return off; },
+    toggle(){
+      off = !off;
+      if (!off) ensure();
+      level();
+      try { localStorage.setItem("domino2048.muet", off ? "1" : "0"); } catch(e){}
+      return off;
+    },
+    restore(){
+      try { off = localStorage.getItem("domino2048.muet") === "1"; } catch(e){ off = false; }
+      return off;
+    }
+  };
+})();
 
 /* ---------- mise en page ---------- */
 let gap = 10, cell = 80;
@@ -623,6 +772,7 @@ async function resolve(){
 
     anchor.value = value;
     anchor.id = uid++;                          // la fusion devient la plus récente
+    SFX.play("fusion", value);
     unlock(value);
     if (value >= 2048 && !won) won = "now";
     refresh(anchor, true);
@@ -639,13 +789,14 @@ async function place(r, c){
   if (phase !== "place" || paused) return;
   disarm();
   const res = tryPlace(r, c, rot, piece);
-  if (!res.ok){ flash("Il faut deux cases voisines libres."); return; }
+  if (!res.ok){ SFX.play("refus"); flash("Il faut deux cases voisines libres."); return; }
   phase = "anim";
   clearGhost();
   saveHistory();
   const [[r1,c1],[r2,c2]] = res.cells;
   addTile(r1, c1, piece.a);
   addTile(r2, c2, piece.b);
+  SFX.play("pose");
   placed++;
   piece = nextPiece; nextPiece = makePiece();
   drawPieces();
@@ -654,9 +805,10 @@ async function place(r, c){
   nextTurn();
 }
 function nextTurn(){
-  if (won === "now"){ won = true; showOverlay("2048 !", "Tu as monté la tuile. Continue : le 4096 existe, mais presque personne ne le voit.", "Continuer"); }
+  if (won === "now"){ won = true; SFX.play("gagne"); showOverlay("2048 !", "Tu as monté la tuile. Continue : le 4096 existe, mais presque personne ne le voit.", "Continuer"); }
   if (!canPlaceSomewhere()){
     phase = "over";
+    SFX.play("fin");
     showOverlay("Le tapis est plein", "Score : " + score + " · " + placed + " dominos posés", "Rejouer");
   } else {
     phase = "place";
@@ -666,9 +818,10 @@ function nextTurn(){
   const newOffer = offered && !boostOffer;
   boostOffer = offered;
 
-  if (newOffer) flash("Offre : double ce domino avant de le poser.", "good");
+  if (newOffer){ SFX.play("offre"); flash("Offre : double ce domino avant de le poser.", "good"); }
   else if (justUnlocked && phase !== "over"){
     const v = justUnlocked; justUnlocked = null;
+    SFX.play("debloque");
     flash("Le " + v + " est débloqué : il peut désormais sortir du talon.", "good");
   } else say();
   syncButtons(); syncRewards();
@@ -707,6 +860,7 @@ function forfeit(){
   hammer = false; boardEl.classList.remove("smashing");
   clearGhost();
   phase = "over";
+  SFX.play("fin");
   showOverlay("Forfait", "Score : " + score + " · " + placed + " dominos posés", "Rejouer");
   syncButtons(); syncRewards(); say();
 }
@@ -790,6 +944,7 @@ function undoMove(){
   overlayEl.classList.remove("show");
   hammer = false; boardEl.classList.remove("smashing");
   drawPieces(); clearGhost(); nextTurn();
+  SFX.play("annule");
   flash("Coup annulé.", "good");
 }
 // libère de la place au lieu de terminer : on retire les plus petites tuiles
@@ -811,16 +966,18 @@ function reviveBoard(){
   overlayEl.classList.remove("show");
   phase = "place";
   nextTurn();
+  SFX.play("reprise");
   flash(removed + " tuiles retirées — la partie continue.", "good");
 }
 function smash(r, c){
   const t = grid[r][c];
-  if (!t){ flash("Vise une tuile à retirer."); return; }
+  if (!t){ SFX.play("refus"); flash("Vise une tuile à retirer."); return; }
   grid[r][c] = null;
   tiles.splice(tiles.indexOf(t), 1);
   t.el.classList.add("dying");
   const el = t.el;
   setTimeout(() => el.remove(), 200);
+  SFX.play("marteau");
   hammer = false;
   boardEl.classList.remove("smashing");
   history = null;                        // plus rien à annuler après un retrait
@@ -829,7 +986,7 @@ function smash(r, c){
 }
 function grant(name){
   if (name === "undo")   return undoMove();
-  if (name === "swap"){  piece = makePiece(); drawPieces(); clearGhost(); syncRewards();
+  if (name === "swap"){  piece = makePiece(); drawPieces(); clearGhost(); syncRewards(); SFX.play("bonus");
                          return flash("Nouveau domino en main.", "good"); }
   if (name === "hammer"){ hammer = true; boardEl.classList.add("smashing"); clearGhost(); syncRewards();
                           return flash("Choisis la tuile à retirer.", "good"); }
@@ -840,6 +997,7 @@ function grant(name){
     boostOffer = false;
   published = false;
     drawPieces(); clearGhost(); syncRewards();
+    SFX.play("bonus");
     return flash("Domino doublé : " + piece.a + " et " + piece.b + ".", "good");
   }
 }
@@ -858,13 +1016,31 @@ function syncRewards(){
   bar.hidden = !ads;
   ov.hidden   = !ads || phase !== "over";
   if (!ads) return;
-  document.querySelectorAll("[data-reward]").forEach(b => {
+  const muteBtn = document.getElementById("mute");
+function syncMute(){
+  const off = SFX.muted();
+  muteBtn.classList.toggle("off", off);
+  muteBtn.setAttribute("aria-pressed", off ? "true" : "false");
+  muteBtn.title = off ? "Remettre le son" : "Couper le son";
+}
+muteBtn.addEventListener("click", () => { SFX.toggle(); syncMute(); if (!SFX.muted()) SFX.play("pivot"); });
+
+document.querySelectorAll("[data-reward]").forEach(b => {
     const r = REWARDS[b.dataset.reward];
     b.disabled = adBusy || !r || !r.can();
   });
   const offer = document.querySelector('[data-reward="boost"]');
   offer.hidden = !REWARDS.boost.can() && !adBusy;
 }
+const muteBtn = document.getElementById("mute");
+function syncMute(){
+  const off = SFX.muted();
+  muteBtn.classList.toggle("off", off);
+  muteBtn.setAttribute("aria-pressed", off ? "true" : "false");
+  muteBtn.title = off ? "Remettre le son" : "Couper le son";
+}
+muteBtn.addEventListener("click", () => { SFX.toggle(); syncMute(); if (!SFX.muted()) SFX.play("pivot"); });
+
 document.querySelectorAll("[data-reward]").forEach(b =>
   b.addEventListener("click", e => { e.stopPropagation(); requestReward(b.dataset.reward); }));
 
@@ -955,6 +1131,7 @@ document.getElementById("publish").addEventListener("submit", async e => {
     const data = await res.json().catch(() => ({}));
     if (!res.ok) throw new Error(data.error || res.status);
     published = true;
+    SFX.play("publie");
     document.getElementById("ovtext").textContent =
       "Publié · " + data.rank + (data.rank === 1 ? "er" : "e") + " au classement";
     syncPublish();
@@ -979,7 +1156,7 @@ function cellFromPoint(x, y){
   const r = Math.floor((y - b.top  - gap/2) / (cell + gap));
   return inB(r,c) ? [r,c] : null;
 }
-function rotate(){ disarm(); if (paused || hammer) return; rot = (rot + 1) % 4; drawPieces(); clearGhost(); }
+function rotate(){ disarm(); if (paused || hammer) return; SFX.play("pivot"); rot = (rot + 1) % 4; drawPieces(); clearGhost(); }
 
 boardEl.addEventListener("mousemove", e => {
   const p = cellFromPoint(e.clientX, e.clientY);
@@ -1055,6 +1232,7 @@ for (let r = 0; r < N; r++) for (let c = 0; c < N; c++){
   boardEl.appendChild(d);
 }
 games = 0; adBusy = false;
+SFX.restore(); syncMute();
 try {
   const saved = localStorage.getItem("domino2048.name");
   if (saved) document.getElementById("pubname").value = saved;
@@ -1071,8 +1249,8 @@ window.Domino = {
   setAdProvider(provider){ ads = provider || null; syncRewards(); },
   // adresse du service de classement ; sans elle, aucun appel réseau
   setLeaderboard(url){ useLeaderboard(url); },
-  pause (){ paused = true; },
-  resume(){ paused = false; },
+  pause (){ paused = true; SFX.duck(true); },
+  resume(){ paused = false; SFX.duck(false); },
   state (){ return { score, best, placed, phase, unlocked, tiles: tiles.length, revives,
                      boostOffer, boostTurns: boostTurns.slice() }; },
   newGame

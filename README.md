@@ -40,6 +40,13 @@ ne sont plus imprimées sur la page — elles sont ci-dessous.
    ne se voit presque jamais. La partie s'arrête quand il ne reste plus deux cases voisines
    libres sur la grille 6×6.
 
+**Le son est synthétisé à la volée** — aucun fichier audio, donc rien à charger. La matière
+vient du domino lui-même : une plaque qui claque sur le tapis, un corps boisé sous l'os. Les
+fusions chantent une gamme pentatonique qui monte avec la valeur de la tuile, si bien qu'une
+cascade joue un arpège sans qu'on ait rien eu à composer. Tout passe par un passe-bas, à
+volume bas. Le bouton **Son** coupe l'ensemble et le réglage est mémorisé ; une publicité
+fait taire le jeu le temps de sa diffusion, sans toucher à ce réglage.
+
 Le score augmente de la valeur de chaque fusion ; le record est conservé dans le
 navigateur (`localStorage`). Un aperçu du domino suivant permet d'anticiper.
 
