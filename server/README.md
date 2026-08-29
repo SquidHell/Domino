@@ -33,15 +33,34 @@ main, comme demandé.
 
 ## Mise en route
 
+Une seule commande, depuis la racine du dépôt :
+
+```sh
+./server/deploy.sh
+```
+
+Elle enchaîne tout : connexion à Cloudflare, création de la base D1, écriture de
+son identifiant dans `wrangler.toml`, application du schéma, tirage du jeton
+d'administration, tests, déploiement — puis elle recopie l'adresse obtenue dans
+`index.html` et régénère la build Y8. Il ne reste qu'à valider les fichiers
+modifiés.
+
+Le script est rejouable : relancé, il retrouve la base existante, réapplique un
+schéma en `CREATE ... IF NOT EXISTS` et ne retouche pas au jeton déjà posé.
+Aucune ligne du classement n'est jamais perdue.
+
+Le jeton d'administration n'est affiché **qu'une fois**, au moment où il est
+créé : c'est le seul moment pour le mettre de côté.
+
+Si tu préfères conduire à la main :
+
 ```sh
 cd server
 npm install                                   # wrangler uniquement, en dev
-
 npx wrangler login
 npx wrangler d1 create domino-2048            # recopier l'identifiant dans wrangler.toml
 npm run db:remote                             # applique schema.sql à la base distante
 npx wrangler secret put ADMIN_TOKEN           # une longue chaîne aléatoire, gardée pour toi
-
 npm test                                      # 38 vérifications, sans réseau
 npm run deploy
 ```
@@ -51,8 +70,10 @@ Wrangler affiche alors l'adresse du Worker, par exemple
 
 ### Déploiement automatique depuis git
 
-`.github/workflows/deploy-leaderboard.yml` s'en charge. Deux secrets à poser dans
-**Settings → Secrets and variables → Actions** :
+Une fois la première mise en ligne faite (l'identifiant de la base est alors dans
+`wrangler.toml`, validé dans le dépôt — ce n'est pas un secret),
+`.github/workflows/deploy-leaderboard.yml` prend le relais à chaque push.
+Deux secrets à poser dans **Settings → Secrets and variables → Actions** :
 
 - `CLOUDFLARE_API_TOKEN` — gabarit « Edit Cloudflare Workers »
 - `CLOUDFLARE_ACCOUNT_ID`

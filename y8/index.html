@@ -70,6 +70,14 @@
 
   /* ---- en-tête ---- */
   header{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+  .titlerow{display:flex;align-items:center;gap:10px}
+  /* le « ? » : rond, discret, à hauteur du titre */
+  .qmark{
+    flex:none;width:30px;height:30px;padding:0;border-radius:50%;
+    background:transparent;color:var(--muted);border:2px solid var(--line);
+    font-size:15px;font-weight:800;line-height:1;
+  }
+  .qmark:hover{background:var(--btn);color:var(--btn-ink);border-color:var(--btn);filter:none}
   .brand h1{
     font-weight:800;font-size:clamp(29px,8vw,45px);line-height:1;margin:0;
     letter-spacing:-1.1px;color:var(--ink);
@@ -131,8 +139,25 @@
   @media (max-width:400px){ #rotate{min-width:104px;padding:10px 12px} }
 
   /* ---- barre d'état et actions ---- */
-  .bar{display:flex;align-items:center;gap:10px;min-height:24px;flex-wrap:wrap}
-  .status{flex:1;font-size:13px;font-weight:500;margin:0;color:var(--ink-2);min-width:150px}
+  /* Le bandeau sert de contexte de conteneur : la place réservée au message se
+     décide sur SA largeur, pas sur celle de l'écran — en paysage la colonne
+     d'infos est étroite alors que la fenêtre est large. */
+  .bar{display:flex;align-items:center;gap:10px;min-height:24px;flex-wrap:wrap;container-type:inline-size}
+  /* Deux lignes, toujours : sans hauteur fixe, un message plus long repousse le
+     plateau et les tuiles sautent sous le doigt au moment même où l'on joue.
+     Au-delà de deux lignes le texte est coupé plutôt que de tout décaler. */
+  /* Le message occupe sa propre ligne, au-dessus des boutons, et la hauteur qui
+     lui est réservée ne bouge jamais : sans cela, un message plus long repousse
+     le plateau et les tuiles sautent sous le doigt au moment même où l'on joue.
+     Deux lignes par défaut, une seule dès que le bandeau est assez large pour
+     le plus long message (313 px à 13 px). Au-delà, le texte est coupé plutôt
+     que de tout décaler. */
+  .status{
+    flex:1 1 100%;order:-1;font-size:13px;font-weight:500;margin:0;color:var(--ink-2);
+    line-height:1.35;min-height:2.7em;
+    display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden;
+  }
+  @container (min-width:330px){ .status{min-height:1.35em} }
   .status.warn{color:var(--danger);font-weight:700}
   .status.good{color:var(--btn);font-weight:700}
   .acts{display:flex;gap:6px;margin-left:auto}
@@ -205,6 +230,40 @@
 
   .credits{margin-top:4px;text-align:center;font-size:12px;font-weight:500;color:var(--muted)}
 
+  /* ---- cadre d'aide ----
+     Posé par-dessus la page entière, jamais dans le flux : la mise en page du
+     jeu n'en sait rien. Seul le corps du cadre défile, la page reste fixe. */
+  .sheetveil{
+    position:fixed;inset:0;z-index:50;display:flex;align-items:center;justify-content:center;
+    background:rgba(119,110,101,.55);padding:16px;
+  }
+  .sheetveil[hidden]{display:none}
+  .sheet{
+    background:var(--ground);border-radius:6px;width:min(100%,460px);max-height:100%;
+    display:flex;flex-direction:column;min-height:0;
+    box-shadow:0 18px 50px rgba(87,78,70,.32);
+  }
+  .sheethead{
+    display:flex;align-items:center;justify-content:space-between;gap:12px;
+    padding:16px 18px 12px;border-bottom:2px solid var(--line);flex:none;
+  }
+  .sheethead h2{
+    margin:0;font-size:19px;font-weight:800;letter-spacing:-.3px;color:var(--ink);
+    text-transform:none;letter-spacing:normal;border:0;padding:0;
+  }
+  .sheetbody{
+    overflow-y:auto;min-height:0;padding:4px 18px 18px;
+    display:flex;flex-direction:column;gap:2px;
+  }
+  .sheetbody section{padding:13px 0;border-bottom:1px solid var(--line)}
+  .sheetbody section:last-child{border-bottom:0}
+  .sheetbody h3{
+    margin:0 0 5px;font-size:10.5px;font-weight:700;letter-spacing:.1em;
+    text-transform:uppercase;color:var(--muted);
+  }
+  .sheetbody p{margin:0;font-size:13.5px;line-height:1.55;color:var(--ink-2)}
+  .sheetbody b{color:var(--ink);font-weight:700}
+
   .publish{display:flex;gap:6px;justify-content:center;flex-wrap:wrap}
   .publish[hidden]{display:none}
   .publish input{
@@ -268,6 +327,73 @@
   .overlay h2{margin:0;font-size:clamp(34px,9vw,52px);font-weight:800;line-height:1;letter-spacing:-1px}
   .overlay p{margin:0;font-weight:500;font-size:14px;opacity:.9}
   .overlay button{background:var(--btn);color:var(--btn-ink);border:0;font-size:14px;padding:11px 20px}
+
+  /* ---- palier atteint ----
+     Deux bandes de lumière balaient le plateau en diagonale, l'une devant
+     l'autre, aller puis retour ; un chiffre s'imprime au centre et s'efface.
+     Au-dessus de l'écran de victoire, pour que les deux se voient. */
+  .milestone{
+    position:absolute;inset:0;z-index:11;pointer-events:none;
+    border-radius:6px;overflow:hidden;opacity:0;
+  }
+  .milestone .sweep{position:absolute;inset:-30%;background-size:280% 280%;background-repeat:no-repeat}
+  /* la lame : une bande étroite, teintée de la couleur de la tuile atteinte */
+  .milestone .s1{
+    background-image:linear-gradient(118deg,
+      transparent 46%, var(--ms-halo) 49%, var(--ms-core) 50%, var(--ms-halo) 51%, transparent 54%);
+    opacity:.5;
+  }
+  /* la traîne : un voile large et discret qui la précède d'un souffle */
+  .milestone .s2{
+    background-image:linear-gradient(118deg,
+      transparent 40%, var(--ms-halo) 50%, transparent 60%);
+    opacity:.16;
+  }
+  .milestone .stamp{
+    position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+    font-weight:800;font-size:min(20vmin,96px);letter-spacing:-.04em;line-height:1;
+    color:var(--ms-core);opacity:0;
+    text-shadow:0 0 24px var(--ms-halo);
+  }
+  /* aller-retour : la bande descend en diagonale, marque un temps, remonte */
+  @keyframes msweep{
+    0%   {background-position:150% -50%}
+    46%  {background-position:-50% 150%}
+    52%  {background-position:-50% 150%}
+    100% {background-position:150% -50%}
+  }
+  @keyframes mveil{0%{opacity:0}10%{opacity:1}84%{opacity:1}100%{opacity:0}}
+  @keyframes mstamp{
+    0%  {opacity:0;transform:scale(.82)}
+    20% {opacity:.62;transform:scale(1)}
+    70% {opacity:.62;transform:scale(1)}
+    100%{opacity:0;transform:scale(1.06)}
+  }
+  .milestone.go{animation:mveil 2350ms ease-in-out}
+  .milestone.go .s1{animation:msweep 2350ms cubic-bezier(.42,0,.58,1)}
+  .milestone.go .s2{animation:msweep 2350ms cubic-bezier(.42,0,.58,1) 120ms}
+  .milestone.go .stamp{animation:mstamp 2350ms ease-in-out}
+
+  /* La vague se lit surtout sur le tapis lui-même : chaque case et chaque tuile
+     s'éclaircit au passage du front, puis retrouve sa teinte. Ce n'est pas une
+     couleur plaquée — c'est la sienne, relevée d'un cran. Le retard --w1 place
+     l'élément sur la diagonale à l'aller, --w2 au retour. */
+  @keyframes tilewave{
+    0%  {filter:none}
+    45% {filter:brightness(1.2) saturate(1.22)}
+    100%{filter:none}
+  }
+  .board.waving .cell,
+  .board.waving .tile:not(.new):not(.merged):not(.crowned){
+    animation:tilewave 420ms ease-in-out var(--w1,0ms),
+              tilewave 420ms ease-in-out var(--w2,0ms);
+  }
+  /* la tuile qui vient de naître garde son propre halo, plus long */
+  @keyframes mglow{
+    0%,100%{box-shadow:0 0 0 0 rgba(237,197,63,0);filter:none}
+    50%    {box-shadow:0 0 26px 8px var(--ms-halo);filter:brightness(1.12)}
+  }
+  .tile.crowned{animation:mglow 2350ms ease-in-out;z-index:5}
 
   .float{
     position:absolute;right:10px;top:26px;font-weight:800;font-size:17px;color:var(--btn);
@@ -340,7 +466,7 @@
     #rotate{flex:1 1 auto;min-width:0;min-height:64px;font-size:14px;padding:8px 12px}
     #rotate .glyph{font-size:22px}
     .bar{gap:8px}
-    .status{font-size:12px;min-width:0;flex:1 1 100%;order:-1}
+    .status{font-size:12px}
     .acts{margin-left:0;width:100%;display:grid;grid-template-columns:auto 1fr 1fr;gap:6px}
     .acts button{padding:10px 8px;font-size:12.5px}
     .rewards button{padding:9px 8px;font-size:11.5px;gap:5px}
@@ -411,6 +537,10 @@
     .tile{transition:none}
     .tile.new,.tile.merged,.float.go,.rewards button.offer{animation:none}
     .float.go{opacity:0}
+    /* le palier reste annoncé, mais sans balayage : seul le chiffre paraît */
+    .milestone.go .s1,.milestone.go .s2,.tile.crowned{animation:none}
+    .board.waving .cell,.board.waving .tile{animation:none}
+    .milestone.go .stamp{animation:mstamp 1400ms steps(3,end)}
   }
 </style>
 <script src="https://cdn.y8.com/minimal-sdk/2-0/y8.min.js" async></script>
@@ -420,7 +550,11 @@
   <div class="top">
   <header>
     <div class="brand">
-      <h1>Domino 2048</h1>
+      <div class="titlerow">
+        <h1>Domino 2048</h1>
+        <button id="help" type="button" class="qmark" aria-haspopup="dialog"
+                title="Comment on joue">?</button>
+      </div>
       <p>Pose · Fusionne · Enchaîne</p>
     </div>
     <div class="scores">
@@ -463,6 +597,12 @@
 
   <div class="boardwrap">
   <div class="board" id="board">
+    <!-- palier atteint : deux bandes de lumière qui traversent le plateau en
+         diagonale, aller puis retour. Purement décoratif, jamais cliquable. -->
+    <div class="milestone" id="milestone" aria-hidden="true">
+      <div class="sweep s1"></div><div class="sweep s2"></div>
+      <span class="stamp"></span>
+    </div>
     <div class="overlay" id="overlay">
       <h2 id="ovtitle"></h2>
       <p id="ovtext"></p>
@@ -485,6 +625,54 @@
       <ol id="lblist"></ol>
     </section>
     <footer class="credits">Crédits · Luis Callejon</footer>
+  </div>
+</div>
+
+<!-- ---- cadre d'aide ---- -->
+<div class="sheetveil" id="helpveil" hidden>
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="helptitle">
+    <div class="sheethead">
+      <h2 id="helptitle">Comment on joue</h2>
+      <button id="helpclose" type="button" class="qmark" title="Fermer">✕</button>
+    </div>
+    <div class="sheetbody">
+      <section>
+        <h3>Poser</h3>
+        <p>Chaque domino porte deux numéros. Clique une case libre pour le poser :
+          il occupe deux cases voisines. <b>Pivoter</b> le fait tourner d'un quart
+          de tour ; au clavier, la barre d'espace, R ou une flèche.</p>
+      </section>
+      <section>
+        <h3>Fusionner</h3>
+        <p>Deux tuiles <b>de même valeur qui se touchent</b> fusionnent, et rien
+          d'autre : ni diagonale, ni valeur différente. La fusion donne le double
+          et rapporte autant de points.</p>
+      </section>
+      <section>
+        <h3>Enchaîner</h3>
+        <p>Les fusions se font une par une, en cascade. Le jeu choisit toujours
+          l'enchaînement qui monte le plus haut : deux 2 côte à côte d'un 4, et
+          c'est un 8 qui sort — pas deux 4.</p>
+      </section>
+      <section>
+        <h3>Le talon</h3>
+        <p>La partie ouvre sur des 2. Un numéro n'entre au talon qu'une fois
+          qu'une fusion l'a fabriqué sur le tapis : fais un 4, les 4 se
+          distribuent ; puis le 8, jusqu'au <b>128</b>. Au-delà, les grosses
+          tuiles se gagnent uniquement en fusionnant.</p>
+      </section>
+      <section>
+        <h3>Fin de partie</h3>
+        <p>Elle s'arrête quand plus aucun domino ne rentre — il faut deux cases
+          voisines libres. <b>Déclarer forfait</b> y met fin volontairement, et
+          renonce à toute reprise.</p>
+      </section>
+      <section>
+        <h3>Objectif</h3>
+        <p>Monter un <b>2048</b>. Un joueur appliqué y arrive environ une partie
+          sur deux. Le 4096 existe : à peu près une partie sur soixante.</p>
+      </section>
+    </div>
   </div>
 </div>
 
@@ -993,12 +1181,62 @@ async function resolve(){
     unlock(value);
     if (value >= 2048 && !won) won = "now";
     refresh(anchor, true);
+    if (value >= 1024) milestone(value, anchor);
     total += value; chain++;
     from = [kr,kc];
     await sleep(150);
   }
   if (total) addScore(total, chain);
   return chain;
+}
+
+/* ---------- palier atteint ----------
+   À partir de 1024, et à chaque palier au-dessus, deux bandes de lumière
+   traversent le plateau en diagonale, aller puis retour, et le chiffre
+   s'imprime au centre. Cela se rejoue à chaque fois : une seconde tuile de
+   1024 dans la même partie a droit au même honneur. */
+const msEl    = document.getElementById("milestone");
+const msStamp = msEl.querySelector(".stamp");
+/* La lumière emprunte la couleur de la tuile atteinte, pas une dorure générique :
+   le halo est la teinte exacte de la tuile, le cœur la même éclaircie. */
+const MS_TONES = {
+  1024: ["#f7e6a6", "rgba(237,197,63,.9)"],    // tuile .v1024 #edc53f
+  2048: ["#fbeaa8", "rgba(237,194,46,.95)"],   // tuile .v2048 #edc22e
+  4096: ["#ffeeb4", "rgba(232,178,31,1)"]      // au-delà, l'ambre de la rampe
+};
+// L'aller traverse le tapis en MS_CROSS ; le retour part à MS_BACK. Chaque case
+// reçoit son retard selon sa position sur la diagonale, ce qui donne le front.
+const MS_SHOW = 2350, MS_CROSS = 700, MS_BACK = 1200;
+function waveOn(el, r, c){
+  const d = (r + (N - 1 - c)) / (2 * (N - 1));   // 0 au coin haut-droit, 1 au coin bas-gauche
+  el.style.setProperty("--w1", Math.round(d * MS_CROSS) + "ms");
+  el.style.setProperty("--w2", Math.round(MS_BACK + (1 - d) * MS_CROSS) + "ms");
+}
+let msTimer = null, msCrowned = null;
+function milestone(value, tile){
+  const tone = MS_TONES[value] || MS_TONES[4096];
+  msEl.style.setProperty("--ms-core", tone[0]);
+  msEl.style.setProperty("--ms-halo", tone[1]);
+  msStamp.textContent = value;
+  // le front diagonal : chaque case, chaque tuile, s'éclaire à son tour
+  boardEl.querySelectorAll(".cell").forEach(el => waveOn(el, +el.dataset.r, +el.dataset.c));
+  for (const t of (tiles || [])) if (t.el) waveOn(t.el, t.r, t.c);
+  // on retire puis remet les classes pour rejouer l'animation en plein vol
+  msEl.classList.remove("go"); boardEl.classList.remove("waving");
+  void msEl.offsetWidth;
+  msEl.classList.add("go"); boardEl.classList.add("waving");
+  if (msCrowned) msCrowned.classList.remove("crowned");
+  msCrowned = tile && tile.el ? tile.el : null;
+  if (msCrowned){
+    msCrowned.style.setProperty("--ms-halo", tone[1]);
+    void msCrowned.offsetWidth; msCrowned.classList.add("crowned");
+  }
+  clearTimeout(msTimer);
+  msTimer = setTimeout(() => {
+    msEl.classList.remove("go");
+    boardEl.classList.remove("waving");
+    if (msCrowned){ msCrowned.classList.remove("crowned"); msCrowned = null; }
+  }, MS_SHOW + 60);
 }
 
 /* ---------- tour de jeu ---------- */
@@ -1041,7 +1279,7 @@ function nextTurn(){
     SFX.play("debloque");
     flash("Le " + v + " est débloqué : il peut désormais sortir du talon.", "good");
   } else say();
-  syncButtons(); syncRewards();
+  syncButtons(); syncRewards(); saveGame();
 }
 
 /* ---------- abandon et redémarrage ----------
@@ -1079,7 +1317,7 @@ function forfeit(){
   phase = "over";
   SFX.play("fin");
   showOverlay("Forfait", "Score : " + score + " · " + placed + " dominos posés", "Rejouer");
-  syncButtons(); syncRewards(); say();
+  syncButtons(); syncRewards(); say(); saveGame();
 }
 function syncButtons(){
   forfeitBtn.disabled = !(phase === "place" && placed > 0);
@@ -1203,7 +1441,8 @@ function smash(r, c){
 }
 function grant(name){
   if (name === "undo")   return undoMove();
-  if (name === "swap"){  piece = makePiece(); drawPieces(); clearGhost(); syncRewards(); SFX.play("bonus");
+  if (name === "swap"){  piece = makePiece(); drawPieces(); clearGhost(); syncRewards(); saveGame();
+                         SFX.play("bonus");
                          return flash("Nouveau domino en main.", "good"); }
   if (name === "hammer"){ hammer = true; boardEl.classList.add("smashing"); clearGhost(); syncRewards();
                           return flash("Choisis la tuile à retirer.", "good"); }
@@ -1212,8 +1451,7 @@ function grant(name){
     piece = { a: piece.a * 2, b: piece.b * 2 };
     boostTurns = boostTurns.filter(t => t !== placed);   // offre consommée
     boostOffer = false;
-  published = false;
-    drawPieces(); clearGhost(); syncRewards();
+    drawPieces(); clearGhost(); syncRewards(); saveGame();
     SFX.play("bonus");
     return flash("Domino doublé : " + piece.a + " et " + piece.b + ".", "good");
   }
@@ -1416,8 +1654,38 @@ document.getElementById("ovbtn").addEventListener("click", e => {
   else overlayEl.classList.remove("show");
 });
 
+/* ---------- cadre d'aide ----------
+   Il se pose par-dessus la page, prend le clavier tant qu'il est ouvert, et
+   rend le focus au bouton qui l'a ouvert en se refermant. */
+const helpVeil  = document.getElementById("helpveil");
+const helpBtn   = document.getElementById("help");
+const helpClose = document.getElementById("helpclose");
+let helpReturn = null;
+function openHelp(){
+  if (!helpVeil.hidden) return;
+  helpReturn = document.activeElement;
+  helpVeil.hidden = false;
+  helpBtn.setAttribute("aria-expanded", "true");
+  helpClose.focus();
+  SFX.play("pivot");
+}
+function closeHelp(){
+  if (helpVeil.hidden) return;
+  helpVeil.hidden = true;
+  helpBtn.setAttribute("aria-expanded", "false");
+  if (helpReturn && helpReturn.focus) helpReturn.focus();
+  helpReturn = null;
+}
+helpBtn.addEventListener("click", () => helpVeil.hidden ? openHelp() : closeHelp());
+helpClose.addEventListener("click", closeHelp);
+// cliquer à côté du cadre le referme ; cliquer dedans, non
+helpVeil.addEventListener("click", e => { if (e.target === helpVeil) closeHelp(); });
+
 document.addEventListener("keydown", e => {
   const k = e.key.toLowerCase();
+  if (k === "escape"){ closeHelp(); return; }
+  if (k === "?" || (k === "h" && !e.ctrlKey && !e.metaKey)){ e.preventDefault(); openHelp(); return; }
+  if (!helpVeil.hidden) return;                    // le cadre d'aide a la main
   if (k === "r" || k === " " || k.startsWith("arrow")){ e.preventDefault(); rotate(); }
 });
 window.addEventListener("resize", layout);
@@ -1430,27 +1698,101 @@ if (window.ResizeObserver){
 }
 window.addEventListener("orientationchange", () => setTimeout(layout, 60));
 
+/* ---------- reprise d'une partie ----------
+   Une partie en cours tient dans un objet plat : le tapis en valeurs, la main,
+   le talon débloqué et ce qui ne se déduit pas du reste. On l'écrit à chaque
+   fin de tour et quand l'onglet part à l'arrière-plan ; on la relit au
+   chargement. Le contenu vient de localStorage, donc de n'importe où : il est
+   validé case par case avant d'être cru, et la moindre anomalie renvoie à une
+   partie neuve plutôt qu'à un tapis incohérent. */
+const SAVE_KEY = "domino2048.partie";
+const SAVE_VER = 1;
+const isPow2 = v => Number.isInteger(v) && v >= 2 && v <= 1048576 && (v & (v - 1)) === 0;
+
+function saveGame(){
+  try {
+    // une partie finie n'a rien à reprendre, une partie vierge non plus
+    if (phase === "over" || placed === 0){ localStorage.removeItem(SAVE_KEY); return; }
+    localStorage.setItem(SAVE_KEY, JSON.stringify({
+      v: SAVE_VER,
+      cells: grid.map(row => row.map(t => t ? t.value : 0)),
+      score, unlocked, placed, rot,
+      won: won === true, revives, published, games,
+      piece: { a: piece.a, b: piece.b },
+      next : { a: nextPiece.a, b: nextPiece.b },
+      boostTurns: boostTurns.slice(),
+      history
+    }));
+  } catch(e){}                       // navigation privée, quota : tant pis
+}
+function forgetSave(){ try { localStorage.removeItem(SAVE_KEY); } catch(e){} }
+
+const validPiece = p => p && isPow2(p.a) && isPow2(p.b);
+function readSave(){
+  let raw = null;
+  try { raw = localStorage.getItem(SAVE_KEY); } catch(e){ return null; }
+  if (!raw) return null;
+  let s = null;
+  try { s = JSON.parse(raw); } catch(e){ return null; }
+  if (!s || s.v !== SAVE_VER) return null;
+  if (!Array.isArray(s.cells) || s.cells.length !== N) return null;
+  for (const row of s.cells){
+    if (!Array.isArray(row) || row.length !== N) return null;
+    for (const v of row) if (v !== 0 && !isPow2(v)) return null;
+  }
+  if (!Number.isInteger(s.score)  || s.score < 0)   return null;
+  if (!Number.isInteger(s.placed) || s.placed < 1)  return null;
+  if (!isPow2(s.unlocked) || s.unlocked > CAP)      return null;
+  if (!validPiece(s.piece) || !validPiece(s.next))  return null;
+  return s;
+}
+function restoreGame(s){
+  resetGame();
+  for (let r = 0; r < N; r++) for (let c = 0; c < N; c++)
+    if (s.cells[r][c]) addTile(r, c, s.cells[r][c]);
+  score = s.score; scoreEl.textContent = score;
+  unlocked  = s.unlocked;
+  placed    = s.placed;
+  rot       = [0,1,2,3].includes(s.rot) ? s.rot : 0;
+  piece     = { a: s.piece.a, b: s.piece.b };
+  nextPiece = { a: s.next.a,  b: s.next.b  };
+  won       = !!s.won;
+  revives   = Number.isInteger(s.revives) && s.revives >= 0 ? Math.min(s.revives, 2) : 0;
+  published = !!s.published;
+  // la partie reprise compte pour jouée : pas d'interstitiel à la reprise
+  games       = Math.max(1, Number.isInteger(s.games) ? s.games : 1);
+  boostTurns  = Array.isArray(s.boostTurns) ? s.boostTurns.filter(Number.isInteger) : [];
+  history     = s.history && Array.isArray(s.history.cells) ? s.history : null;
+  drawPieces(); nextTurn();
+  flash("Partie reprise là où tu l'avais laissée.", "good");
+}
+
 /* ---------- démarrage ---------- */
-function newGame(){
+// remise à zéro pure : ni tirage, ni publicité, ni écriture — la reprise s'en
+// sert autant que la nouvelle partie
+function resetGame(){
   grid = Array.from({length:N}, () => Array(N).fill(null));
   tiles = [];
   score = 0; uid = 1; rot = 0; won = false; placed = 0;
   unlocked = 2; justUnlocked = null;
   history = null; hammer = false; revives = 0; paused = false;
-  forfeited = false; disarm();
+  forfeited = false; boostOffer = false; published = false;
+  disarm();
+  boardEl.querySelectorAll(".tile,.ghost").forEach(e => e.remove());
+  ghosts = [];
+  overlayEl.classList.remove("show");
+  boardEl.classList.remove("smashing");
+  phase = "place";
+  scoreEl.textContent = "0";
+}
+function newGame(){
+  resetGame();
   // deux offres par partie, à des tours tirés au hasard — assez tôt pour qu'une
   // partie courte les voie passer toutes les deux
   const first = 3 + sideRand(7);
   boostTurns = [first, first + 6 + sideRand(8)];
-  boostOffer = false;
-  published = false;
-  boardEl.querySelectorAll(".tile,.ghost").forEach(e => e.remove());
-  ghosts = [];
   piece = makePiece(); nextPiece = makePiece();
-  overlayEl.classList.remove("show");
-  phase = "place";
-  scoreEl.textContent = "0";
-  boardEl.classList.remove("smashing");
+  forgetSave();
   drawPieces(); say(); syncButtons(); syncRewards();
   if (ads && games > 0) ads.showInterstitial("new-game");
   games++;
@@ -1468,7 +1810,20 @@ try {
 } catch(e){}
 try { best = parseInt(localStorage.getItem("domino2048.best"), 10) || 0; } catch(e){ best = 0; }
 bestEl.textContent = best;
-newGame();
+
+/* Une partie interrompue reprend d'elle-même. Si l'enregistrement est absent,
+   abîmé, ou décrit un tapis où plus rien ne rentre, on repart de zéro. */
+const reprise = readSave();
+if (reprise){
+  restoreGame(reprise);
+  if (!canPlaceSomewhere()){ forgetSave(); newGame(); }
+} else {
+  forgetSave();
+  newGame();
+}
+// l'onglet part en arrière-plan, ou la page se ferme : on n'attend pas le tour suivant
+window.addEventListener("pagehide", saveGame);
+document.addEventListener("visibilitychange", () => { if (document.hidden) saveGame(); });
 layout();
 useLeaderboard(typeof window.DOMINO_API === "string" ? window.DOMINO_API : LEADERBOARD_API);
 
