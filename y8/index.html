@@ -39,18 +39,34 @@
   }
 
   *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-  html,body{margin:0;padding:0}
+  /* La page tient dans l'écran, toujours : rien ne défile, ni en hauteur ni en
+     largeur. La taille du plateau est calculée à partir de la place restante. */
+  html,body{margin:0;padding:0;height:100%;overflow:hidden}
   body{
     background:var(--ground);
     color:var(--ink);
     font-family:Rubik,"Clear Sans","Helvetica Neue",Arial,sans-serif;
     font-size:15px;
-    display:flex;flex-direction:column;align-items:center;
-    padding:22px 14px 40px;
-    min-height:100vh;
+    display:flex;justify-content:center;
+    padding:12px;
   }
   :focus-visible{outline:3px solid var(--btn);outline-offset:2px}
-  .wrap{width:min(94vw,470px);display:flex;flex-direction:column;gap:13px}
+
+  /* Portrait : infos en haut, plateau, classement dessous.
+     Paysage : plateau à gauche sur toute la hauteur, infos à droite. */
+  .wrap{
+    width:min(100%,470px);height:100%;
+    display:grid;gap:10px;min-height:0;
+    grid-template-columns:1fr;
+    grid-template-rows:auto auto minmax(0,1fr);
+    grid-template-areas:"top" "board" "bottom";
+  }
+  .top{grid-area:top;display:flex;flex-direction:column;gap:10px;min-width:0}
+  .boardwrap{grid-area:board;display:flex;align-items:center;justify-content:center;
+             min-width:0;min-height:0;overflow:hidden}
+  .bottom{grid-area:bottom;display:flex;flex-direction:column;gap:8px;min-width:0;min-height:0;
+          overflow-x:hidden;overflow-y:auto;scrollbar-width:thin}
+
 
   /* ---- en-tête ---- */
   header{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
@@ -137,10 +153,11 @@
   }
 
   /* ---- bonus ---- */
-  .rewards{display:flex;flex-wrap:wrap;gap:6px}
+  /* deux colonnes : quatre bonus tiennent en deux lignes, portrait comme paysage */
+  .rewards{display:grid;grid-template-columns:1fr 1fr;gap:6px}
   .rewards[hidden],.ovrewards[hidden]{display:none}
   .rewards button,.ovrewards button{
-    display:inline-flex;align-items:center;gap:7px;padding:8px 12px;font-size:12.5px;
+    display:inline-flex;align-items:center;justify-content:center;gap:7px;padding:8px 12px;font-size:12.5px;
     background:var(--panel);color:var(--ink);border:2px solid var(--line);
   }
   .rewards button:hover:not([disabled]),.ovrewards button:hover:not([disabled]){
@@ -170,7 +187,11 @@
     font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);
   }
   .lb h2 span{font-size:11px;font-weight:500;letter-spacing:0;text-transform:none}
-  .lb ol{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:2px}
+  .lb{min-height:0}
+  .lb ol{
+    list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:2px;
+    overflow-y:auto;min-height:0;   /* défile dans son cadre, jamais la page */
+  }
   .lb li{
     display:grid;grid-template-columns:26px 1fr auto;align-items:center;gap:10px;
     background:var(--panel);border-radius:3px;padding:6px 10px;font-size:13px;
@@ -192,9 +213,9 @@
 
   /* ---- le plateau ---- */
   .board{
-    position:relative;width:100%;aspect-ratio:1/1;
-    background:var(--board);border-radius:6px;
-    touch-action:none;user-select:none;
+    position:relative;background:var(--board);border-radius:6px;
+    touch-action:none;user-select:none;flex:none;
+    width:280px;height:280px;          /* remplacé au chargement par layout() */
     --gap:10px;--cell:80px;
   }
   .cell,.tile,.ghost{position:absolute;border-radius:3px}
@@ -253,6 +274,136 @@
   .float.go{animation:rise 760ms ease-out}
   .scorewrap{position:relative}
 
+  /* Portrait bas de plafond : on comprime le bandeau pour que le plateau garde
+     une taille jouable et que le classement reste visible. */
+  @media (orientation:portrait) and (max-height:700px){
+    body{padding:8px}
+    .wrap{gap:8px}
+    .top{gap:8px}
+    .brand h1{font-size:clamp(22px,6vw,30px)}
+    .brand p{display:none}
+    .score{padding:4px 10px;min-width:60px}
+    .score b{font-size:17px}
+    .score span{font-size:9px}
+    .panel{gap:9px;padding:8px 9px}
+    .half{width:28px;height:28px;font-size:15px}
+    .piece.small .half{width:18px;height:18px;font-size:10px}
+    .lbl{font-size:9px;margin-bottom:3px}
+    .arrowhint{display:none}
+    #rotate{min-width:92px;font-size:14px;padding:8px 10px}
+    #rotate .glyph{font-size:21px}
+    .status{font-size:12px;min-width:0}
+    .acts button{padding:6px 8px;font-size:11.5px}
+    .rewards button{padding:7px 9px;font-size:11.5px}
+    .lb li{padding:5px 9px;font-size:12px}
+    .credits{font-size:11px}
+  }
+
+  /* ---- paysage : plateau à gauche sur toute la hauteur, infos à droite ----
+     La colonne d'infos ne garde qu'un élément élastique, le classement ; tout le
+     reste a une hauteur fixe et compacte, de sorte que l'ensemble tienne même
+     sur un téléphone couché (390 px de haut). Les boutons grandissent dès que
+     la hauteur le permet. */
+  @media (orientation:landscape){
+    body{padding:10px 12px}
+    .wrap{
+      width:100%;max-width:none;gap:12px;justify-content:center;
+      /* --side est posée par layout() : elle suit la largeur de l'écran, entre
+         250 et 460 px, pour que les boutons restent lisibles sans étirer la
+         colonne à l'absurde sur un grand moniteur. */
+      grid-template-columns:auto var(--side,250px);
+      grid-template-rows:minmax(0,auto) minmax(0,1fr);
+      grid-template-areas:"board top" "board bottom";
+    }
+    .boardwrap{align-items:center}
+    .top{gap:8px;min-height:0;overflow:hidden}
+    /* empilé, l'en-tête n'impose plus « titre + scores » sur une seule ligne */
+    header{flex-direction:column;align-items:stretch;gap:6px}
+    .brand h1{overflow-wrap:anywhere}
+    .scores{width:100%}
+    .score{flex:1}
+    .brand h1{font-size:clamp(20px,3.4vw,30px);letter-spacing:-.7px}
+    .brand p{display:none}
+    .score{padding:4px 10px;min-width:64px}
+    .score b{font-size:18px}
+    .score span{font-size:9px}
+    .panel{gap:10px;padding:9px 10px}
+    .half{width:32px;height:32px;font-size:16px}
+    .piece.small .half{width:20px;height:20px;font-size:11px}
+    .lbl{font-size:9px;margin-bottom:4px}
+    .arrowhint{height:14px;font-size:14px;margin-top:3px}
+    /* le bouton prend toute la largeur restante du bandeau : lisible, et il ne
+       pousse jamais la colonne au-delà de sa largeur */
+    #rotate{flex:1 1 auto;min-width:0;min-height:64px;font-size:14px;padding:8px 12px}
+    #rotate .glyph{font-size:22px}
+    .bar{gap:8px}
+    .status{font-size:12px;min-width:0;flex:1 1 100%;order:-1}
+    .acts{margin-left:0;width:100%;display:grid;grid-template-columns:auto 1fr 1fr;gap:6px}
+    .acts button{padding:10px 8px;font-size:12.5px}
+    .rewards button{padding:9px 8px;font-size:11.5px;gap:5px}
+    /* le classement occupe ce qui reste ; s'il n'en reste presque rien, c'est lui
+       qui défile dans son cadre — la page, elle, ne bouge pas */
+    .lb ol{flex:1}
+    .bottom{gap:6px;overflow-x:hidden;overflow-y:auto;scrollbar-width:thin}
+    .credits{font-size:11px;margin-top:0}
+  }
+  /* Téléphone couché : moins de 480 px de haut. On rogne tout ce qui n'est pas
+     indispensable pour que la colonne entière reste visible sans rien couper,
+     classement compris. */
+  @media (orientation:landscape) and (max-height:480px){
+    .wrap{gap:8px}
+    .top{gap:6px}
+    header{gap:4px}
+    .brand h1{font-size:18px}
+    .score{padding:2px 8px;min-width:56px}
+    .score b{font-size:15px}
+    .score span{font-size:8px}
+    .panel{gap:8px;padding:6px 8px}
+    .half{width:26px;height:26px;font-size:14px}
+    .piece.small .half{width:17px;height:17px;font-size:10px}
+    .lbl{margin-bottom:2px}
+    .arrowhint{display:none}
+    #rotate{min-height:52px;font-size:13px;padding:6px 10px}
+    #rotate .glyph{font-size:19px}
+    .bar{gap:5px}
+    .status{font-size:11px}
+    .acts button{padding:7px 6px;font-size:11.5px}
+    .rewards button{padding:7px 6px;font-size:10.5px}
+    .lb h2{font-size:10px}
+    .lb li{padding:4px 8px;font-size:12px}
+    .credits{font-size:10px}
+  }
+  /* Écran vraiment bas (vieux téléphone couché) : dernier cran de compression,
+     pour qu'il reste malgré tout une ligne de classement sous les boutons. */
+  @media (orientation:landscape) and (max-height:390px){
+    .brand h1{font-size:16px}
+    .score{padding:1px 6px}
+    .score b{font-size:14px}
+    .panel{gap:6px;padding:5px 6px}
+    .half{width:23px;height:23px;font-size:12px}
+    .piece.small .half{width:15px;height:15px;font-size:9px}
+    #rotate{min-height:44px;font-size:12px;padding:4px 8px}
+    #rotate .glyph{font-size:16px}
+    .status{font-size:10.5px}
+    .acts button{padding:5px 5px;font-size:11px}
+    .rewards button{padding:5px 5px;font-size:10px}
+  }
+  /* dès qu'il y a de la hauteur, tout respire */
+  @media (orientation:landscape) and (min-height:520px){
+    .wrap{gap:16px}
+    .top{gap:12px}
+    .brand p{display:block}
+    .brand h1{font-size:clamp(26px,3vw,40px)}
+    .score{padding:6px 14px;min-width:74px}
+    .score b{font-size:22px}
+    .half{width:38px;height:38px;font-size:18px}
+    #rotate{min-height:78px;font-size:16px}
+    #rotate .glyph{font-size:26px}
+    .acts button{padding:13px 10px;font-size:14px}
+    .rewards button{padding:12px 10px;font-size:13px}
+    .status{font-size:13.5px}
+  }
+
   @media (prefers-reduced-motion: reduce){
     .tile{transition:none}
     .tile.new,.tile.merged,.float.go,.rewards button.offer{animation:none}
@@ -263,6 +414,7 @@
 </head>
 <body>
 <div class="wrap">
+  <div class="top">
   <header>
     <div class="brand">
       <h1>Domino 2048</h1>
@@ -304,11 +456,9 @@
     <button type="button" data-reward="boost" class="offer" hidden>×2 sur ce domino<span class="ad">pub</span></button>
   </div>
 
-  <section class="lb" id="lb" hidden>
-    <h2>Classement<span id="lbstate"></span></h2>
-    <ol id="lblist"></ol>
-  </section>
+  </div><!-- /top -->
 
+  <div class="boardwrap">
   <div class="board" id="board">
     <div class="overlay" id="overlay">
       <h2 id="ovtitle"></h2>
@@ -324,7 +474,15 @@
       <div><button id="ovbtn" type="button"></button></div>
     </div>
   </div>
-  <footer class="credits">Crédits · Luis Callejon</footer>
+  </div><!-- /boardwrap -->
+
+  <div class="bottom">
+    <section class="lb" id="lb" hidden>
+      <h2>Classement<span id="lbstate"></span></h2>
+      <ol id="lblist"></ol>
+    </section>
+    <footer class="credits">Crédits · Luis Callejon</footer>
+  </div>
 </div>
 
 <script>
@@ -499,11 +657,43 @@ const SFX = (function(){
   };
 })();
 
-/* ---------- mise en page ---------- */
+/* ---------- mise en page ----------
+   Le plateau prend toute la place qui reste, et rien de plus : sa taille est
+   calculée à partir du cadre, jamais l'inverse, pour qu'aucun défilement ne
+   puisse apparaître. En paysage la colonne d'infos garde une largeur plancher,
+   en portrait on retire la hauteur des zones haute et basse. */
+const wrapEl   = document.querySelector(".wrap");
+const topEl    = document.querySelector(".top");
+const bottomEl = document.querySelector(".bottom");
+
+/* Le plateau est carré et c'est lui qui commande : en portrait il prend toute
+   la largeur, à condition de laisser sous lui de quoi lire un début de
+   classement (BOTTOM_MIN) — au-delà, la liste défile dans son propre cadre.
+   En paysage il occupe sa colonne sur toute la hauteur, bornée par la largeur
+   qui reste une fois la colonne d'infos servie. */
+const BOTTOM_MIN = 76;   // titre du classement + une ligne + crédits
+const FLOOR      = 140;  // en deçà, le plateau devient illisible
+const SIDE_MIN_W = 250, SIDE_MAX_W = 460, SIDE_PART = 0.30;
+function boardSize(){
+  const box = wrapEl.getBoundingClientRect();
+  const g = parseFloat(getComputedStyle(wrapEl).gap) || 10;
+  let size;
+  if (window.matchMedia("(orientation: landscape)").matches){
+    const side = Math.max(SIDE_MIN_W, Math.min(SIDE_MAX_W, Math.round(box.width * SIDE_PART)));
+    wrapEl.style.setProperty("--side", side + "px");
+    size = Math.min(box.height, box.width - side - g);
+  } else {
+    size = Math.min(box.width, box.height - topEl.offsetHeight - 2 * g - BOTTOM_MIN);
+  }
+  return Math.max(FLOOR, Math.floor(size) - 1);
+}
+
 let gap = 10, cell = 80;
 function layout(){
-  const w = boardEl.clientWidth;
-  gap  = Math.max(6, Math.round(w * 0.022));
+  const w = boardSize();
+  boardEl.style.width = w + "px";
+  boardEl.style.height = w + "px";
+  gap  = Math.max(4, Math.round(w * 0.022));
   cell = (w - gap * (N + 1)) / N;
   boardEl.style.setProperty("--gap", gap + "px");
   boardEl.style.setProperty("--cell", cell + "px");
@@ -1049,7 +1239,9 @@ document.querySelectorAll("[data-reward]").forEach(b => {
     b.disabled = adBusy || !r || !r.can();
   });
   const offer = document.querySelector('[data-reward="boost"]');
+  const was = offer.hidden;
   offer.hidden = !REWARDS.boost.can() && !adBusy;
+  if (was !== offer.hidden) layout();          // la barre change de hauteur
 }
 const muteBtn = document.getElementById("mute");
 function syncMute(){
@@ -1123,6 +1315,7 @@ async function loadBoard(){
       list.appendChild(li);
     }
     setLbState((data.scores || []).length ? "" : "personne encore");
+    layout();                                   // la liste change de hauteur
   } catch {
     setLbState("indisponible");
   }
@@ -1165,6 +1358,7 @@ function useLeaderboard(url){
   api = url ? String(url).trim().replace(/\/+$/, "") : null;
   document.getElementById("lb").hidden = !api;
   syncPublish();
+  layout();
   if (api) loadBoard();
 }
 
@@ -1219,6 +1413,14 @@ document.addEventListener("keydown", e => {
   if (k === "r" || k === " " || k.startsWith("arrow")){ e.preventDefault(); rotate(); }
 });
 window.addEventListener("resize", layout);
+/* Le classement arrive du réseau après coup, la barre de bonus apparaît en
+   cours de partie : les zones haute et basse changent de hauteur, et le plateau
+   doit reprendre la place qui reste. */
+if (window.ResizeObserver){
+  const ro = new ResizeObserver(() => layout());
+  ro.observe(topEl); ro.observe(bottomEl);
+}
+window.addEventListener("orientationchange", () => setTimeout(layout, 60));
 
 /* ---------- démarrage ---------- */
 function newGame(){
