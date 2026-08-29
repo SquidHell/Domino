@@ -27,6 +27,12 @@
     --btn:#8f7a66;
     --btn-ink:#f9f6f2;
     --danger:#c05a45;
+    --stop:#b8472f;        /* forfait : rouge brique, 4,9:1 sur son texte clair */
+    --stop-ink:#f9f6f2;
+    --again:#edcc61;       /* nouvelle partie : le jaune des tuiles, 5,6:1 */
+    --again-ink:#5a4a08;
+    --armed:#3c3a32;       /* confirmation : le brun sombre des grosses tuiles */
+    --armed-ink:#f9f6f2;
     --veil:rgba(238,228,218,.86);
     --veil-ink:#776e65;
     --score-label:#eee4da;
@@ -117,8 +123,18 @@
   }
   .acts button:hover:not([disabled]){background:var(--btn);color:var(--btn-ink);border-color:var(--btn);filter:none}
   .acts button.mute.off{opacity:.45;text-decoration:line-through}
-  .acts button.armed{color:var(--danger);border-color:var(--danger)}
-  .acts button.armed:hover{background:var(--danger);color:var(--ground);border-color:var(--danger)}
+  /* les deux boutons qui mettent fin à une partie se reconnaissent à leur couleur */
+  #forfeit{background:var(--stop);color:var(--stop-ink);border-color:var(--stop)}
+  #forfeit:hover:not([disabled]){background:var(--stop);color:var(--stop-ink);border-color:var(--stop);filter:brightness(1.1)}
+  #restart{background:var(--again);color:var(--again-ink);border-color:var(--again)}
+  #restart:hover{background:var(--again);color:var(--again-ink);border-color:var(--again);filter:brightness(1.06)}
+  /* Armé, le bouton bascule au brun sombre : impossible de le confondre avec son
+     repos. Les sélecteurs portent l'identifiant, sinon la couleur de repos —
+     posée sur #forfeit et #restart — l'emporterait par spécificité. */
+  #forfeit.armed, #forfeit.armed:hover,
+  #restart.armed, #restart.armed:hover{
+    background:var(--armed);color:var(--armed-ink);border-color:var(--armed);filter:none;
+  }
 
   /* ---- bonus ---- */
   .rewards{display:flex;flex-wrap:wrap;gap:6px}
@@ -162,6 +178,8 @@
   .lb .rk{color:var(--muted);font-weight:700;font-variant-numeric:tabular-nums;text-align:right}
   .lb .nm{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   .lb b{font-weight:800;font-variant-numeric:tabular-nums}
+
+  .credits{margin-top:4px;text-align:center;font-size:12px;font-weight:500;color:var(--muted)}
 
   .publish{display:flex;gap:6px;justify-content:center;flex-wrap:wrap}
   .publish[hidden]{display:none}
@@ -306,6 +324,7 @@
       <div><button id="ovbtn" type="button"></button></div>
     </div>
   </div>
+  <footer class="credits">Crédits · Luis Callejon</footer>
 </div>
 
 <script>
