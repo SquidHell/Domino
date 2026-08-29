@@ -6,16 +6,13 @@ Un petit jeu HTML (un seul fichier, sans dépendance) qui mélange les **dominos
 
 Ouvre `index.html` dans un navigateur. C'est tout.
 
-L'interface reprend la palette du 2048 d'origine : fond crème, plateau taupe, tuiles ivoire
-puis ambre, angles à peine arrondis, une seule ambiance (pas de mode sombre). Les règles
-ne sont plus imprimées sur la page — elles sont ci-dessous.
 
 ## Règles
 
 1. À chaque tour, un domino de deux valeurs t'est proposé (ex. `4|8`). **Choisis une case**
    (clic ou tap) : il occupe cette case et sa voisine. Il se pose **partout où deux cases
-   voisines sont libres**. `R`, les flèches ou le bouton **Pivoter** le font tourner —
-   droite, bas, gauche, haut — ce qui échange aussi les deux moitiés.
+   voisines sont libres**. `R`, les flèches ou le bouton **Pivoter** le font tourner
+   droite, bas, gauche, haut ce qui échange aussi les deux moitiés.
 2. Une fois posées, les deux moitiés ne sont **plus solidaires** : ce sont deux tuiles
    ordinaires sur le tapis.
 3. **Fusion au contact** : seules les valeurs égales qui se touchent fusionnent, et elles
@@ -27,20 +24,20 @@ ne sont plus imprimées sur la page — elles sont ci-dessous.
    **plus haute tuile atteignable** : le jeu choisit l'ordre des fusions *et la case où
    chacune se dépose*, de sorte qu'un 2 monte en 4 puis 8 puis 16 dès que c'est possible.
    Les deux comptent : sur `4 2 2`, si le 4 issu des deux 2 se déposait à droite il
-   perdrait le contact avec le 4 déjà posé — il se dépose donc à gauche et l'escalade
+   perdrait le contact avec le 4 déjà posé il se dépose donc à gauche et l'escalade
    continue. À hauteur égale le jeu prend le meilleur score, puis le plus grand nombre de
    fusions ; le reste ne règle que l'ordre d'affichage. L'aperçu cerne les tuiles
    qui vont fusionner avec la pose.
 5. **Le talon** ne sort un numéro qu'une fois *débloqué* : la partie commence avec des 2
    seulement, le 4 devient distribuable dès qu'une fusion en a fabriqué un, puis le 8, le
    16, le 32 et enfin le **64**. Au-delà de 64, les grosses tuiles ne s'obtiennent plus
-   qu'en fusionnant. Le tirage penche vers le haut — le poids d'un numéro est sa valeur —
+   qu'en fusionnant. Le tirage penche vers le haut le poids d'un numéro est sa valeur
    sans quoi la matière distribuée reste trop maigre pour bâtir un 2048.
 6. Objectif : la tuile **2048**, atteignable pour qui joue bien. Le **4096** existe, mais il
    ne se voit presque jamais. La partie s'arrête quand il ne reste plus deux cases voisines
    libres sur la grille 6×6.
 
-**Le son est synthétisé à la volée** — aucun fichier audio, donc rien à charger. La matière
+**Le son est synthétisé à la volée**  aucun fichier audio, donc rien à charger. La matière
 vient du domino lui-même : une plaque qui claque sur le tapis, un corps boisé sous l'os. Les
 fusions chantent une gamme pentatonique qui monte avec la valeur de la tuile, si bien qu'une
 cascade joue un arpège sans qu'on ait rien eu à composer. Tout passe par un passe-bas, à
@@ -102,7 +99,7 @@ en gardant le 4096 exceptionnel.
 Un service de classement vit dans `server/` : un Cloudflare Worker sans dépendance et une
 base D1, déployés depuis ce dépôt par `.github/workflows/deploy-leaderboard.yml`. Il reçoit
 pseudo, score et nombre de coups ; **le nombre de coups n'est jamais affiché** au classement
-— il ne sert qu'à repérer une partie douteuse depuis la vue d'administration, avec des
+il ne sert qu'à repérer une partie douteuse depuis la vue d'administration, avec des
 marqueurs automatiques de plausibilité. **Aucune adresse IP n'est lue ni stockée**, et la
 modération se fait à la main.
 
