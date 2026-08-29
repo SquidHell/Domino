@@ -102,12 +102,15 @@
   /* le domino : plaque posée, moitiés séparées par la rainure */
   .piece{display:flex;gap:4px;padding:4px;border-radius:4px;background:var(--board)}
   .piece.vert{flex-direction:column}
+  /* --hs porte la taille de police de la moitié : chaque palier ne redéfinit
+     qu'elle, et les valeurs à trois chiffres (128) s'y adossent sans déborder. */
   .half{
     width:38px;height:38px;border-radius:3px;display:flex;align-items:center;justify-content:center;
-    font-weight:800;font-size:18px;font-variant-numeric:tabular-nums;
+    font-weight:800;--hs:18px;font-size:var(--hs);font-variant-numeric:tabular-nums;
   }
+  .half.d3{font-size:calc(var(--hs) * .84);letter-spacing:-.04em}
   .piece.small{padding:3px;gap:3px}
-  .piece.small .half{width:24px;height:24px;font-size:12px}
+  .piece.small .half{width:24px;height:24px;--hs:12px}
   .arrowhint{font-size:16px;color:var(--muted);margin-top:5px;height:18px;font-weight:700}
 
   button{
@@ -286,8 +289,8 @@
     .score b{font-size:17px}
     .score span{font-size:9px}
     .panel{gap:9px;padding:8px 9px}
-    .half{width:28px;height:28px;font-size:15px}
-    .piece.small .half{width:18px;height:18px;font-size:10px}
+    .half{width:28px;height:28px;--hs:15px}
+    .piece.small .half{width:18px;height:18px;--hs:10px}
     .lbl{font-size:9px;margin-bottom:3px}
     .arrowhint{display:none}
     #rotate{min-width:92px;font-size:14px;padding:8px 10px}
@@ -328,8 +331,8 @@
     .score b{font-size:18px}
     .score span{font-size:9px}
     .panel{gap:10px;padding:9px 10px}
-    .half{width:32px;height:32px;font-size:16px}
-    .piece.small .half{width:20px;height:20px;font-size:11px}
+    .half{width:32px;height:32px;--hs:16px}
+    .piece.small .half{width:20px;height:20px;--hs:11px}
     .lbl{font-size:9px;margin-bottom:4px}
     .arrowhint{height:14px;font-size:14px;margin-top:3px}
     /* le bouton prend toute la largeur restante du bandeau : lisible, et il ne
@@ -359,8 +362,8 @@
     .score b{font-size:15px}
     .score span{font-size:8px}
     .panel{gap:8px;padding:6px 8px}
-    .half{width:26px;height:26px;font-size:14px}
-    .piece.small .half{width:17px;height:17px;font-size:10px}
+    .half{width:26px;height:26px;--hs:14px}
+    .piece.small .half{width:19px;height:19px;--hs:10.5px}
     .lbl{margin-bottom:2px}
     .arrowhint{display:none}
     #rotate{min-height:52px;font-size:13px;padding:6px 10px}
@@ -380,8 +383,8 @@
     .score{padding:1px 6px}
     .score b{font-size:14px}
     .panel{gap:6px;padding:5px 6px}
-    .half{width:23px;height:23px;font-size:12px}
-    .piece.small .half{width:15px;height:15px;font-size:9px}
+    .half{width:23px;height:23px;--hs:12px}
+    .piece.small .half{width:18px;height:18px;--hs:9.5px}
     #rotate{min-height:44px;font-size:12px;padding:4px 8px}
     #rotate .glyph{font-size:16px}
     .status{font-size:10.5px}
@@ -396,7 +399,7 @@
     .brand h1{font-size:clamp(26px,3vw,40px)}
     .score{padding:6px 14px;min-width:74px}
     .score b{font-size:22px}
-    .half{width:38px;height:38px;font-size:18px}
+    .half{width:38px;height:38px;--hs:18px}
     #rotate{min-height:78px;font-size:16px}
     #rotate .glyph{font-size:26px}
     .acts button{padding:13px 10px;font-size:14px}
@@ -723,12 +726,10 @@ const sleep = ms => new Promise(res => setTimeout(res, ms));
 /* ---------- le talon ----------
    Un numéro ne sort du talon qu'une fois débloqué, c'est-à-dire une fois qu'une
    fusion l'a fait apparaître sur le tapis : on commence avec des 2, le 4 arrive
-   quand un 4 a été fabriqué, puis le 8, et ainsi de suite jusqu'à 64. Au-delà,
-   les grosses tuiles ne se gagnent qu'en fusionnant.
-   Le tirage penche vers le haut — le poids d'un numéro est sa valeur — sinon la
-   matière distribuée reste trop maigre pour bâtir un 2048. */
-const CAP = 64;
-const DEAL_WEIGHT = "croissant";
+   quand un 4 a été fabriqué, puis le 8, et ainsi de suite jusqu'à 128. Au-delà,
+   les grosses tuiles ne se gagnent qu'en fusionnant. */
+const CAP = 128;
+const DEAL_WEIGHT = "racine";
 // Hasard tenu à l'écart de Math.random : le talon est la seule chose qui doit
 // consommer cette suite, sinon deux parties de même graine ne se rejouent plus
 // à l'identique (c'est ce que vérifie tools/verify-sim.mjs).
@@ -743,12 +744,19 @@ function sideRand(max){
 function unlock(v){
   if (v <= CAP && v > unlocked){ unlocked = v; justUnlocked = v; }
 }
+/* Le tirage penche vers le haut, mais doucement : le poids d'un numéro est la
+   racine de sa valeur. Proportionnel à la valeur, le talon crachait presque
+   toujours son plus gros numéro ; uniforme, il ne distribue plus assez de
+   matière pour bâtir un 2048. La racine tient les deux bouts — c'est ce que
+   mesure tools/stats.mjs. */
 function dealValue(){
   const vals = [];
   for (let v = 2; v <= unlocked; v *= 2) vals.push(v);
-  const total = vals.reduce((a,v) => a + v, 0);
+  if (DEAL_WEIGHT === "uniforme") return vals[Math.floor(Math.random() * vals.length)];
+  const w = vals.map(v => DEAL_WEIGHT === "croissant" ? v : Math.sqrt(v));
+  const total = w.reduce((a, x) => a + x, 0);
   let x = Math.random() * total;
-  for (const v of vals){ x -= v; if (x <= 0) return v; }
+  for (let i = 0; i < vals.length; i++){ x -= w[i]; if (x <= 0) return vals[i]; }
   return vals[vals.length - 1];
 }
 function makePiece(){ return { a: dealValue(), b: dealValue() }; }
@@ -786,7 +794,7 @@ function pieceEl(p, r, small){
   const vals = (r === 2 || r === 3) ? [p.b, p.a] : [p.a, p.b];
   for (const v of vals){
     const h = document.createElement("div");
-    h.className = "half " + cls(v);
+    h.className = "half " + cls(v) + (v > 99 ? " d3" : "");
     h.textContent = v;
     wrap.appendChild(h);
   }
