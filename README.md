@@ -51,7 +51,8 @@ et affiche l'écran de défaite ; il est désactivé tant qu'aucun domino n'est 
 Une build prête pour [Y8](https://www.y8.com) vit dans `y8/` : le jeu, le minimal SDK Y8 2.0
 et un adaptateur publicitaire réunis en un seul `y8/index.html`, régénérable avec
 `python3 tools/build-y8.py`. Elle ajoute cinq bonus débloqués par une publicité récompensée
-(continuer la partie, doubler le score, annuler le coup, changer de domino, retirer une tuile)
+(continuer la partie, annuler le coup, changer de domino, retirer une tuile, et une offre « ×2 sur
+ce domino » qui surgit à deux tours tirés au hasard)
 et un interstitiel entre deux parties, plafonné.
 
 Le jeu de ce dépôt ne contient aucun code publicitaire : il expose seulement

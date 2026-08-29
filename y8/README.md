@@ -54,17 +54,24 @@ la fin (relance). Toutes sont **déclenchées par le joueur**, jamais imposées.
 | Bonus | `name` envoyé à Y8 | Quand | Effet |
 |---|---|---|---|
 | Continuer la partie | `revive` | écran de fin, 2 fois max par partie | retire les plus petites tuiles jusqu'à ce qu'un domino rentre de nouveau, et rend la main sans perdre le score |
-| Doubler le score | `double` | écran de fin, 1 fois par partie | double le score de la manche, record compris |
+| ×2 sur ce domino | `boost` | en jeu, à deux tours tirés au hasard | double les deux moitiés du domino en main avant qu'il soit posé (`8\|16` → `16\|32`) |
 | Annuler le coup | `undo` | en jeu, et aussi sur l'écran de fin | rejoue le coup précédent — permet de rattraper la pose qui a bloqué le tapis |
 | Changer de domino | `swap` | en jeu | remplace le domino en main par un autre tirage |
 | Retirer une tuile | `hammer` | en jeu | le joueur désigne la tuile de son choix, elle disparaît |
 
 Choix de conception :
 
-- **`revive` et `double` sont à l'écran de fin**, le moment où le joueur a le plus à
-  perdre : c'est là que la récompensée est la mieux acceptée. `revive` est limité à
-  deux par partie pour que la fin de partie garde du sens, `double` à une seule pour
-  ne pas dénaturer le record.
+- **`revive` est à l'écran de fin**, le moment où le joueur a le plus à perdre : c'est
+  là que la récompensée est la mieux acceptée. Elle est limitée à deux par partie pour
+  que la fin de partie garde du sens, et retirée après un forfait — reprendre une manche
+  qu'on vient d'abandonner n'aurait pas de sens.
+- **`boost` ne s'affiche pas en permanence** : l'offre surgit d'elle-même à deux tours
+  tirés au hasard (le premier entre le 3ᵉ et le 9ᵉ domino, le second 6 à 13 dominos plus
+  tard), porte sur le domino que le joueur a sous les yeux, et disparaît dès qu'il le
+  pose. Une offre qui passe crée une décision immédiate — c'est ce qui la fait convertir,
+  et ça évite un bouton de plus toujours grisé. Le tirage de ces deux moments utilise
+  `crypto.getRandomValues` et non `Math.random`, pour ne pas décaler la suite du talon
+  (voir la vérification du simulateur dans le README principal).
 - **`undo` reste disponible après la fin de partie** : annuler la pose fatale est
   souvent plus intéressant que « continuer », et laisse le choix au joueur.
 - **`swap` répond directement à la frustration créée par le talon restreint** (2, 4,

@@ -127,6 +127,12 @@
   .rewards button:hover:not([disabled]),.ovrewards button:hover:not([disabled]){
     background:var(--brass);color:var(--brass-ink);border-color:var(--brass);
   }
+  .rewards button.offer{
+    border-color:var(--brass);color:var(--brass-ink);background:var(--brass);
+    animation:offer 1.4s ease-in-out infinite;
+  }
+  .rewards button.offer .ad{background:var(--brass-ink);color:var(--brass)}
+  @keyframes offer{0%,100%{box-shadow:0 0 0 0 rgba(157,113,24,0)}50%{box-shadow:0 0 0 5px rgba(157,113,24,.22)}}
   .ad{
     font-size:8.5px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;
     background:var(--brass);color:var(--brass-ink);border-radius:3px;padding:2px 4px;line-height:1;
@@ -222,7 +228,7 @@
   }
   @media (prefers-reduced-motion: reduce){
     .tile{transition:none}
-    .tile.new,.tile.merged,.float.go{animation:none}
+    .tile.new,.tile.merged,.float.go,.rewards button.offer{animation:none}
     .float.go{opacity:0}
   }
 </style>
@@ -269,6 +275,7 @@
     <button type="button" data-reward="undo">↺ Annuler le coup<span class="ad">pub</span></button>
     <button type="button" data-reward="swap">⇄ Changer de domino<span class="ad">pub</span></button>
     <button type="button" data-reward="hammer">✖ Retirer une tuile<span class="ad">pub</span></button>
+    <button type="button" data-reward="boost" class="offer" hidden>×2 sur ce domino<span class="ad">pub</span></button>
   </div>
 
   <div class="board" id="board">
@@ -277,7 +284,6 @@
       <p id="ovtext"></p>
       <div class="ovrewards" id="ovrewards" hidden>
         <button type="button" data-reward="revive">↺ Continuer la partie<span class="ad">pub</span></button>
-        <button type="button" data-reward="double">×2 Doubler le score<span class="ad">pub</span></button>
       </div>
       <div><button id="ovbtn" type="button"></button></div>
     </div>
@@ -317,7 +323,8 @@ const nxtEl     = document.getElementById("nxt");
 const hintEl    = document.getElementById("hint");
 
 let grid, tiles, score, best, phase, rot, piece, nextPiece, uid, won, placed, unlocked, justUnlocked;
-let history, hammer, revives, doubled, paused, adBusy, games, forfeited;
+let history, hammer, revives, paused, adBusy, games, forfeited;
+let boostTurns, boostOffer;   // les deux moments où l'offre « ×2 » se présente
 let ads = null;                                 // régie publicitaire branchée, si build partenaire
 
 /* ---------- mise en page ---------- */
@@ -360,6 +367,17 @@ const sleep = ms => new Promise(res => setTimeout(res, ms));
    matière distribuée reste trop maigre pour bâtir un 2048. */
 const CAP = 64;
 const DEAL_WEIGHT = "croissant";
+// Hasard tenu à l'écart de Math.random : le talon est la seule chose qui doit
+// consommer cette suite, sinon deux parties de même graine ne se rejouent plus
+// à l'identique (c'est ce que vérifie tools/verify-sim.mjs).
+function sideRand(max){
+  if (window.crypto && crypto.getRandomValues){
+    const a = new Uint32Array(1);
+    crypto.getRandomValues(a);
+    return a[0] % max;
+  }
+  return Math.floor(Date.now() / 997) % max;
+}
 function unlock(v){
   if (v <= CAP && v > unlocked){ unlocked = v; justUnlocked = v; }
 }
@@ -639,7 +657,13 @@ function nextTurn(){
   } else {
     phase = "place";
   }
-  if (justUnlocked && phase !== "over"){
+  // l'offre porte sur le domino qu'on s'apprête à poser, et disparaît avec lui
+  const offered  = phase === "place" && !!ads && boostTurns.includes(placed);
+  const newOffer = offered && !boostOffer;
+  boostOffer = offered;
+
+  if (newOffer) flash("Offre : double ce domino avant de le poser.", "good");
+  else if (justUnlocked && phase !== "over"){
     const v = justUnlocked; justUnlocked = null;
     flash("Le " + v + " est débloqué : il peut désormais sortir du talon.", "good");
   } else say();
@@ -736,7 +760,8 @@ const REWARDS = {
   swap:   { can: () => phase === "place" && !hammer },
   hammer: { can: () => phase === "place" && !hammer && tiles.length > 0 },
   revive: { can: () => phase === "over" && !forfeited && revives < 2 },
-  double: { can: () => phase === "over" && !doubled && score > 0 }
+  // proposé seulement aux deux tours tirés au sort, et seulement pour ce domino-là
+  boost:  { can: () => phase === "place" && boostOffer && !hammer }
 };
 
 function saveHistory(){
@@ -784,16 +809,6 @@ function reviveBoard(){
   nextTurn();
   flash(removed + " tuiles retirées — la partie continue.", "good");
 }
-function doubleScore(){
-  doubled = true;
-  score *= 2;
-  scoreEl.textContent = score;
-  if (score > best){ best = score; bestEl.textContent = best;
-    try { localStorage.setItem("domino2048.best", best); } catch(e){} }
-  document.getElementById("ovtext").textContent =
-    "Score doublé : " + score + " · " + placed + " dominos posés";
-  syncRewards();
-}
 function smash(r, c){
   const t = grid[r][c];
   if (!t){ flash("Vise une tuile à retirer."); return; }
@@ -815,7 +830,13 @@ function grant(name){
   if (name === "hammer"){ hammer = true; boardEl.classList.add("smashing"); clearGhost(); syncRewards();
                           return flash("Choisis la tuile à retirer.", "good"); }
   if (name === "revive") return reviveBoard();
-  if (name === "double") return doubleScore();
+  if (name === "boost"){
+    piece = { a: piece.a * 2, b: piece.b * 2 };
+    boostTurns = boostTurns.filter(t => t !== placed);   // offre consommée
+    boostOffer = false;
+    drawPieces(); clearGhost(); syncRewards();
+    return flash("Domino doublé : " + piece.a + " et " + piece.b + ".", "good");
+  }
 }
 function requestReward(name){
   if (!ads || adBusy || !REWARDS[name] || !REWARDS[name].can()) return;
@@ -836,6 +857,8 @@ function syncRewards(){
     const r = REWARDS[b.dataset.reward];
     b.disabled = adBusy || !r || !r.can();
   });
+  const offer = document.querySelector('[data-reward="boost"]');
+  offer.hidden = !REWARDS.boost.can() && !adBusy;
 }
 document.querySelectorAll("[data-reward]").forEach(b =>
   b.addEventListener("click", e => { e.stopPropagation(); requestReward(b.dataset.reward); }));
@@ -928,8 +951,13 @@ function newGame(){
   tiles = [];
   score = 0; uid = 1; rot = 0; won = false; placed = 0;
   unlocked = 2; justUnlocked = null;
-  history = null; hammer = false; revives = 0; doubled = false; paused = false;
+  history = null; hammer = false; revives = 0; paused = false;
   forfeited = false; disarm();
+  // deux offres par partie, à des tours tirés au hasard — assez tôt pour qu'une
+  // partie courte les voie passer toutes les deux
+  const first = 3 + sideRand(7);
+  boostTurns = [first, first + 6 + sideRand(8)];
+  boostOffer = false;
   boardEl.querySelectorAll(".tile,.ghost").forEach(e => e.remove());
   ghosts = [];
   piece = makePiece(); nextPiece = makePiece();
@@ -958,7 +986,8 @@ window.Domino = {
   setAdProvider(provider){ ads = provider || null; syncRewards(); },
   pause (){ paused = true; },
   resume(){ paused = false; },
-  state (){ return { score, best, placed, phase, unlocked, tiles: tiles.length, revives, doubled }; },
+  state (){ return { score, best, placed, phase, unlocked, tiles: tiles.length, revives,
+                     boostOffer, boostTurns: boostTurns.slice() }; },
   newGame
 };
 window.dispatchEvent(new Event("domino.ready"));
