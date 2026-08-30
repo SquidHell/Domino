@@ -79,6 +79,11 @@
     grid-template-areas:"top" "board" "bottom";
   }
   .top{grid-area:top;display:flex;flex-direction:column;gap:10px;min-width:0}
+  /* Chaque bloc de la colonne garde sa hauteur. Écrasés, ils débordaient les
+     uns sur les autres : c'est ainsi que les bonus passaient par-dessus les
+     boutons de jeu quand la colonne manquait de place. S'il n'y a vraiment pas
+     la place, c'est la colonne qui défile, comme le classement au-dessous. */
+  .top > *{flex:none}
   .boardwrap{grid-area:board;display:flex;align-items:center;justify-content:center;
              min-width:0;min-height:0;overflow:hidden}
   .bottom{grid-area:bottom;display:flex;flex-direction:column;gap:8px;min-width:0;min-height:0;
@@ -204,27 +209,51 @@
   }
 
   /* ---- bonus ---- */
-  /* deux colonnes : quatre bonus tiennent en deux lignes, portrait comme paysage */
-  .rewards{display:grid;grid-template-columns:1fr 1fr;gap:6px}
-  .rewards[hidden],.ovrewards[hidden]{display:none}
-  .rewards button,.ovrewards button{
-    display:inline-flex;align-items:center;justify-content:center;gap:7px;padding:8px 12px;font-size:12.5px;
+  /* Une seule ligne dans la colonne. Les quatre récompensées prenaient deux
+     rangées de boutons : quand la colonne manquait de hauteur, elles écrasaient
+     les boutons de jeu au point de passer par-dessus. Elles vivent maintenant
+     dans un cadre, et la colonne n'a plus qu'un bouton à loger. */
+  .bonusbar{display:flex}
+  .bonusbar[hidden]{display:none}
+  .bonusbar button{
+    flex:1;display:inline-flex;align-items:center;justify-content:center;gap:8px;
+    padding:9px 12px;font-size:13px;
     background:var(--panel);color:var(--ink);border:2px solid var(--line);
   }
-  .rewards button:hover:not([disabled]),.ovrewards button:hover:not([disabled]){
+  .bonusbar button:hover:not([disabled]){
     background:var(--btn);color:var(--btn-ink);border-color:var(--btn);filter:none;
   }
-  .rewards button.offer{
+  .bonusbar button:hover:not([disabled]) .ad{background:var(--btn-ink);color:var(--btn)}
+  /* L'offre ×2 ne vaut que pour le domino en main : le bouton s'allume pour
+     qu'elle ne passe pas inaperçue, sans changer de taille — sinon le plateau
+     bougerait sous le doigt à chaque tour. */
+  .bonusbar button.offer{
     background:var(--btn);color:var(--btn-ink);border-color:var(--btn);
     animation:offer 1.4s ease-in-out infinite;
   }
-  .rewards button.offer .ad{background:var(--btn-ink);color:var(--btn)}
+  .bonusbar button.offer .ad{background:var(--btn-ink);color:var(--btn)}
   @keyframes offer{0%,100%{box-shadow:0 0 0 0 rgba(143,122,102,0)}50%{box-shadow:0 0 0 5px rgba(143,122,102,.3)}}
+
+  /* le cadre : les quatre bonus l'un sous l'autre, chacun avec son étiquette */
+  .bonusintro{margin:12px 0 2px;font-size:13px;line-height:1.55;color:var(--ink-2)}
+  .bonuslist{display:flex;flex-direction:column;gap:8px;padding:12px 0 4px}
+  .bonuslist button,.ovrewards button{
+    display:inline-flex;align-items:center;justify-content:center;gap:7px;padding:11px 12px;font-size:13.5px;
+    background:var(--panel);color:var(--ink);border:2px solid var(--line);
+  }
+  .bonuslist button{justify-content:space-between}
+  /* trois bonus sur quatre sont souvent grisés : à 40 % ils devenaient
+     illisibles, alors qu'il faut pouvoir lire ce qu'on ne peut pas prendre */
+  .bonuslist button[disabled]{opacity:.55}
+  .bonuslist button:hover:not([disabled]),.ovrewards button:hover:not([disabled]){
+    background:var(--btn);color:var(--btn-ink);border-color:var(--btn);filter:none;
+  }
+  .ovrewards[hidden]{display:none}
   .ad{
     font-size:8.5px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;
     background:var(--btn);color:var(--btn-ink);border-radius:2px;padding:2px 4px;line-height:1;
   }
-  .rewards button:hover:not([disabled]) .ad,.ovrewards button:hover:not([disabled]) .ad{
+  .bonuslist button:hover:not([disabled]) .ad,.ovrewards button:hover:not([disabled]) .ad{
     background:var(--btn-ink);color:var(--btn);
   }
   .ovrewards{display:flex;flex-direction:column;gap:8px;align-items:stretch}
@@ -465,7 +494,7 @@
   html.portrait.bas700 #rotate .glyph{font-size:21px}
   html.portrait.bas700 .status{font-size:12px;min-width:0}
   html.portrait.bas700 .acts button{padding:6px 8px;font-size:11.5px}
-  html.portrait.bas700 .rewards button{padding:7px 9px;font-size:11.5px}
+  html.portrait.bas700 .bonusbar button{padding:7px 9px;font-size:11.5px}
   html.portrait.bas700 .lb li{padding:5px 9px;font-size:12px}
   html.portrait.bas700 .credits{font-size:11px}
 
@@ -485,7 +514,7 @@
     grid-template-areas:"board top" "board bottom";
   }
   html.paysage .boardwrap{align-items:center}
-  html.paysage .top{gap:8px;min-height:0;overflow:hidden}
+  html.paysage .top{gap:8px;min-height:0;overflow-x:hidden;overflow-y:auto;scrollbar-width:thin}
   /* empilé, l'en-tête n'impose plus « titre + scores » sur une seule ligne */
   html.paysage header{flex-direction:column;align-items:stretch;gap:6px}
   html.paysage .brand h1{overflow-wrap:anywhere}
@@ -509,7 +538,7 @@
   html.paysage .status{font-size:12px}
   html.paysage .acts{margin-left:0;width:100%;display:grid;grid-template-columns:auto 1fr 1fr;gap:6px}
   html.paysage .acts button{padding:10px 8px;font-size:12.5px}
-  html.paysage .rewards button{padding:9px 8px;font-size:11.5px;gap:5px}
+  html.paysage .bonusbar button{padding:9px 8px;font-size:11.5px;gap:5px}
   /* le classement occupe ce qui reste ; s'il n'en reste presque rien, c'est lui
      qui défile dans son cadre — la page, elle, ne bouge pas */
   html.paysage .lb ol{flex:1}
@@ -537,7 +566,7 @@
   html.paysage.bas480 .bar{gap:5px}
   html.paysage.bas480 .status{font-size:11px}
   html.paysage.bas480 .acts button{padding:7px 6px;font-size:11.5px}
-  html.paysage.bas480 .rewards button{padding:7px 6px;font-size:10.5px}
+  html.paysage.bas480 .bonusbar button{padding:7px 6px;font-size:10.5px}
   html.paysage.bas480 .lb h2{font-size:10px}
   html.paysage.bas480 .lb li{padding:4px 8px;font-size:12px}
   html.paysage.bas480 .credits{font-size:10px}
@@ -554,7 +583,7 @@
   html.paysage.bas390 #rotate .glyph{font-size:16px}
   html.paysage.bas390 .status{font-size:10.5px}
   html.paysage.bas390 .acts button{padding:5px 5px;font-size:11px}
-  html.paysage.bas390 .rewards button{padding:5px 5px;font-size:10px}
+  html.paysage.bas390 .bonusbar button{padding:5px 5px;font-size:10px}
   /* dès qu'il y a de la hauteur, tout respire */
   html.paysage.haut520 .wrap{gap:16px}
   html.paysage.haut520 .top{gap:12px}
@@ -566,12 +595,12 @@
   html.paysage.haut520 #rotate{min-height:78px;font-size:16px}
   html.paysage.haut520 #rotate .glyph{font-size:26px}
   html.paysage.haut520 .acts button{padding:13px 10px;font-size:14px}
-  html.paysage.haut520 .rewards button{padding:12px 10px;font-size:13px}
+  html.paysage.haut520 .bonusbar button{padding:12px 10px;font-size:13px}
   html.paysage.haut520 .status{font-size:13.5px}
 
   @media (prefers-reduced-motion: reduce){
     .tile{transition:none}
-    .tile.new,.tile.merged,.float.go,.rewards button.offer{animation:none}
+    .tile.new,.tile.merged,.float.go,.bonusbar button.offer{animation:none}
     .float.go{opacity:0}
     /* le palier reste annoncé, mais sans balayage : seul le chiffre paraît */
     .milestone.go .s1,.milestone.go .s2,.tile.crowned{animation:none}
@@ -621,12 +650,13 @@
     </div>
   </div>
 
-  <!-- Bonus : masqués tant qu'aucune régie publicitaire n'est branchée -->
-  <div class="rewards" id="rewards" hidden>
-    <button type="button" data-reward="undo"><span data-i18n="rwUndo">↺ Undo the move</span><span class="ad" data-i18n="ad">ad</span></button>
-    <button type="button" data-reward="swap"><span data-i18n="rwSwap">⇄ Swap the domino</span><span class="ad" data-i18n="ad">ad</span></button>
-    <button type="button" data-reward="hammer"><span data-i18n="rwHammer">✖ Remove a tile</span><span class="ad" data-i18n="ad">ad</span></button>
-    <button type="button" data-reward="boost" class="offer" hidden><span data-i18n="rwBoost">×2 on this domino</span><span class="ad" data-i18n="ad">ad</span></button>
+  <!-- Bonus : un seul bouton dans la colonne, qui ouvre le cadre des quatre
+       récompensées. Masqué tant qu'aucune régie publicitaire n'est branchée. -->
+  <div class="bonusbar" id="bonusbar" hidden>
+    <button id="bonus" type="button" aria-haspopup="dialog" aria-expanded="false"
+            data-i18n-title="bonusTitle" title="Four boosts, each in exchange for an ad">
+      <span data-i18n="bonus">Bonus</span><span class="ad" data-i18n="ad">ad</span>
+    </button>
   </div>
 
   </div><!-- /top -->
@@ -690,6 +720,7 @@
           <li><span class="kk">←</span><span class="kk">↑</span><span class="kk">→</span><span class="kk">↓</span><em data-i18n="kMove">Aim at a square</em></li>
           <li><span class="kk" data-i18n="kSpace">Space</span><span class="kk">R</span><em data-i18n="kRotate">Rotate the domino</em></li>
           <li><span class="kk" data-i18n="kEnter">Enter</span><em data-i18n="kPlace">Place it there</em></li>
+          <li><span class="kk">B</span><em data-i18n="kBonus">Open the bonuses</em></li>
           <li><span class="kk">?</span><span class="kk">H</span><em data-i18n="kHelp">Open this panel</em></li>
           <li><span class="kk" data-i18n="kEsc">Esc</span><em data-i18n="kClose">Close it</em></li>
           <li><span class="kk">M</span><em data-i18n="kSound">Sound on or off</em></li>
@@ -697,6 +728,26 @@
           <li><span class="kk">L</span><em data-i18n="kLang">Switch language</em></li>
         </ul>
       </section>
+    </div>
+  </div>
+</div>
+
+<!-- Les quatre bonus, dans un cadre : ils ne disputent plus leur place aux
+     boutons de jeu, et chacun garde son étiquette « pub ». -->
+<div class="sheetveil" id="bonusveil" hidden>
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="bonustitle">
+    <div class="sheethead">
+      <h2 id="bonustitle" data-i18n="bonusSheet">Bonuses</h2>
+      <button id="bonusclose" type="button" class="qmark" data-i18n-title="helpClose" title="Close">✕</button>
+    </div>
+    <div class="sheetbody">
+      <p class="bonusintro" data-i18n="bonusIntro">Each one costs one ad, and nothing else. A greyed out bonus is one that has nothing to do right now.</p>
+      <div class="bonuslist">
+        <button type="button" data-reward="undo"><span data-i18n="rwUndo">↺ Undo the move</span><span class="ad" data-i18n="ad">ad</span></button>
+        <button type="button" data-reward="swap"><span data-i18n="rwSwap">⇄ Swap the domino</span><span class="ad" data-i18n="ad">ad</span></button>
+        <button type="button" data-reward="hammer"><span data-i18n="rwHammer">✖ Remove a tile</span><span class="ad" data-i18n="ad">ad</span></button>
+        <button type="button" data-reward="boost"><span data-i18n="rwBoost">×2 on this domino</span><span class="ad" data-i18n="ad">ad</span></button>
+      </div>
     </div>
   </div>
 </div>
@@ -732,6 +783,10 @@ const STR = {
     restartTitle: "Starts over from scratch",
     confirm:      "Confirm?",
     ad:           "ad",
+    bonus:        "Bonus",
+    bonusTitle:   "Four boosts, each in exchange for an ad",
+    bonusSheet:   "Bonuses",
+    bonusIntro:   "Each one costs one ad, and nothing else. A greyed out bonus is one that has nothing to do right now.",
     rwUndo:       "↺ Undo the move",
     rwSwap:       "⇄ Swap the domino",
     rwHammer:     "✖ Remove a tile",
@@ -761,6 +816,7 @@ const STR = {
     kMove:   "Aim at a square",
     kRotate: "Rotate the domino",
     kPlace:  "Place it there",
+    kBonus:  "Open the bonuses",
     kHelp:   "Open this panel",
     kClose:  "Close it",
     kSound:  "Sound on or off",
@@ -820,6 +876,10 @@ const STR = {
     restartTitle: "Repart de zéro",
     confirm:      "Confirmer ?",
     ad:           "pub",
+    bonus:        "Bonus",
+    bonusTitle:   "Quatre coups de pouce, chacun contre une pub",
+    bonusSheet:   "Bonus",
+    bonusIntro:   "Chacun coûte une pub, et rien d'autre. Un bonus grisé est un bonus qui n'a rien à faire pour l'instant.",
     rwUndo:       "↺ Annuler le coup",
     rwSwap:       "⇄ Changer de domino",
     rwHammer:     "✖ Retirer une tuile",
@@ -849,6 +909,7 @@ const STR = {
     kMove:   "Viser une case",
     kRotate: "Faire pivoter le domino",
     kPlace:  "Le poser là",
+    kBonus:  "Ouvrir les bonus",
     kHelp:   "Ouvrir ce panneau",
     kClose:  "Le fermer",
     kSound:  "Couper ou remettre le son",
@@ -1817,20 +1878,22 @@ function requestReward(name){
     skipped: msg => { done(); flash(msg || T("adSkipped")); }
   });
 }
+const EN_JEU = ["undo", "swap", "hammer", "boost"];   // les quatre du cadre
 function syncRewards(){
-  const bar = document.getElementById("rewards");
+  const bar = document.getElementById("bonusbar");
+  const btn = document.getElementById("bonus");
   const ov  = document.getElementById("ovrewards");
   bar.hidden = !ads;
-  ov.hidden   = !ads || phase !== "over";
+  ov.hidden  = !ads || phase !== "over";
   if (!ads) return;
   document.querySelectorAll("[data-reward]").forEach(b => {
     const r = REWARDS[b.dataset.reward];
     b.disabled = adBusy || !r || !r.can();
   });
-  const offer = document.querySelector('[data-reward="boost"]');
-  const was = offer.hidden;
-  offer.hidden = !REWARDS.boost.can() && !adBusy;
-  if (was !== offer.hidden) layout();          // la barre change de hauteur
+  // rien à proposer : le bouton reste là, mais éteint, plutôt que d'ouvrir un
+  // cadre où les quatre lignes seraient grises
+  btn.disabled = adBusy || !EN_JEU.some(n => REWARDS[n].can());
+  btn.classList.toggle("offer", REWARDS.boost.can() && !adBusy);
 }
 const muteBtn = document.getElementById("mute");
 function syncMute(){
@@ -1842,7 +1905,11 @@ function syncMute(){
 muteBtn.addEventListener("click", () => { SFX.toggle(); syncMute(); if (!SFX.muted()) SFX.play("pivot"); });
 
 document.querySelectorAll("[data-reward]").forEach(b =>
-  b.addEventListener("click", e => { e.stopPropagation(); requestReward(b.dataset.reward); }));
+  b.addEventListener("click", e => {
+    e.stopPropagation();
+    fermerCadre();                    // la pub prend l'écran : on rend le cadre
+    requestReward(b.dataset.reward);
+  }));
 
 /* ---------- aperçu ---------- */
 let ghosts = [];
@@ -2040,37 +2107,49 @@ document.getElementById("ovbtn").addEventListener("click", e => {
   else overlayEl.classList.remove("show");
 });
 
-/* ---------- cadre d'aide ----------
-   Il se pose par-dessus la page, prend le clavier tant qu'il est ouvert, et
-   rend le focus au bouton qui l'a ouvert en se refermant. */
-const helpVeil  = document.getElementById("helpveil");
-const helpBtn   = document.getElementById("help");
-const helpClose = document.getElementById("helpclose");
-let helpReturn = null;
-function openHelp(){
-  if (!helpVeil.hidden) return;
-  helpReturn = document.activeElement;
-  helpVeil.hidden = false;
-  helpBtn.setAttribute("aria-expanded", "true");
-  helpClose.focus();
+/* ---------- les cadres ----------
+   Ils se posent par-dessus la page, prennent le clavier tant qu'ils sont
+   ouverts, et rendent le focus au bouton qui les a ouverts en se refermant. */
+/* Deux panneaux — l'aide et les bonus — partagent le même comportement : un
+   seul ouvert à la fois, Échap ferme, un clic à côté ferme, et le focus
+   retourne au bouton qui a ouvert. */
+let cadreOuvert = null;
+function ouvrirCadre(c){
+  if (cadreOuvert === c) return;
+  if (cadreOuvert) fermerCadre();
+  c.retour = document.activeElement;
+  c.veil.hidden = false;
+  c.bouton.setAttribute("aria-expanded", "true");
+  c.fermer.focus();
+  cadreOuvert = c;
   SFX.play("pivot");
 }
-function closeHelp(){
-  if (helpVeil.hidden) return;
-  helpVeil.hidden = true;
-  helpBtn.setAttribute("aria-expanded", "false");
-  if (helpReturn && helpReturn.focus) helpReturn.focus();
-  helpReturn = null;
+function fermerCadre(){
+  const c = cadreOuvert;
+  if (!c) return;
+  cadreOuvert = null;
+  c.veil.hidden = true;
+  c.bouton.setAttribute("aria-expanded", "false");
+  if (c.retour && c.retour.focus) c.retour.focus();
+  c.retour = null;
+}
+function brancherCadre(idVeil, idBouton, idFermer){
+  const c = { veil:   document.getElementById(idVeil),
+              bouton: document.getElementById(idBouton),
+              fermer: document.getElementById(idFermer),
+              retour: null };
+  c.fermer.addEventListener("click", fermerCadre);
+  c.veil.addEventListener("click", e => { if (e.target === c.veil) fermerCadre(); });
+  c.bouton.addEventListener("click", () => cadreOuvert === c ? fermerCadre() : ouvrirCadre(c));
+  return c;
 }
 document.getElementById("lang").addEventListener("click", () => {
   setLang(LANG === "fr" ? "en" : "fr");
   SFX.play("pivot");
 });
 
-helpBtn.addEventListener("click", () => helpVeil.hidden ? openHelp() : closeHelp());
-helpClose.addEventListener("click", closeHelp);
-// cliquer à côté du cadre le referme ; cliquer dedans, non
-helpVeil.addEventListener("click", e => { if (e.target === helpVeil) closeHelp(); });
+const cadreAide  = brancherCadre("helpveil",  "help",  "helpclose");
+const cadreBonus = brancherCadre("bonusveil", "bonus", "bonusclose");
 
 /* ---------- jouer au clavier ----------
    Les flèches déplacent la visée sur le plateau, Entrée pose. Le fantôme sert de
@@ -2088,9 +2167,15 @@ function viser(dr, dc){
 }
 document.addEventListener("keydown", e => {
   const k = e.key.toLowerCase();
-  if (k === "escape"){ closeHelp(); if (armed){ disarm(); say(); } return; }
-  if (k === "?" || (k === "h" && !e.ctrlKey && !e.metaKey)){ e.preventDefault(); openHelp(); return; }
-  if (!helpVeil.hidden) return;                    // le cadre d'aide a la main
+  if (k === "escape"){ fermerCadre(); if (armed){ disarm(); say(); } return; }
+  if (k === "?" || (k === "h" && !e.ctrlKey && !e.metaKey)){ e.preventDefault(); ouvrirCadre(cadreAide); return; }
+  if (k === "b" && !e.ctrlKey && !e.metaKey){
+    e.preventDefault();
+    const b = document.getElementById("bonus");
+    if (b.offsetParent && !b.disabled) ouvrirCadre(cadreBonus);   // sans régie, il n'y a rien à ouvrir
+    return;
+  }
+  if (cadreOuvert) return;                         // un cadre ouvert a la main
   if (e.ctrlKey || e.metaKey || e.altKey) return;  // on ne détourne pas les raccourcis du navigateur
   // pendant la saisie du pseudo, les touches appartiennent au champ
   const cible = e.target;

@@ -43,21 +43,29 @@ Domino.setAdProvider({
 });
 ```
 
-Sans régie branchée — SDK bloqué, jeu ouvert en local, joueur hors ligne — aucun
-bouton de bonus ne s'affiche et la partie se déroule normalement.
+Sans régie branchée — SDK bloqué, jeu ouvert en local, joueur hors ligne — le bouton
+« Bonus » ne s'affiche pas et la partie se déroule normalement.
 
 ## Les récompensées
 
 Cinq récompenses, réparties entre deux moments : pendant la partie (dépannage) et à
 la fin (relance). Toutes sont **déclenchées par le joueur**, jamais imposées.
 
-| Bonus | `name` envoyé à Y8 | Quand | Effet |
+Les quatre récompenses en jeu vivent derrière un **bouton « Bonus »** unique, qui
+ouvre un cadre où elles sont listées. Elles occupaient auparavant deux rangées de
+boutons dans la colonne d'infos : quand la colonne manquait de hauteur, ces deux
+rangées écrasaient les boutons de jeu au point de passer par-dessus. Le cadre règle
+les deux problèmes à la fois, la place et la lisibilité. Une récompense qui n'a rien
+à faire à cet instant y reste affichée, grisée, plutôt que masquée : le joueur voit
+ce qui existe. `revive`, elle, est restée sur l'écran de fin.
+
+| Bonus | `name` envoyé à Y8 | Où | Effet |
 |---|---|---|---|
 | Continuer la partie | `revive` | écran de fin, 2 fois max par partie | retire les plus petites tuiles jusqu'à ce qu'un domino rentre de nouveau, et rend la main sans perdre le score |
-| ×2 sur ce domino | `boost` | en jeu, à deux tours tirés au hasard | double les deux moitiés du domino en main avant qu'il soit posé (`8\|16` → `16\|32`) |
-| Annuler le coup | `undo` | en jeu, et aussi sur l'écran de fin | rejoue le coup précédent — permet de rattraper la pose qui a bloqué le tapis |
-| Changer de domino | `swap` | en jeu | remplace le domino en main par un autre tirage |
-| Retirer une tuile | `hammer` | en jeu | le joueur désigne la tuile de son choix, elle disparaît |
+| ×2 sur ce domino | `boost` | cadre Bonus, à deux tours tirés au hasard | double les deux moitiés du domino en main avant qu'il soit posé (`8\|16` → `16\|32`) |
+| Annuler le coup | `undo` | cadre Bonus, et aussi sur l'écran de fin | rejoue le coup précédent — permet de rattraper la pose qui a bloqué le tapis |
+| Changer de domino | `swap` | cadre Bonus | remplace le domino en main par un autre tirage |
+| Retirer une tuile | `hammer` | cadre Bonus | le joueur désigne la tuile de son choix, elle disparaît |
 
 Choix de conception :
 
@@ -65,11 +73,12 @@ Choix de conception :
   là que la récompensée est la mieux acceptée. Elle est limitée à deux par partie pour
   que la fin de partie garde du sens, et retirée après un forfait — reprendre une manche
   qu'on vient d'abandonner n'aurait pas de sens.
-- **`boost` ne s'affiche pas en permanence** : l'offre surgit d'elle-même à deux tours
-  tirés au hasard (le premier entre le 3ᵉ et le 9ᵉ domino, le second 6 à 13 dominos plus
-  tard), porte sur le domino que le joueur a sous les yeux, et disparaît dès qu'il le
-  pose. Une offre qui passe crée une décision immédiate — c'est ce qui la fait convertir,
-  et ça évite un bouton de plus toujours grisé. Le tirage de ces deux moments utilise
+- **`boost` n'est prenable qu'à deux tours tirés au hasard** (le premier entre le 3ᵉ et
+  le 9ᵉ domino, le second 6 à 13 dominos plus tard) : elle porte sur le domino que le
+  joueur a sous les yeux et se referme dès qu'il le pose. Comme elle est dans le cadre,
+  c'est le bouton « Bonus » lui-même qui s'allume pendant ces deux tours, sans changer
+  de taille — sinon le plateau bougerait sous le doigt. Une offre qui passe crée une
+  décision immédiate, c'est ce qui la fait convertir. Le tirage de ces deux moments utilise
   `crypto.getRandomValues` et non `Math.random`, pour ne pas décaler la suite du talon
   (voir la vérification du simulateur dans le README principal).
 - **`undo` reste disponible après la fin de partie** : annuler la pose fatale est
@@ -153,7 +162,7 @@ English and French, and the question mark key opens the help panel.
 
 Les tests remplacent le CDN Y8 par un faux SDK respectant les signatures
 documentées, et couvrent : `init()` avec les bons identifiants, `onAuth()`,
-l'apparition des boutons, la mise en pause pendant la pub, la récompense accordée
+l'apparition du bouton « Bonus » et du cadre, la mise en pause pendant la pub, la récompense accordée
 sur `adViewed`, l'absence de récompense sur `adDismissed`, les cinq effets, les deux
 règles de capping des interstitiels, et la dégradation gracieuse quand le CDN est
 injoignable.
