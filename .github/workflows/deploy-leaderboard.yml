@@ -184,10 +184,19 @@ jobs:
           git add index.html y8/index.html server/wrangler.toml
           if git diff --cached --quiet; then
             echo "rien à valider : le jeu pointait déjà au bon endroit."
-          else
-            git commit -m "Classement en ligne : ${{ steps.deploiement.outputs.url }} [skip ci]"
-            git push origin HEAD:"${{ github.ref_name }}"
+            echo "branche=oui" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          git commit -m "Classement en ligne : ${{ steps.deploiement.outputs.url }} [skip ci]"
+          # Le service est en ligne : ce commit n'est que de la comptabilité. S'il
+          # est refusé (droits d'écriture des Actions en lecture seule), on le dit
+          # sans faire passer pour un échec un déploiement qui a réussi.
+          if git push origin HEAD:"${{ github.ref_name }}"; then
             echo "adresse validée dans le dépôt."
+            echo "branche=oui" >> "$GITHUB_OUTPUT"
+          else
+            echo "branche=non" >> "$GITHUB_OUTPUT"
+            echo "::warning::Le Worker est bien en ligne, mais l'adresse n'a pas pu être écrite dans le dépôt : les Actions n'ont pas le droit d'y pousser. Settings → Actions → General → Workflow permissions → « Read and write permissions ». À défaut, recopie l'adresse à la main dans index.html (const LEADERBOARD_API)."
           fi
 
       - name: Récapitulatif
@@ -202,5 +211,12 @@ jobs:
             echo "| Sonde de santé | \`$URL/health\` |"
             echo "| Dépôt d'un score | \`POST $URL/scores\` |"
             echo
-            echo "Le jeu a été mis à jour dans le dépôt : il pointe maintenant sur cette adresse."
+            if [ "${{ steps.branchement.outputs.branche }}" = "oui" ]; then
+              echo "Le jeu a été mis à jour dans le dépôt : il pointe maintenant sur cette adresse."
+            else
+              echo "**Il reste une chose à faire.** Le service est en ligne, mais l'adresse n'a pas pu"
+              echo "être écrite dans le dépôt. Ouvre \`Settings → Actions → General → Workflow permissions\`,"
+              echo "choisis « Read and write permissions », et relance ce workflow — ou recopie l'adresse"
+              echo "ci-dessus à la main dans \`index.html\` (ligne \`const LEADERBOARD_API\`)."
+            fi
           } >> "$GITHUB_STEP_SUMMARY"
