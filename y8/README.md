@@ -96,6 +96,59 @@ jamais pendant une partie, jamais au premier lancement. Deux garde-fous cumulés
 
 Les deux constantes sont en tête de l'adaptateur.
 
+## Texte de soumission Y8
+
+À recopier tel quel dans le formulaire du portail. Sans tiret cadratin, comme
+demandé : Y8 rend les descriptions en texte brut et les tirets longs y passent
+mal selon les polices.
+
+### Description
+
+Domino 2048 crosses dominoes with the sliding number puzzle. Every domino
+carries two numbers. Lay it on the board, and any tiles of the same value that
+end up touching merge into a single tile worth double. Merges resolve one at a
+time, and the game always follows the chain that climbs the highest, so one well
+placed domino can set off a long cascade. A number only starts being dealt once
+you have built it yourself, so the board grows richer as you play. Reach 2048
+and take the top spot on the leaderboard.
+
+### Description courte
+
+Place dominoes on a 6 by 6 board and let matching numbers merge into bigger
+ones. Chain the merges, climb the ladder, reach 2048.
+
+### Instructions
+
+Tap or click a free square to lay the domino down. It takes two neighbouring
+squares, so you need two free squares side by side.
+
+Use Rotate to turn the domino a quarter turn before you place it.
+
+Two tiles of the same value that touch merge into one worth double, and nothing
+else merges: no diagonals, no different values. Every merge scores its own
+value.
+
+Merges happen one at a time, in a cascade. The game always picks the chain that
+climbs the highest, so two 2s beside a 4 give you an 8 rather than two 4s.
+
+The game opens on 2s. A number only enters the boneyard once a merge has built
+it on the board: make a 4 and 4s start being dealt, then 8s, all the way up to
+128. Above that, big tiles are earned by merging alone.
+
+The game ends when no domino fits any more. Resign ends it on purpose and gives
+up any second chance.
+
+Your goal: reach 2048 and top the leaderboard.
+
+Controls:
+
+Mouse or touch: point at a square to preview the domino, then click or lift your
+finger to place it.
+
+Keyboard: arrow keys aim at a square, Enter places the domino, Space or R
+rotates it, M turns the sound on or off, N starts a new game, L switches between
+English and French, and the question mark key opens the help panel.
+
 ## Vérifications automatisées
 
 Les tests remplacent le CDN Y8 par un faux SDK respectant les signatures
