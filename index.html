@@ -35,12 +35,29 @@
     --veil:rgba(238,228,218,.86);
     --veil-ink:#776e65;
     --score-label:#eee4da;
+    /* 1 % de la largeur *vue* par le joueur. Vaut 1vw tant que mesurer() n'a
+       pas parlé, et s'en écarte quand un parent nous a tournés. */
+    --vw:1vw;
   }
 
   *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
   /* La page tient dans l'écran, toujours : rien ne défile, ni en hauteur ni en
      largeur. La taille du plateau est calculée à partir de la place restante. */
   html,body{margin:0;padding:0;height:100%;overflow:hidden}
+
+  /* ---- cadre tourné par un parent ----
+     Certains portails (Y8 sur mobile) forcent le paysage : ils donnent au jeu
+     une iframe couchée et la font pivoter d'un quart de tour pour remplir un
+     téléphone tenu droit. Le jeu se retrouve alors lisible de travers. Quand
+     mesurer() le détecte, on tourne d'autant dans l'autre sens : les deux
+     rotations s'annulent, et comme on échange aussi largeur et hauteur, le
+     contenu retombe pile dans le même rectangle, sans bande vide. */
+  html.tourne body{
+    position:fixed;top:0;left:0;
+    width:var(--vpw);height:var(--vph);
+    transform-origin:0 0;
+    transform:rotate(-90deg) translateX(-100%);
+  }
   body{
     background:var(--ground);
     color:var(--ink);
@@ -82,7 +99,7 @@
      d'environ 370 px il passe sur deux lignes — assumé, et équilibré pour que la
      coupure tombe entre les deux mots. */
   .brand h1{
-    font-weight:800;font-size:clamp(24px,7.2vw,40px);line-height:1.02;margin:0;
+    font-weight:800;font-size:clamp(24px,calc(var(--vw) * 7.2),40px);line-height:1.02;margin:0;
     letter-spacing:-1.1px;color:var(--ink);text-wrap:balance;
   }
   .brand p{
@@ -94,7 +111,7 @@
     background:var(--board);border-radius:3px;padding:6px 14px;text-align:center;min-width:74px;
   }
   /* sur un écran étroit les compteurs se serrent pour laisser le titre entier */
-  @media (max-width:430px){ .score{min-width:60px;padding:6px 10px} }
+  html.etroit430 .score{min-width:60px;padding:6px 10px}
   .score span{
     display:block;font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;
     color:var(--score-label);
@@ -141,7 +158,7 @@
     font-size:15px;font-weight:800;letter-spacing:.01em;padding:12px 18px;
   }
   #rotate .glyph{font-size:26px;line-height:1;font-weight:400}
-  @media (max-width:400px){ #rotate{min-width:104px;padding:10px 12px} }
+  html.etroit400 #rotate{min-width:104px;padding:10px 12px}
 
   /* ---- barre d'état et actions ---- */
   /* Le bandeau sert de contexte de conteneur : la place réservée au message se
@@ -349,7 +366,7 @@
     gap:16px;text-align:center;padding:22px;
   }
   .overlay.show{display:flex}
-  .overlay h2{margin:0;font-size:clamp(34px,9vw,52px);font-weight:800;line-height:1;letter-spacing:-1px}
+  .overlay h2{margin:0;font-size:clamp(34px,calc(var(--vw) * 9),52px);font-weight:800;line-height:1;letter-spacing:-1px}
   .overlay p{margin:0;font-weight:500;font-size:14px;opacity:.9}
   .overlay button{background:var(--btn);color:var(--btn-ink);border:0;font-size:14px;padding:11px 20px}
 
@@ -430,136 +447,126 @@
 
   /* Portrait bas de plafond : on comprime le bandeau pour que le plateau garde
      une taille jouable et que le classement reste visible. */
-  @media (orientation:portrait) and (max-height:700px){
-    body{padding:8px}
-    .wrap{gap:8px}
-    .top{gap:8px}
-    .brand h1{font-size:clamp(22px,6vw,30px)}
-    .brand p{display:none}
-    .score{padding:4px 10px;min-width:60px}
-    .score b{font-size:17px}
-    .score span{font-size:9px}
-    .panel{gap:9px;padding:8px 9px}
-    .half{width:28px;height:28px;--hs:15px}
-    .piece.small .half{width:18px;height:18px;--hs:10px}
-    .lbl{font-size:9px;margin-bottom:3px}
-    .arrowhint{display:none}
-    #rotate{min-width:92px;font-size:14px;padding:8px 10px}
-    #rotate .glyph{font-size:21px}
-    .status{font-size:12px;min-width:0}
-    .acts button{padding:6px 8px;font-size:11.5px}
-    .rewards button{padding:7px 9px;font-size:11.5px}
-    .lb li{padding:5px 9px;font-size:12px}
-    .credits{font-size:11px}
-  }
+  html.portrait.bas700 body{padding:8px}
+  html.portrait.bas700 .wrap{gap:8px}
+  html.portrait.bas700 .top{gap:8px}
+  html.portrait.bas700 .brand h1{font-size:clamp(22px,calc(var(--vw) * 6),30px)}
+  html.portrait.bas700 .brand p{display:none}
+  html.portrait.bas700 .score{padding:4px 10px;min-width:60px}
+  html.portrait.bas700 .score b{font-size:17px}
+  html.portrait.bas700 .score span{font-size:9px}
+  html.portrait.bas700 .panel{gap:9px;padding:8px 9px}
+  html.portrait.bas700 .half{width:28px;height:28px;--hs:15px}
+  html.portrait.bas700 .piece.small .half{width:18px;height:18px;--hs:10px}
+  html.portrait.bas700 .lbl{font-size:9px;margin-bottom:3px}
+  html.portrait.bas700 .arrowhint{display:none}
+  html.portrait.bas700 #rotate{min-width:92px;font-size:14px;padding:8px 10px}
+  html.portrait.bas700 #rotate .glyph{font-size:21px}
+  html.portrait.bas700 .status{font-size:12px;min-width:0}
+  html.portrait.bas700 .acts button{padding:6px 8px;font-size:11.5px}
+  html.portrait.bas700 .rewards button{padding:7px 9px;font-size:11.5px}
+  html.portrait.bas700 .lb li{padding:5px 9px;font-size:12px}
+  html.portrait.bas700 .credits{font-size:11px}
 
   /* ---- paysage : plateau à gauche sur toute la hauteur, infos à droite ----
      La colonne d'infos ne garde qu'un élément élastique, le classement ; tout le
      reste a une hauteur fixe et compacte, de sorte que l'ensemble tienne même
      sur un téléphone couché (390 px de haut). Les boutons grandissent dès que
      la hauteur le permet. */
-  @media (orientation:landscape){
-    body{padding:10px 12px}
-    .wrap{
-      width:100%;max-width:none;gap:12px;justify-content:center;
-      /* --side est posée par layout() : elle suit la largeur de l'écran, entre
-         250 et 460 px, pour que les boutons restent lisibles sans étirer la
-         colonne à l'absurde sur un grand moniteur. */
-      grid-template-columns:auto var(--side,250px);
-      grid-template-rows:minmax(0,auto) minmax(0,1fr);
-      grid-template-areas:"board top" "board bottom";
-    }
-    .boardwrap{align-items:center}
-    .top{gap:8px;min-height:0;overflow:hidden}
-    /* empilé, l'en-tête n'impose plus « titre + scores » sur une seule ligne */
-    header{flex-direction:column;align-items:stretch;gap:6px}
-    .brand h1{overflow-wrap:anywhere}
-    .scores{width:100%}
-    .score{flex:1}
-    .brand h1{font-size:clamp(20px,3.4vw,30px);letter-spacing:-.7px}
-    .brand p{display:none}
-    .score{padding:4px 10px;min-width:64px}
-    .score b{font-size:18px}
-    .score span{font-size:9px}
-    .panel{gap:10px;padding:9px 10px}
-    .half{width:32px;height:32px;--hs:16px}
-    .piece.small .half{width:20px;height:20px;--hs:11px}
-    .lbl{font-size:9px;margin-bottom:4px}
-    .arrowhint{height:14px;font-size:14px;margin-top:3px}
-    /* le bouton prend toute la largeur restante du bandeau : lisible, et il ne
-       pousse jamais la colonne au-delà de sa largeur */
-    #rotate{flex:1 1 auto;min-width:0;min-height:64px;font-size:14px;padding:8px 12px}
-    #rotate .glyph{font-size:22px}
-    .bar{gap:8px}
-    .status{font-size:12px}
-    .acts{margin-left:0;width:100%;display:grid;grid-template-columns:auto 1fr 1fr;gap:6px}
-    .acts button{padding:10px 8px;font-size:12.5px}
-    .rewards button{padding:9px 8px;font-size:11.5px;gap:5px}
-    /* le classement occupe ce qui reste ; s'il n'en reste presque rien, c'est lui
-       qui défile dans son cadre — la page, elle, ne bouge pas */
-    .lb ol{flex:1}
-    .bottom{gap:6px;overflow-x:hidden;overflow-y:auto;scrollbar-width:thin}
-    .foot{margin-top:0}
-    .credits{font-size:11px}
-    .langbtn{padding:4px 8px;font-size:11px}
+  html.paysage body{padding:10px 12px}
+  html.paysage .wrap{
+    width:100%;max-width:none;gap:12px;justify-content:center;
+    /* --side est posée par layout() : elle suit la largeur de l'écran, entre
+       250 et 460 px, pour que les boutons restent lisibles sans étirer la
+       colonne à l'absurde sur un grand moniteur. */
+    grid-template-columns:auto var(--side,250px);
+    grid-template-rows:minmax(0,auto) minmax(0,1fr);
+    grid-template-areas:"board top" "board bottom";
   }
+  html.paysage .boardwrap{align-items:center}
+  html.paysage .top{gap:8px;min-height:0;overflow:hidden}
+  /* empilé, l'en-tête n'impose plus « titre + scores » sur une seule ligne */
+  html.paysage header{flex-direction:column;align-items:stretch;gap:6px}
+  html.paysage .brand h1{overflow-wrap:anywhere}
+  html.paysage .scores{width:100%}
+  html.paysage .score{flex:1}
+  html.paysage .brand h1{font-size:clamp(20px,calc(var(--vw) * 3.4),30px);letter-spacing:-.7px}
+  html.paysage .brand p{display:none}
+  html.paysage .score{padding:4px 10px;min-width:64px}
+  html.paysage .score b{font-size:18px}
+  html.paysage .score span{font-size:9px}
+  html.paysage .panel{gap:10px;padding:9px 10px}
+  html.paysage .half{width:32px;height:32px;--hs:16px}
+  html.paysage .piece.small .half{width:20px;height:20px;--hs:11px}
+  html.paysage .lbl{font-size:9px;margin-bottom:4px}
+  html.paysage .arrowhint{height:14px;font-size:14px;margin-top:3px}
+  /* le bouton prend toute la largeur restante du bandeau : lisible, et il ne
+     pousse jamais la colonne au-delà de sa largeur */
+  html.paysage #rotate{flex:1 1 auto;min-width:0;min-height:64px;font-size:14px;padding:8px 12px}
+  html.paysage #rotate .glyph{font-size:22px}
+  html.paysage .bar{gap:8px}
+  html.paysage .status{font-size:12px}
+  html.paysage .acts{margin-left:0;width:100%;display:grid;grid-template-columns:auto 1fr 1fr;gap:6px}
+  html.paysage .acts button{padding:10px 8px;font-size:12.5px}
+  html.paysage .rewards button{padding:9px 8px;font-size:11.5px;gap:5px}
+  /* le classement occupe ce qui reste ; s'il n'en reste presque rien, c'est lui
+     qui défile dans son cadre — la page, elle, ne bouge pas */
+  html.paysage .lb ol{flex:1}
+  html.paysage .bottom{gap:6px;overflow-x:hidden;overflow-y:auto;scrollbar-width:thin}
+  html.paysage .foot{margin-top:0}
+  html.paysage .credits{font-size:11px}
+  html.paysage .langbtn{padding:4px 8px;font-size:11px}
   /* Téléphone couché : moins de 480 px de haut. On rogne tout ce qui n'est pas
      indispensable pour que la colonne entière reste visible sans rien couper,
      classement compris. */
-  @media (orientation:landscape) and (max-height:480px){
-    .wrap{gap:8px}
-    .top{gap:6px}
-    header{gap:4px}
-    .brand h1{font-size:18px}
-    .score{padding:2px 8px;min-width:56px}
-    .score b{font-size:15px}
-    .score span{font-size:8px}
-    .panel{gap:8px;padding:6px 8px}
-    .half{width:26px;height:26px;--hs:14px}
-    .piece.small .half{width:19px;height:19px;--hs:10.5px}
-    .lbl{margin-bottom:2px}
-    .arrowhint{display:none}
-    #rotate{min-height:52px;font-size:13px;padding:6px 10px}
-    #rotate .glyph{font-size:19px}
-    .bar{gap:5px}
-    .status{font-size:11px}
-    .acts button{padding:7px 6px;font-size:11.5px}
-    .rewards button{padding:7px 6px;font-size:10.5px}
-    .lb h2{font-size:10px}
-    .lb li{padding:4px 8px;font-size:12px}
-    .credits{font-size:10px}
-    .langbtn{padding:3px 7px;font-size:10px}
-  }
+  html.paysage.bas480 .wrap{gap:8px}
+  html.paysage.bas480 .top{gap:6px}
+  html.paysage.bas480 header{gap:4px}
+  html.paysage.bas480 .brand h1{font-size:18px}
+  html.paysage.bas480 .score{padding:2px 8px;min-width:56px}
+  html.paysage.bas480 .score b{font-size:15px}
+  html.paysage.bas480 .score span{font-size:8px}
+  html.paysage.bas480 .panel{gap:8px;padding:6px 8px}
+  html.paysage.bas480 .half{width:26px;height:26px;--hs:14px}
+  html.paysage.bas480 .piece.small .half{width:19px;height:19px;--hs:10.5px}
+  html.paysage.bas480 .lbl{margin-bottom:2px}
+  html.paysage.bas480 .arrowhint{display:none}
+  html.paysage.bas480 #rotate{min-height:52px;font-size:13px;padding:6px 10px}
+  html.paysage.bas480 #rotate .glyph{font-size:19px}
+  html.paysage.bas480 .bar{gap:5px}
+  html.paysage.bas480 .status{font-size:11px}
+  html.paysage.bas480 .acts button{padding:7px 6px;font-size:11.5px}
+  html.paysage.bas480 .rewards button{padding:7px 6px;font-size:10.5px}
+  html.paysage.bas480 .lb h2{font-size:10px}
+  html.paysage.bas480 .lb li{padding:4px 8px;font-size:12px}
+  html.paysage.bas480 .credits{font-size:10px}
+  html.paysage.bas480 .langbtn{padding:3px 7px;font-size:10px}
   /* Écran vraiment bas (vieux téléphone couché) : dernier cran de compression,
      pour qu'il reste malgré tout une ligne de classement sous les boutons. */
-  @media (orientation:landscape) and (max-height:390px){
-    .brand h1{font-size:16px}
-    .score{padding:1px 6px}
-    .score b{font-size:14px}
-    .panel{gap:6px;padding:5px 6px}
-    .half{width:23px;height:23px;--hs:12px}
-    .piece.small .half{width:18px;height:18px;--hs:9.5px}
-    #rotate{min-height:44px;font-size:12px;padding:4px 8px}
-    #rotate .glyph{font-size:16px}
-    .status{font-size:10.5px}
-    .acts button{padding:5px 5px;font-size:11px}
-    .rewards button{padding:5px 5px;font-size:10px}
-  }
+  html.paysage.bas390 .brand h1{font-size:16px}
+  html.paysage.bas390 .score{padding:1px 6px}
+  html.paysage.bas390 .score b{font-size:14px}
+  html.paysage.bas390 .panel{gap:6px;padding:5px 6px}
+  html.paysage.bas390 .half{width:23px;height:23px;--hs:12px}
+  html.paysage.bas390 .piece.small .half{width:18px;height:18px;--hs:9.5px}
+  html.paysage.bas390 #rotate{min-height:44px;font-size:12px;padding:4px 8px}
+  html.paysage.bas390 #rotate .glyph{font-size:16px}
+  html.paysage.bas390 .status{font-size:10.5px}
+  html.paysage.bas390 .acts button{padding:5px 5px;font-size:11px}
+  html.paysage.bas390 .rewards button{padding:5px 5px;font-size:10px}
   /* dès qu'il y a de la hauteur, tout respire */
-  @media (orientation:landscape) and (min-height:520px){
-    .wrap{gap:16px}
-    .top{gap:12px}
-    .brand p{display:block}
-    .brand h1{font-size:clamp(26px,3vw,40px)}
-    .score{padding:6px 14px;min-width:74px}
-    .score b{font-size:22px}
-    .half{width:38px;height:38px;--hs:18px}
-    #rotate{min-height:78px;font-size:16px}
-    #rotate .glyph{font-size:26px}
-    .acts button{padding:13px 10px;font-size:14px}
-    .rewards button{padding:12px 10px;font-size:13px}
-    .status{font-size:13.5px}
-  }
+  html.paysage.haut520 .wrap{gap:16px}
+  html.paysage.haut520 .top{gap:12px}
+  html.paysage.haut520 .brand p{display:block}
+  html.paysage.haut520 .brand h1{font-size:clamp(26px,calc(var(--vw) * 3),40px)}
+  html.paysage.haut520 .score{padding:6px 14px;min-width:74px}
+  html.paysage.haut520 .score b{font-size:22px}
+  html.paysage.haut520 .half{width:38px;height:38px;--hs:18px}
+  html.paysage.haut520 #rotate{min-height:78px;font-size:16px}
+  html.paysage.haut520 #rotate .glyph{font-size:26px}
+  html.paysage.haut520 .acts button{padding:13px 10px;font-size:14px}
+  html.paysage.haut520 .rewards button{padding:12px 10px;font-size:13px}
+  html.paysage.haut520 .status{font-size:13.5px}
 
   @media (prefers-reduced-motion: reduce){
     .tile{transition:none}
@@ -1141,14 +1148,67 @@ const bottomEl = document.querySelector(".bottom");
    classement (BOTTOM_MIN) — au-delà, la liste défile dans son propre cadre.
    En paysage il occupe sa colonne sur toute la hauteur, bornée par la largeur
    qui reste une fois la colonne d'infos servie. */
+/* ---------- le cadre vu par le joueur ----------
+   Un portail peut nous donner une iframe couchée puis la faire pivoter d'un
+   quart de tour pour remplir un téléphone tenu droit : Y8 le fait sur mobile,
+   pour tous ses jeux. Le jeu se retrouve alors parfaitement mis en page, mais
+   lisible de travers.
+
+   De l'intérieur, un seul indice est fiable : notre cadre devient plus large
+   que l'écran entier de l'appareil, ce qui est impossible autrement. Une
+   iframe posée normalement dans une page ne dépasse jamais la largeur de
+   l'écran ; un navigateur de bureau, lui, n'a pas d'écran plus haut que large.
+
+   Les media queries, elles, liraient toujours le cadre réel et donneraient la
+   mise en page paysage. C'est pourquoi l'orientation et les paliers de taille
+   sont portés par des classes posées ici, sur <html>, et non par @media : ils
+   décrivent le cadre *vu*, celui qui compte pour le joueur.
+
+   ?tourne=0 débranche la correction, ?tourne=1 la force — de quoi vérifier les
+   deux cas sans dépendre du portail, et de quoi s'en sortir si Y8 change. */
+const ROT = new URLSearchParams(location.search).get("tourne");
+function tourneParUnParent(){
+  if (ROT === "0") return false;
+  if (ROT === "1") return true;
+  const s = window.screen;
+  if (!s || !s.width || !s.height) return false;
+  return window.innerWidth > window.innerHeight    // on nous croit couchés
+      && s.width < s.height                        // l'appareil, lui, est droit
+      && window.innerWidth > s.width + 1;          // plus large que l'écran entier
+}
+
+const racine = document.documentElement;
+function mesurer(){
+  const t = tourneParUnParent();
+  const w = t ? window.innerHeight : window.innerWidth;
+  const h = t ? window.innerWidth  : window.innerHeight;
+  const paysage = w > h;
+  racine.classList.toggle("tourne", t);
+  racine.style.setProperty("--vpw", w + "px");
+  racine.style.setProperty("--vph", h + "px");
+  racine.style.setProperty("--vw", (w / 100) + "px");
+  racine.classList.toggle("paysage",  paysage);
+  racine.classList.toggle("portrait", !paysage);
+  racine.classList.toggle("bas700",  !paysage && h <= 700);
+  racine.classList.toggle("bas480",   paysage && h <= 480);
+  racine.classList.toggle("bas390",   paysage && h <= 390);
+  racine.classList.toggle("haut520",  paysage && h >= 520);
+  racine.classList.toggle("etroit430", w <= 430);
+  racine.classList.toggle("etroit400", w <= 400);
+  return paysage;
+}
+
 const BOTTOM_MIN = 76;   // titre du classement + une ligne + crédits
 const FLOOR      = 140;  // en deçà, le plateau devient illisible
 const SIDE_MIN_W = 250, SIDE_MAX_W = 460, SIDE_PART = 0.30;
 function boardSize(){
-  const box = wrapEl.getBoundingClientRect();
+  const paysage = mesurer();
+  /* offsetWidth/Height et non getBoundingClientRect : le second renverrait la
+     boîte englobante *après* rotation, donc largeur et hauteur inversées. */
+  const box = { width: wrapEl.offsetWidth, height: wrapEl.offsetHeight };
   const g = parseFloat(getComputedStyle(wrapEl).gap) || 10;
   let size;
-  if (window.matchMedia("(orientation: landscape)").matches){
+  if (paysage){
     const side = Math.max(SIDE_MIN_W, Math.min(SIDE_MAX_W, Math.round(box.width * SIDE_PART)));
     wrapEl.style.setProperty("--side", side + "px");
     size = Math.min(box.height, box.width - side - g);
@@ -1920,9 +1980,17 @@ function useLeaderboard(url){
 
 /* ---------- entrées ---------- */
 function cellFromPoint(x, y){
+  /* Le pointeur arrive dans le repère du cadre. Si le jeu a été contre-tourné
+     (voir mesurer()), le plateau n'y est plus droit : son rectangle englobant
+     est celui d'après rotation. On ramène pointeur et plateau dans le même
+     repère avant de compter les cases — la rotation étant la nôtre, les deux
+     décalages s'annulent et il ne reste que l'échange des axes. */
   const b = boardEl.getBoundingClientRect();
-  const c = Math.floor((x - b.left - gap/2) / (cell + gap));
-  const r = Math.floor((y - b.top  - gap/2) / (cell + gap));
+  let dx, dy;
+  if (racine.classList.contains("tourne")){ dx = b.bottom - y; dy = x - b.left; }
+  else                                    { dx = x - b.left;  dy = y - b.top;  }
+  const c = Math.floor((dx - gap/2) / (cell + gap));
+  const r = Math.floor((dy - gap/2) / (cell + gap));
   return inB(r,c) ? [r,c] : null;
 }
 function rotate(){

@@ -54,6 +54,34 @@ comme les 5 secondes d'inactivité. **Nouvelle partie** repart de zéro, sans ri
 un tapis vierge ou après une fin de partie. **Déclarer forfait** met fin à la partie en cours
 et affiche l'écran de défaite ; il est désactivé tant qu'aucun domino n'est posé.
 
+## Cadre tourné par le portail
+
+Sur mobile, Y8 force le paysage : il donne au jeu une iframe couchée et la fait
+pivoter d'un quart de tour pour remplir un téléphone tenu droit. Le jeu s'y
+affichait donc parfaitement mis en page, mais lisible de travers. Ça vaut pour
+tous les jeux du portail, et rien dans le formulaire de soumission ne permet de
+s'en dispenser.
+
+Le jeu le détecte et se remet droit. De l'intérieur d'une iframe, un seul indice
+est fiable : le cadre devient **plus large que l'écran entier de l'appareil**, ce
+qui est impossible autrement (une iframe posée normalement dans une page ne
+dépasse jamais la largeur de l'écran, et un navigateur de bureau n'a pas d'écran
+plus haut que large). Quand c'est le cas, `<body>` est tourné d'un quart de tour
+dans l'autre sens, largeur et hauteur échangées : les deux rotations s'annulent
+et le contenu retombe pile dans le même rectangle, sans bande vide.
+
+Deux conséquences dans le code :
+
+- l'orientation et les paliers de taille sont portés par des **classes sur
+  `<html>`** (`paysage`, `portrait`, `bas480`…) posées par `mesurer()`, et non
+  par des `@media` : une media query lit toujours le cadre réel, jamais le cadre
+  vu par le joueur. Les cinq `vw` passent par `--vw` pour la même raison ;
+- `cellFromPoint()` ramène pointeur et plateau dans le même repère avant de
+  compter les cases, sans quoi le doigt viserait à 90°.
+
+`?tourne=0` débranche la correction, `?tourne=1` la force : les deux cas se
+vérifient sans dépendre du portail.
+
 ## Build Y8
 
 Une build prête pour [Y8](https://www.y8.com) vit dans `y8/` : le jeu, le minimal SDK Y8 2.0
