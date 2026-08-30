@@ -157,12 +157,26 @@ jobs:
             -H "Content-Type: application/json" \
             --data "{\"subdomain\":\"$NOM\"}")"
           printf '%s\n' "$REP"
-          if printf '%s' "$REP" | grep -q '"success":true'; then
-            echo "sous-domaine « $NOM » enregistré."
-          else
-            echo "::error::Cloudflare a refusé le sous-domaine « $NOM » — la réponse complète est juste au-dessus. Le plus souvent : le nom est déjà pris par un autre compte, ou un sous-domaine existe déjà (dans ce cas relance sans remplir ce champ)."
-            exit 1
-          fi
+          # On lit le JSON comme du JSON. Chercher « "success":true » à la ficelle
+          # échouait sur une réponse indentée — « "success": true » —, c'est-à-dire
+          # exactement sur celle que Cloudflare renvoie.
+          VERDICT="$(printf '%s' "$REP" | NOM="$NOM" node -e '
+            let s=""; process.stdin.on("data",d=>s+=d).on("end",()=>{
+              let r; try { r = JSON.parse(s); } catch(e){ return console.log("illisible"); }
+              if (r && r.success === true) return console.log("ok");
+              // un sous-domaine déjà enregistré au même nom n'\''est pas un échec
+              const t = JSON.stringify(r && r.errors || []);
+              console.log(/already|exist/i.test(t) ? "deja" : "refus");
+            });')"
+          case "$VERDICT" in
+            ok)   echo "sous-domaine « $NOM » enregistré." ;;
+            deja) echo "sous-domaine déjà en place — on continue." ;;
+            illisible)
+              echo "::error::Réponse illisible de l'API Cloudflare (voir ci-dessus)."; exit 1 ;;
+            *)
+              echo "::error::Cloudflare a refusé le sous-domaine « $NOM » — la réponse complète est juste au-dessus. Le plus souvent, le nom est déjà pris par un autre compte : réessaie avec un autre."
+              exit 1 ;;
+          esac
 
       - name: Déployer le Worker
         id: deploiement
