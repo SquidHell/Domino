@@ -7,8 +7,14 @@ pour l'upload.
 ## Fabriquer la build
 
 ```sh
-python3 tools/build-y8.py     # index.html + y8/y8-adapter.js → y8/index.html
+python3 tools/build-y8.py     # index.html + y8/y8-adapter.js → y8/index.html + y8/domino-2048.zip
 ```
+
+`y8/domino-2048.zip` est l'archive à téléverser : elle ne contient que
+`index.html`, à la racine, sans dossier. C'est le fichier que la build vient
+d'écrire, donc l'archive ne peut pas prendre de retard sur le jeu. Sa date
+interne est figée, si bien que deux builds d'un même jeu donnent deux archives
+identiques au bit près et que `git` ne voit rien bouger tant que rien n'a bougé.
 
 Le jeu (`index.html` à la racine) ne contient aucun code Y8 : il expose seulement un
 point de branchement. La build est donc toujours régénérable à partir du jeu nu, et

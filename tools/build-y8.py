@@ -1,7 +1,11 @@
 #!/usr/bin/env python3
 """Fabrique la build Y8 : le jeu tel quel + le SDK Y8 + l'adaptateur, en un seul
-fichier prêt à zipper pour l'upload Y8 (y8/index.html)."""
-import pathlib, re, sys
+fichier (y8/index.html), et l'archive à téléverser (y8/domino-2048.zip).
+
+L'archive ne contient que index.html, à la racine : c'est tout ce que le
+portail attend, et c'est le fichier que la build vient d'écrire — impossible
+qu'elle prenne du retard sur le jeu."""
+import pathlib, re, sys, zipfile
 
 root    = pathlib.Path(__file__).resolve().parent.parent
 game    = (root / "index.html").read_text()
@@ -22,3 +26,14 @@ html = html.replace('<title>Domino 2048</title>',
 
 out.write_text(html)
 print(f"{out.relative_to(root)} — {len(html)} octets")
+
+# L'archive est réécrite à chaque build, avec une date fixe : deux builds du
+# même jeu donnent alors deux fichiers identiques, et git ne voit rien bouger
+# quand rien n'a bougé.
+zip_path = root / "y8" / "domino-2048.zip"
+info = zipfile.ZipInfo("index.html", date_time=(1980, 1, 1, 0, 0, 0))
+info.compress_type = zipfile.ZIP_DEFLATED
+info.external_attr = 0o644 << 16
+with zipfile.ZipFile(zip_path, "w") as z:
+    z.writestr(info, html)
+print(f"{zip_path.relative_to(root)} — {zip_path.stat().st_size} octets")
