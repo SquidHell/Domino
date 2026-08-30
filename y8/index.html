@@ -29,8 +29,6 @@
     --danger:#c05a45;
     --stop:#b8472f;        /* forfait : rouge brique, 4,9:1 sur son texte clair */
     --stop-ink:#f9f6f2;
-    --again:#edcc61;       /* nouvelle partie : le jaune des tuiles, 5,6:1 */
-    --again-ink:#5a4a08;
     --armed:#3c3a32;       /* confirmation : le brun sombre des grosses tuiles */
     --armed-ink:#f9f6f2;
     --veil:rgba(238,228,218,.86);
@@ -69,20 +67,24 @@
   }
   :focus-visible{outline:3px solid var(--btn);outline-offset:2px}
 
-  /* Portrait : infos en haut, plateau, classement dessous.
-     Paysage : plateau à gauche sur toute la hauteur, infos à droite. */
+  /* Portrait : infos en haut, plateau, pied de page dessous.
+     Paysage : plateau à gauche sur toute la hauteur, infos à droite.
+     Le classement ayant quitté le bas de la scène pour son cadre, c'est la
+     rangée du plateau qui prend le mou : le tapis se centre dans ce qui reste
+     et le pied de page tient le bas de l'écran, au lieu de flotter juste sous
+     le plateau avec du vide en dessous. */
   .wrap{
     width:min(100%,470px);height:100%;
     display:grid;gap:10px;min-height:0;
     grid-template-columns:1fr;
-    grid-template-rows:auto auto minmax(0,1fr);
+    grid-template-rows:auto minmax(0,1fr) auto;
     grid-template-areas:"top" "board" "bottom";
   }
   .top{grid-area:top;display:flex;flex-direction:column;gap:10px;min-width:0}
   /* Chaque bloc de la colonne garde sa hauteur. Écrasés, ils débordaient les
      uns sur les autres : c'est ainsi que les bonus passaient par-dessus les
      boutons de jeu quand la colonne manquait de place. S'il n'y a vraiment pas
-     la place, c'est la colonne qui défile, comme le classement au-dessous. */
+     la place, c'est la colonne qui défile. */
   .top > *{flex:none}
   .boardwrap{grid-area:board;display:flex;align-items:center;justify-content:center;
              min-width:0;min-height:0;overflow:hidden}
@@ -195,16 +197,22 @@
   }
   .acts button:hover:not([disabled]){background:var(--btn);color:var(--btn-ink);border-color:var(--btn);filter:none}
   .acts button.mute.off{opacity:.45;text-decoration:line-through}
-  /* les deux boutons qui mettent fin à une partie se reconnaissent à leur couleur */
+  /* le bouton qui met fin à une partie se reconnaît à sa couleur */
   #forfeit{background:var(--stop);color:var(--stop-ink);border-color:var(--stop)}
   #forfeit:hover:not([disabled]){background:var(--stop);color:var(--stop-ink);border-color:var(--stop);filter:brightness(1.1)}
-  #restart{background:var(--again);color:var(--again-ink);border-color:var(--again)}
-  #restart:hover{background:var(--again);color:var(--again-ink);border-color:var(--again);filter:brightness(1.06)}
+  /* Le bouton du classement : posé hors de .acts, il tient le bord gauche du
+     bandeau pendant que les actions de partie restent groupées à droite. Même
+     dessin que ces dernières — c'est un bouton du même bandeau — mais il ne
+     touche pas à la partie en cours, d'où l'absence de couleur. */
+  .lbbtn{
+    background:transparent;color:var(--muted);border:2px solid var(--line);
+    padding:6px 11px;font-size:12px;
+  }
+  .lbbtn:hover{background:var(--btn);color:var(--btn-ink);border-color:var(--btn);filter:none}
   /* Armé, le bouton bascule au brun sombre : impossible de le confondre avec son
-     repos. Les sélecteurs portent l'identifiant, sinon la couleur de repos —
-     posée sur #forfeit et #restart — l'emporterait par spécificité. */
-  #forfeit.armed, #forfeit.armed:hover,
-  #restart.armed, #restart.armed:hover{
+     repos. Le sélecteur porte l'identifiant, sinon la couleur de repos — posée
+     sur #forfeit — l'emporterait par spécificité. */
+  #forfeit.armed, #forfeit.armed:hover{
     background:var(--armed);color:var(--armed-ink);border-color:var(--armed);filter:none;
   }
 
@@ -259,18 +267,43 @@
   .ovrewards{display:flex;flex-direction:column;gap:8px;align-items:stretch}
   .ovrewards button{justify-content:center;background:transparent;color:var(--veil-ink);border-color:var(--veil-ink)}
 
-  /* ---- classement ---- */
-  .lb{display:flex;flex-direction:column;gap:8px;margin:0}
-  .lb[hidden]{display:none}
-  .lb h2{
-    display:flex;align-items:baseline;gap:8px;margin:0;
-    font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);
+  /* ---- menu d'accueil ----
+     Un mode par bouton : son nom sur la première ligne, ce qu'il promet sur la
+     seconde. Le mode qui n'est pas encore ouvert reste lisible, éteint et
+     étiqueté — on doit pouvoir lire ce qu'on ne peut pas encore prendre. */
+  .menuintro{margin:12px 0 2px;font-size:13px;line-height:1.55;color:var(--ink-2)}
+  .menulist{display:flex;flex-direction:column;gap:10px;padding:12px 0 4px}
+  .menulist button{
+    display:flex;flex-direction:column;align-items:stretch;gap:5px;text-align:left;
+    padding:13px 15px;
+    background:var(--panel);color:var(--ink);border:2px solid var(--line);
   }
-  .lb h2 span{font-size:11px;font-weight:500;letter-spacing:0;text-transform:none}
-  .lb{min-height:0}
+  .menulist button:hover:not([disabled]){
+    background:var(--btn);color:var(--btn-ink);border-color:var(--btn);filter:none;
+  }
+  /* à 40 % le mode fermé devenait illisible, alors qu'il est là pour être lu */
+  .menulist button[disabled]{opacity:.55}
+  .modename{
+    display:flex;align-items:center;justify-content:space-between;gap:8px;
+    font-size:15px;font-weight:800;
+  }
+  .modehint{font-size:12px;font-weight:500;line-height:1.45;color:var(--ink-2)}
+  .menulist button:hover:not([disabled]) .modehint{color:var(--btn-ink)}
+  .menulist button[disabled] .modehint{color:var(--muted)}
+  /* même pastille que « pub », en sourdine : elle annonce, elle ne vend rien */
+  .soon{
+    font-size:8.5px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;
+    background:var(--line);color:var(--ink-2);border-radius:2px;padding:2px 4px;line-height:1;
+  }
+
+  /* ---- classement ----
+     Il ne vit plus sous le plateau mais dans son cadre : la scène de jeu ne lui
+     réserve plus de hauteur, et c'est le corps du cadre qui défile quand la
+     liste est longue. C'est une <div> et non une <section> pour échapper au
+     filet des sections du cadre — il n'y a rien à séparer ici. */
+  .lb{display:flex;flex-direction:column;gap:8px;margin:0;min-height:0;padding:10px 0 2px}
   .lb ol{
     list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:2px;
-    overflow-y:auto;min-height:0;   /* défile dans son cadre, jamais la page */
   }
   .lb li{
     display:grid;grid-template-columns:26px 1fr auto;align-items:center;gap:10px;
@@ -279,6 +312,9 @@
   .lb .rk{color:var(--muted);font-weight:700;font-variant-numeric:tabular-nums;text-align:right}
   .lb .nm{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   .lb b{font-weight:800;font-variant-numeric:tabular-nums}
+  /* « personne encore », « indisponible » : l'état se dit à côté du titre du
+     cadre, en clair, sans reprendre sa casse. */
+  #lbstate{margin-left:8px;font-size:12px;font-weight:500;color:var(--muted)}
 
   /* Pied de page : la langue à gauche, la signature à droite. */
   .foot{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-top:4px}
@@ -476,7 +512,7 @@
   .scorewrap{position:relative}
 
   /* Portrait bas de plafond : on comprime le bandeau pour que le plateau garde
-     une taille jouable et que le classement reste visible. */
+     une taille jouable. */
   html.portrait.bas700 body{padding:8px}
   html.portrait.bas700 .wrap{gap:8px}
   html.portrait.bas700 .top{gap:8px}
@@ -493,16 +529,17 @@
   html.portrait.bas700 #rotate{min-width:92px;font-size:14px;padding:8px 10px}
   html.portrait.bas700 #rotate .glyph{font-size:21px}
   html.portrait.bas700 .status{font-size:12px;min-width:0}
-  html.portrait.bas700 .acts button{padding:6px 8px;font-size:11.5px}
+  html.portrait.bas700 .acts button,
+  html.portrait.bas700 .lbbtn{padding:6px 8px;font-size:11.5px}
   html.portrait.bas700 .bonusbar button{padding:7px 9px;font-size:11.5px}
   html.portrait.bas700 .lb li{padding:5px 9px;font-size:12px}
   html.portrait.bas700 .credits{font-size:11px}
 
   /* ---- paysage : plateau à gauche sur toute la hauteur, infos à droite ----
-     La colonne d'infos ne garde qu'un élément élastique, le classement ; tout le
-     reste a une hauteur fixe et compacte, de sorte que l'ensemble tienne même
-     sur un téléphone couché (390 px de haut). Les boutons grandissent dès que
-     la hauteur le permet. */
+     Tout y a une hauteur fixe et compacte, de sorte que la colonne tienne même
+     sur un téléphone couché (390 px de haut), et le pied de page se cale en
+     bas de ce qui reste. Les boutons grandissent dès que la hauteur le
+     permet. */
   html.paysage body{padding:10px 12px}
   html.paysage .wrap{
     width:100%;max-width:none;gap:12px;justify-content:center;
@@ -536,19 +573,22 @@
   html.paysage #rotate .glyph{font-size:22px}
   html.paysage .bar{gap:8px}
   html.paysage .status{font-size:12px}
-  html.paysage .acts{margin-left:0;width:100%;display:grid;grid-template-columns:auto 1fr 1fr;gap:6px}
-  html.paysage .acts button{padding:10px 8px;font-size:12.5px}
+  html.paysage .acts{margin-left:0;width:100%;display:grid;grid-template-columns:auto 1fr;gap:6px}
+  /* la colonne est étroite : le bouton du classement y prend sa propre ligne,
+     pleine largeur, plutôt que de disputer la sienne aux deux autres */
+  html.paysage .lbbtn{width:100%}
+  html.paysage .acts button,
+  html.paysage .lbbtn{padding:10px 8px;font-size:12.5px}
   html.paysage .bonusbar button{padding:9px 8px;font-size:11.5px;gap:5px}
-  /* le classement occupe ce qui reste ; s'il n'en reste presque rien, c'est lui
-     qui défile dans son cadre — la page, elle, ne bouge pas */
-  html.paysage .lb ol{flex:1}
-  html.paysage .bottom{gap:6px;overflow-x:hidden;overflow-y:auto;scrollbar-width:thin}
+  /* le pied de page se pose au bas de la colonne, pas juste sous les boutons */
+  html.paysage .bottom{gap:6px;justify-content:flex-end;
+                       overflow-x:hidden;overflow-y:auto;scrollbar-width:thin}
   html.paysage .foot{margin-top:0}
   html.paysage .credits{font-size:11px}
   html.paysage .langbtn{padding:4px 8px;font-size:11px}
   /* Téléphone couché : moins de 480 px de haut. On rogne tout ce qui n'est pas
-     indispensable pour que la colonne entière reste visible sans rien couper,
-     classement compris. */
+     indispensable pour que la colonne entière reste visible sans rien
+     couper. */
   html.paysage.bas480 .wrap{gap:8px}
   html.paysage.bas480 .top{gap:6px}
   html.paysage.bas480 header{gap:4px}
@@ -565,14 +605,14 @@
   html.paysage.bas480 #rotate .glyph{font-size:19px}
   html.paysage.bas480 .bar{gap:5px}
   html.paysage.bas480 .status{font-size:11px}
-  html.paysage.bas480 .acts button{padding:7px 6px;font-size:11.5px}
+  html.paysage.bas480 .acts button,
+  html.paysage.bas480 .lbbtn{padding:7px 6px;font-size:11.5px}
   html.paysage.bas480 .bonusbar button{padding:7px 6px;font-size:10.5px}
-  html.paysage.bas480 .lb h2{font-size:10px}
   html.paysage.bas480 .lb li{padding:4px 8px;font-size:12px}
   html.paysage.bas480 .credits{font-size:10px}
   html.paysage.bas480 .langbtn{padding:3px 7px;font-size:10px}
   /* Écran vraiment bas (vieux téléphone couché) : dernier cran de compression,
-     pour qu'il reste malgré tout une ligne de classement sous les boutons. */
+     pour que la colonne entière tienne malgré tout. */
   html.paysage.bas390 .brand h1{font-size:16px}
   html.paysage.bas390 .score{padding:1px 6px}
   html.paysage.bas390 .score b{font-size:14px}
@@ -582,7 +622,8 @@
   html.paysage.bas390 #rotate{min-height:44px;font-size:12px;padding:4px 8px}
   html.paysage.bas390 #rotate .glyph{font-size:16px}
   html.paysage.bas390 .status{font-size:10.5px}
-  html.paysage.bas390 .acts button{padding:5px 5px;font-size:11px}
+  html.paysage.bas390 .acts button,
+  html.paysage.bas390 .lbbtn{padding:5px 5px;font-size:11px}
   html.paysage.bas390 .bonusbar button{padding:5px 5px;font-size:10px}
   /* dès qu'il y a de la hauteur, tout respire */
   html.paysage.haut520 .wrap{gap:16px}
@@ -594,7 +635,8 @@
   html.paysage.haut520 .half{width:38px;height:38px;--hs:18px}
   html.paysage.haut520 #rotate{min-height:78px;font-size:16px}
   html.paysage.haut520 #rotate .glyph{font-size:26px}
-  html.paysage.haut520 .acts button{padding:13px 10px;font-size:14px}
+  html.paysage.haut520 .acts button,
+  html.paysage.haut520 .lbbtn{padding:13px 10px;font-size:14px}
   html.paysage.haut520 .bonusbar button{padding:12px 10px;font-size:13px}
   html.paysage.haut520 .status{font-size:13.5px}
 
@@ -643,10 +685,14 @@
 
   <div class="bar">
     <p class="status" id="status" role="status" aria-live="polite"></p>
+    <!-- Le classement ne s'étale plus sous le plateau : ce bouton l'ouvre dans
+         son cadre. Il est posé hors de .acts pour tenir le bord gauche du
+         bandeau, les actions de partie restant groupées à droite. -->
+    <button id="classement" type="button" class="lbbtn" aria-haspopup="dialog" aria-expanded="false"
+            data-i18n-title="lbOpen" title="Opens the leaderboard" data-i18n="leaderboard">Leaderboard</button>
     <div class="acts">
       <button id="mute" type="button" class="mute" aria-pressed="false" title="Turn the sound off" data-i18n="sound">Sound</button>
       <button id="forfeit" type="button" data-i18n-title="forfeitTitle" title="Ends the game in progress" data-i18n="forfeit">Resign</button>
-      <button id="restart" type="button" data-i18n-title="restartTitle" title="Starts over from scratch" data-i18n="restart">New game</button>
     </div>
   </div>
 
@@ -686,16 +732,53 @@
   </div><!-- /boardwrap -->
 
   <div class="bottom">
-    <section class="lb" id="lb" hidden>
-      <h2><span data-i18n="leaderboard">Leaderboard</span><span id="lbstate"></span></h2>
-      <ol id="lblist"></ol>
-    </section>
     <div class="foot">
       <button id="lang" type="button" class="langbtn"
               data-i18n-title="langSwitch" title="Switch to French">
         <span class="swap" aria-hidden="true">⇄</span><span data-i18n="langName">English</span>
       </button>
       <footer class="credits" data-i18n="credits">Credits · Luis Callejon</footer>
+    </div>
+  </div>
+</div>
+
+<!-- ---- menu d'accueil ----
+     Le premier écran. Deux modes, dont un seul est ouvert ; on n'en sort qu'en
+     choisissant, et la partie attend déjà derrière le voile. -->
+<div class="sheetveil" id="menuveil" hidden>
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="menutitle">
+    <div class="sheethead">
+      <h2 id="menutitle" data-i18n="menuTitle">Choose a mode</h2>
+    </div>
+    <div class="sheetbody">
+      <p class="menuintro" data-i18n="menuIntro">Two ways to play. Only one is open for now.</p>
+      <div class="menulist">
+        <button id="playclassic" type="button">
+          <span class="modename" data-i18n="modeClassic">Play classic</span>
+          <span class="modehint" data-i18n="modeClassicHint">Endless: place, merge, chain, as far as you can take it.</span>
+        </button>
+        <button id="playweekly" type="button" disabled>
+          <span class="modename"><span data-i18n="modeWeekly">Weekly challenge</span><span class="soon" data-i18n="soon">soon</span></span>
+          <span class="modehint" data-i18n="modeWeeklyHint">Not open yet: one board a week, the same for everyone.</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ---- cadre du classement ----
+     Il ne se lit plus sous le plateau mais ici, sur demande — et il se relit à
+     chaque ouverture, puisque plus rien ne le rafraîchit sous les yeux. -->
+<div class="sheetveil" id="lbveil" hidden>
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="lbtitle">
+    <div class="sheethead">
+      <h2 id="lbtitle"><span data-i18n="leaderboard">Leaderboard</span><span id="lbstate"></span></h2>
+      <button id="lbclose" type="button" class="qmark" data-i18n-title="helpClose" title="Close">✕</button>
+    </div>
+    <div class="sheetbody">
+      <div class="lb" id="lb">
+        <ol id="lblist"></ol>
+      </div>
     </div>
   </div>
 </div>
@@ -724,7 +807,6 @@
           <li><span class="kk">?</span><span class="kk">H</span><em data-i18n="kHelp">Open this panel</em></li>
           <li><span class="kk" data-i18n="kEsc">Esc</span><em data-i18n="kClose">Close it</em></li>
           <li><span class="kk">M</span><em data-i18n="kSound">Sound on or off</em></li>
-          <li><span class="kk">N</span><em data-i18n="kNew">New game</em></li>
           <li><span class="kk">L</span><em data-i18n="kLang">Switch language</em></li>
         </ul>
       </section>
@@ -768,6 +850,13 @@ const STR = {
     langName:     "English",
     langSwitch:   "Switch to French",
     tagline:      "Place · Merge · Chain",
+    menuTitle:    "Choose a mode",
+    menuIntro:    "Two ways to play. Only one is open for now.",
+    modeClassic:  "Play classic",
+    modeClassicHint: "Endless: place, merge, chain, as far as you can take it.",
+    modeWeekly:   "Weekly challenge",
+    modeWeeklyHint: "Not open yet: one board a week, the same for everyone.",
+    soon:         "soon",
     scoreLabel:   "Score",
     bestLabel:    "Best",
     slotCurrent:  "To place",
@@ -779,8 +868,7 @@ const STR = {
     soundOn:      "Turn the sound back on",
     forfeit:      "Resign",
     forfeitTitle: "Ends the game in progress",
-    restart:      "New game",
-    restartTitle: "Starts over from scratch",
+    lbOpen:       "Opens the leaderboard",
     confirm:      "Confirm?",
     ad:           "ad",
     bonus:        "Bonus",
@@ -820,7 +908,6 @@ const STR = {
     kHelp:   "Open this panel",
     kClose:  "Close it",
     kSound:  "Sound on or off",
-    kNew:    "New game",
     kLang:   "Switch language",
     p6:  "Reach **2048** and top the leaderboard.",
     statusTurn:   "Your move.",
@@ -836,7 +923,6 @@ const STR = {
     endTextOne:   "Score: {score} · one domino placed",
     endBtn:       "Play again",
     forfeitedTitle: "Resigned",
-    askRestart:   "Game in progress, tap again to wipe it.",
     askForfeit:   "Tap again to give up this game.",
     offer:        "Offer: double this domino before you place it.",
     unlocked:     "{v} is unlocked: it can come out of the boneyard from now on.",
@@ -861,6 +947,13 @@ const STR = {
     langName:     "Français",
     langSwitch:   "Passer en anglais",
     tagline:      "Pose · Fusionne · Enchaîne",
+    menuTitle:    "Choisir un mode",
+    menuIntro:    "Deux façons de jouer. Une seule est ouverte pour l'instant.",
+    modeClassic:  "Jouer classique",
+    modeClassicHint: "Sans fin : pose, fusionne, enchaîne, aussi loin que tu peux aller.",
+    modeWeekly:   "Défi de la semaine",
+    modeWeeklyHint: "Pas encore ouvert : un tapis par semaine, le même pour tout le monde.",
+    soon:         "bientôt",
     scoreLabel:   "Score",
     bestLabel:    "Record",
     slotCurrent:  "À poser",
@@ -872,8 +965,7 @@ const STR = {
     soundOn:      "Remettre le son",
     forfeit:      "Déclarer forfait",
     forfeitTitle: "Met fin à la partie en cours",
-    restart:      "Nouvelle partie",
-    restartTitle: "Repart de zéro",
+    lbOpen:       "Ouvre le classement",
     confirm:      "Confirmer ?",
     ad:           "pub",
     bonus:        "Bonus",
@@ -913,7 +1005,6 @@ const STR = {
     kHelp:   "Ouvrir ce panneau",
     kClose:  "Le fermer",
     kSound:  "Couper ou remettre le son",
-    kNew:    "Nouvelle partie",
     kLang:   "Changer de langue",
     p6:  "Atteindre **2048** et être le premier du classement.",
     statusTurn:   "À toi de jouer.",
@@ -929,7 +1020,6 @@ const STR = {
     endTextOne:   "Score : {score} · un domino posé",
     endBtn:       "Rejouer",
     forfeitedTitle: "Forfait",
-    askRestart:   "Partie en cours, clique encore pour tout effacer.",
     askForfeit:   "Clique encore pour abandonner la partie.",
     offer:        "Offre : double ce domino avant de le poser.",
     unlocked:     "Le {v} est débloqué : il peut désormais sortir du talon.",
@@ -1207,10 +1297,11 @@ const topEl    = document.querySelector(".top");
 const bottomEl = document.querySelector(".bottom");
 
 /* Le plateau est carré et c'est lui qui commande : en portrait il prend toute
-   la largeur, à condition de laisser sous lui de quoi lire un début de
-   classement (BOTTOM_MIN) — au-delà, la liste défile dans son propre cadre.
-   En paysage il occupe sa colonne sur toute la hauteur, bornée par la largeur
-   qui reste une fois la colonne d'infos servie. */
+   la largeur, à condition de laisser sous lui le pied de page (BOTTOM_MIN).
+   Le classement vivant désormais dans son cadre, il ne réclame plus rien ici :
+   ce qui lui était réservé revient au tapis. En paysage le plateau occupe sa
+   colonne sur toute la hauteur, bornée par la largeur qui reste une fois la
+   colonne d'infos servie. */
 /* ---------- le cadre vu par le joueur ----------
    Un portail peut nous donner une iframe couchée puis la faire pivoter d'un
    quart de tour pour remplir un téléphone tenu droit : Y8 le fait sur mobile,
@@ -1261,7 +1352,7 @@ function mesurer(){
   return paysage;
 }
 
-const BOTTOM_MIN = 76;   // titre du classement + une ligne + crédits
+const BOTTOM_MIN = 40;   // le pied de page : bouton de langue et crédits
 const FLOOR      = 140;  // en deçà, le plateau devient illisible
 const SIDE_MIN_W = 250, SIDE_MAX_W = 460, SIDE_PART = 0.30;
 function boardSize(){
@@ -1684,11 +1775,10 @@ function nextTurn(){
   syncButtons(); syncRewards(); saveGame();
 }
 
-/* ---------- abandon et redémarrage ----------
-   Les deux boutons mettent fin à une partie en cours : ils demandent donc une
-   confirmation, mais seulement quand il y a quelque chose à perdre. Un second
-   clic confirme, tout le reste annule. */
-const restartBtn = document.getElementById("restart");
+/* ---------- abandon ----------
+   Le bouton met fin à la partie en cours : il demande donc une confirmation.
+   Un second clic confirme, tout le reste annule. Repartir de zéro se fait
+   depuis l'écran de fin, qui propose de rejouer. */
 const forfeitBtn = document.getElementById("forfeit");
 let armed = null, armTimer = null;
 
@@ -1707,9 +1797,8 @@ function arm(el, action, question){
   flash(question);
   armTimer = setTimeout(() => { disarm(); say(); }, 5000);
 }
-function ask(el, action, question, needed){
+function ask(el, action, question){
   if (armed && armed.el === el){ const go = armed.action; disarm(); go(); return; }
-  if (!needed){ disarm(); action(); return; }
   arm(el, action, question);
 }
 function forfeit(){
@@ -1726,12 +1815,7 @@ function syncButtons(){
   syncPublish();
   if (armed && armed.el.disabled){ disarm(); say(); }
 }
-restartBtn.addEventListener("click", () => ask(restartBtn, newGame,
-  T("askRestart"),
-  phase !== "over" && placed > 0));
-forfeitBtn.addEventListener("click", () => ask(forfeitBtn, forfeit,
-  T("askForfeit"),
-  true));
+forfeitBtn.addEventListener("click", () => ask(forfeitBtn, forfeit, T("askForfeit")));
 
 /* ---------- score / messages ---------- */
 function addScore(gained, chain){
@@ -1993,17 +2077,24 @@ async function loadBoard(){
     peindreClassement();
     lbJoignable = true;
     syncPublish();
-    layout();                                   // la liste change de hauteur
   } catch {
     if (lbJoignable === null){
       lbJoignable = false;                      // jamais joint : on n'en parle plus
-      document.getElementById("lb").hidden = true;
+      montrerClassement(false);
     } else {
-      setLbState(T("lbDown"));               // il répondait, il est retombé
+      setLbState(T("lbDown"));                  // il répondait, il est retombé
     }
     syncPublish();
-    layout();
   }
+}
+
+/* Le classement n'occupe plus la scène : tout ce qui s'y montre ou s'y cache,
+   c'est le bouton qui ouvre son cadre. S'il disparaît alors que le cadre est
+   ouvert — service jamais joint, adresse retirée — le cadre part avec lui. */
+function montrerClassement(visible){
+  document.getElementById("classement").hidden = !visible;
+  if (!visible && cadreOuvert === cadreClassement) fermerCadre(true);
+  layout();                                     // le bandeau change de contenu
 }
 
 function syncPublish(){
@@ -2034,16 +2125,18 @@ document.getElementById("publish").addEventListener("submit", async e => {
     loadBoard();
   } catch (err){
     btn.disabled = false; btn.textContent = T("publish");
+    /* Le mot posé à côté du titre du cadre ne se lit plus que si on l'ouvre :
+       l'échec se dit aussi dans le bandeau, là où le joueur regarde. */
     setLbState(T("lbFailed"));
+    flash(T("lbFailed"));
   }
 });
 
 function useLeaderboard(url){
   api = url ? String(url).trim().replace(/\/+$/, "") : null;
   lbJoignable = null;
-  document.getElementById("lb").hidden = !api;
+  montrerClassement(!!api);
   syncPublish();
-  layout();
   if (api) loadBoard();
 }
 
@@ -2123,37 +2216,54 @@ document.getElementById("ovbtn").addEventListener("click", e => {
 /* ---------- les cadres ----------
    Ils se posent par-dessus la page, prennent le clavier tant qu'ils sont
    ouverts, et rendent le focus au bouton qui les a ouverts en se refermant. */
-/* Deux panneaux — l'aide et les bonus — partagent le même comportement : un
-   seul ouvert à la fois, Échap ferme, un clic à côté ferme, et le focus
-   retourne au bouton qui a ouvert. */
+/* Un seul cadre ouvert à la fois. Trois d'entre eux — l'aide, les bonus et le
+   classement — se ferment à Échap comme au clic à côté, et rendent le focus au
+   bouton qui les a ouverts. Le quatrième, le menu d'accueil, est verrouillé :
+   il n'a ni bouton ni croix, et on n'en sort qu'en choisissant un mode. */
 let cadreOuvert = null;
-function ouvrirCadre(c){
+/* `silencieux` sert au menu d'accueil, ouvert au chargement : jouer un son
+   avant le premier geste du joueur réveillerait le contexte audio pour rien,
+   et le navigateur s'en plaint. */
+function ouvrirCadre(c, silencieux){
   if (cadreOuvert === c) return;
-  if (cadreOuvert) fermerCadre();
+  // un cadre verrouillé refuse de partir : il garde alors la main
+  if (cadreOuvert){ fermerCadre(); if (cadreOuvert) return; }
   c.retour = document.activeElement;
   c.veil.hidden = false;
-  c.bouton.setAttribute("aria-expanded", "true");
-  c.fermer.focus();
+  if (c.bouton) c.bouton.setAttribute("aria-expanded", "true");
+  if (c.focus) c.focus.focus();
   cadreOuvert = c;
-  SFX.play("pivot");
+  if (c.alOuvrir) c.alOuvrir();
+  if (!silencieux) SFX.play("pivot");
 }
-function fermerCadre(){
+/* Le menu d'accueil n'a pas de sortie de secours : on n'en part qu'en
+   choisissant un mode, donc ni le voile ni Échap ne le ferment. Le choix, lui,
+   force la fermeture. */
+function fermerCadre(force){
   const c = cadreOuvert;
   if (!c) return;
+  if (c.verrou && !force) return;
   cadreOuvert = null;
   c.veil.hidden = true;
-  c.bouton.setAttribute("aria-expanded", "false");
+  if (c.bouton) c.bouton.setAttribute("aria-expanded", "false");
   if (c.retour && c.retour.focus) c.retour.focus();
   c.retour = null;
 }
-function brancherCadre(idVeil, idBouton, idFermer){
-  const c = { veil:   document.getElementById(idVeil),
-              bouton: document.getElementById(idBouton),
-              fermer: document.getElementById(idFermer),
-              retour: null };
-  c.fermer.addEventListener("click", fermerCadre);
-  c.veil.addEventListener("click", e => { if (e.target === c.veil) fermerCadre(); });
-  c.bouton.addEventListener("click", () => cadreOuvert === c ? fermerCadre() : ouvrirCadre(c));
+/* Tous les cadres n'ont pas de bouton pour les ouvrir ni de croix pour les
+   fermer : le menu d'accueil s'ouvre tout seul et ne se quitte qu'en jouant.
+   D'où des options plutôt que trois identifiants obligatoires. */
+function brancherCadre(idVeil, o){
+  const c = { veil:     document.getElementById(idVeil),
+              bouton:   o.bouton ? document.getElementById(o.bouton) : null,
+              focus:    document.getElementById(o.focus || o.fermer),
+              verrou:   !!o.verrou,
+              alOuvrir: o.alOuvrir || null,
+              retour:   null };
+  // la croix passe par une lambda : sans elle, l'événement du clic arriverait
+  // dans `force` et un cadre verrouillé se laisserait fermer
+  if (o.fermer) document.getElementById(o.fermer).addEventListener("click", () => fermerCadre());
+  if (!c.verrou) c.veil.addEventListener("click", e => { if (e.target === c.veil) fermerCadre(); });
+  if (c.bouton) c.bouton.addEventListener("click", () => cadreOuvert === c ? fermerCadre() : ouvrirCadre(c));
   return c;
 }
 document.getElementById("lang").addEventListener("click", () => {
@@ -2161,8 +2271,19 @@ document.getElementById("lang").addEventListener("click", () => {
   SFX.play("pivot");
 });
 
-const cadreAide  = brancherCadre("helpveil",  "help",  "helpclose");
-const cadreBonus = brancherCadre("bonusveil", "bonus", "bonusclose");
+const cadreAide  = brancherCadre("helpveil",  { bouton: "help",  fermer: "helpclose" });
+const cadreBonus = brancherCadre("bonusveil", { bouton: "bonus", fermer: "bonusclose" });
+/* Le classement se relit à chaque ouverture : il n'est plus sous les yeux en
+   permanence, donc rien d'autre ne le rafraîchirait. */
+const cadreClassement = brancherCadre("lbveil", { bouton: "classement", fermer: "lbclose",
+                                                  alOuvrir: loadBoard });
+/* Le menu d'accueil : ni croix, ni fermeture au voile ou à Échap. On en sort en
+   choisissant un mode — et pour l'instant il n'y en a qu'un d'ouvert, le défi
+   de la semaine attend son tour. */
+const cadreMenu = brancherCadre("menuveil", { focus: "playclassic", verrou: true });
+document.getElementById("playclassic").addEventListener("click", () => {
+  if (cadreOuvert === cadreMenu) fermerCadre(true);      // le seul choix qui lève le verrou
+});
 
 /* ---------- jouer au clavier ----------
    Les flèches déplacent la visée sur le plateau, Entrée pose. Le fantôme sert de
@@ -2213,7 +2334,6 @@ document.addEventListener("keydown", e => {
   }
   if (k === "r" || k === " "){ e.preventDefault(); return rotate(); }
   if (k === "m"){ e.preventDefault(); return muteBtn.click(); }
-  if (k === "n"){ e.preventDefault(); return restartBtn.click(); }
   if (k === "l"){ e.preventDefault(); return document.getElementById("lang").click(); }
 });
 window.addEventListener("resize", layout);
@@ -2371,6 +2491,10 @@ window.addEventListener("pagehide", saveGame);
 document.addEventListener("visibilitychange", () => { if (document.hidden) saveGame(); });
 layout();
 useLeaderboard(typeof window.DOMINO_API === "string" ? window.DOMINO_API : LEADERBOARD_API);
+/* Le menu d'accueil vient en dernier : la scène est déjà prête derrière lui —
+   partie reprise ou distribution neuve — et « Jouer classique » ne fait que
+   lever le voile sur celle-là. Ouvert en silence, avant tout geste du joueur. */
+ouvrirCadre(cadreMenu, true);
 
 /* ---------- point de branchement pour une build partenaire ---------- */
 window.Domino = {

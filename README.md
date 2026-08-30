@@ -47,12 +47,20 @@ fait taire le jeu le temps de sa diffusion, sans toucher à ce réglage.
 Le score augmente de la valeur de chaque fusion ; le record est conservé dans le
 navigateur (`localStorage`). Un aperçu du domino suivant permet d'anticiper.
 
-**Deux boutons mettent fin à une partie**, et tous deux demandent confirmation quand il y a
-quelque chose à perdre : un premier clic arme le bouton (« Confirmer ? »), un second exécute,
-et n'importe quelle autre action — poser un domino, pivoter, cliquer ailleurs — annule, tout
-comme les 5 secondes d'inactivité. **Nouvelle partie** repart de zéro, sans rien demander sur
-un tapis vierge ou après une fin de partie. **Déclarer forfait** met fin à la partie en cours
-et affiche l'écran de défaite ; il est désactivé tant qu'aucun domino n'est posé.
+**Déclarer forfait** met fin à la partie en cours et affiche l'écran de défaite ; il est
+désactivé tant qu'aucun domino n'est posé, et demande confirmation quand il y a quelque
+chose à perdre : un premier clic arme le bouton (« Confirmer ? »), un second exécute, et
+n'importe quelle autre action — poser un domino, pivoter, cliquer ailleurs — annule, tout
+comme les 5 secondes d'inactivité. Pour repartir de zéro, l'écran de fin propose de
+**rejouer**.
+
+## Le menu
+
+Le jeu ouvre sur un **menu** qui donne le choix du mode. **Jouer classique** lance la partie
+sans fin décrite plus haut — ou reprend celle qui était en cours. **Défi de la semaine** est
+annoncé mais **pas encore ouvert** : son bouton reste éteint, étiqueté « bientôt », lisible
+mais inerte. Le menu n'a pas de croix et ne se ferme ni au voile ni à Échap : on en sort en
+choisissant un mode.
 
 ## Cadre tourné par le portail
 
@@ -131,5 +139,11 @@ il ne sert qu'à repérer une partie douteuse depuis la vue d'administration, av
 marqueurs automatiques de plausibilité. **Aucune adresse IP n'est lue ni stockée**, et la
 modération se fait à la main.
 
+Le classement ne s'étale plus sous le plateau : il vit dans son **cadre**, ouvert par le
+bouton **Classement** posé à gauche du bandeau d'actions, et il se relit à chaque ouverture
+puisque plus rien ne le rafraîchit sous les yeux. Le tapis récupère la hauteur qui lui était
+réservée.
+
 Le jeu n'en dépend pas : tant que `LEADERBOARD_API` est vide en tête du script, aucun appel
-réseau n'est émis et le panneau reste masqué. Voir `server/README.md`.
+réseau n'est émis et le bouton reste masqué — comme lorsque le service n'a jamais répondu.
+Voir `server/README.md`.

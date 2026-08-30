@@ -28,6 +28,9 @@ for (let seed = 1; seed <= SEEDS; seed++){
   }, seed);
   await p.goto('file:///home/user/Domino/index.html');
   await p.waitForTimeout(300);
+  // le jeu ouvre sur son menu : sans un mode choisi, le voile prend les clics
+  await p.locator('#playclassic').click();
+  await p.waitForTimeout(150);
 
   const box = await p.locator('#board').boundingBox();
   const g = await p.evaluate(() => { const b = document.getElementById('board');
