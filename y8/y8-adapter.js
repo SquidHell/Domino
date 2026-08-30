@@ -7,8 +7,8 @@
 (function () {
   "use strict";
 
-  var APP_ID  = "6a89816ae8cd06557dc124d1";
-  var GAME_ID = "281105";
+  var APP_ID  = "6a942d3c1ee8fcff5a9e962b";
+  var GAME_ID = "281811";
 
   // Fréquence des interstitiels : jamais deux parties de suite, jamais à moins
   // de 90 s d'intervalle. Les récompensées, elles, sont toujours à la demande

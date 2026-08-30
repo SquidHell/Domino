@@ -18,8 +18,8 @@ le jeu reste jouable hors Y8.
 
 | Champ | Valeur |
 |---|---|
-| `appId` | `6a89816ae8cd06557dc124d1` |
-| `gameId` | `281105` |
+| `appId` | `6a942d3c1ee8fcff5a9e962b` |
+| `gameId` | `281811` |
 
 Ils sont en tête de `y8/y8-adapter.js`.
 
