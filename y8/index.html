@@ -234,7 +234,18 @@
   .lb .nm{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   .lb b{font-weight:800;font-variant-numeric:tabular-nums}
 
-  .credits{margin-top:4px;text-align:center;font-size:12px;font-weight:500;color:var(--muted)}
+  /* Pied de page : la langue à gauche, la signature à droite. */
+  .foot{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-top:4px}
+  .credits{margin:0;font-size:12px;font-weight:500;color:var(--muted)}
+  /* Le bouton porte le nom de la langue en cours ; la flèche double dit qu'il
+     bascule. Même dessin que les boutons d'action, en plus discret. */
+  .langbtn{
+    display:inline-flex;align-items:center;gap:6px;flex:none;
+    background:transparent;color:var(--muted);border:2px solid var(--line);
+    padding:5px 10px;font-size:11.5px;font-weight:700;
+  }
+  .langbtn:hover{background:var(--btn);color:var(--btn-ink);border-color:var(--btn);filter:none}
+  .langbtn .swap{font-size:13px;font-weight:400;line-height:1}
 
   /* ---- cadre d'aide ----
      Posé par-dessus la page entière, jamais dans le flux : la mise en page du
@@ -480,7 +491,9 @@
        qui défile dans son cadre — la page, elle, ne bouge pas */
     .lb ol{flex:1}
     .bottom{gap:6px;overflow-x:hidden;overflow-y:auto;scrollbar-width:thin}
-    .credits{font-size:11px;margin-top:0}
+    .foot{margin-top:0}
+    .credits{font-size:11px}
+    .langbtn{padding:4px 8px;font-size:11px}
   }
   /* Téléphone couché : moins de 480 px de haut. On rogne tout ce qui n'est pas
      indispensable pour que la colonne entière reste visible sans rien couper,
@@ -507,6 +520,7 @@
     .lb h2{font-size:10px}
     .lb li{padding:4px 8px;font-size:12px}
     .credits{font-size:10px}
+    .langbtn{padding:3px 7px;font-size:10px}
   }
   /* Écran vraiment bas (vieux téléphone couché) : dernier cran de compression,
      pour qu'il reste malgré tout une ligne de classement sous les boutons. */
@@ -630,7 +644,13 @@
       <h2><span data-i18n="leaderboard">Leaderboard</span><span id="lbstate"></span></h2>
       <ol id="lblist"></ol>
     </section>
-    <footer class="credits" data-i18n="credits">Credits · Luis Callejon</footer>
+    <div class="foot">
+      <button id="lang" type="button" class="langbtn"
+              data-i18n-title="langSwitch" title="Switch to French">
+        <span class="swap" aria-hidden="true">⇄</span><span data-i18n="langName">English</span>
+      </button>
+      <footer class="credits" data-i18n="credits">Credits · Luis Callejon</footer>
+    </div>
   </div>
 </div>
 
@@ -665,6 +685,8 @@
    permet de partager un lien dans une langue donnée. */
 const STR = {
   en: {
+    langName:     "English",
+    langSwitch:   "Switch to French",
     tagline:      "Place · Merge · Chain",
     scoreLabel:   "Score",
     bestLabel:    "Best",
@@ -741,6 +763,8 @@ const STR = {
     chain:        " · chain ×{n}"
   },
   fr: {
+    langName:     "Français",
+    langSwitch:   "Passer en anglais",
     tagline:      "Pose · Fusionne · Enchaîne",
     scoreLabel:   "Score",
     bestLabel:    "Record",
@@ -818,17 +842,26 @@ const STR = {
   }
 };
 
+const LANG_KEY = "domino2048.langue";
+/* Ordre de priorité : l'adresse, puis le choix que le joueur a fait une fois
+   pour toutes, puis le navigateur. Un choix explicite ne se fait pas écraser au
+   rechargement par un réglage système. */
 function pickLang(){
-  let dit = "";
   try {
     const forcee = new URLSearchParams(location.search).get("lang");
     if (forcee) return /^fr/i.test(forcee) ? "fr" : "en";
-    dit = (navigator.languages && navigator.languages[0]) || navigator.language || "";
   } catch(e){}
+  try {
+    const choisie = localStorage.getItem(LANG_KEY);
+    if (choisie === "fr" || choisie === "en") return choisie;
+  } catch(e){}
+  let dit = "";
+  try { dit = (navigator.languages && navigator.languages[0]) || navigator.language || ""; }
+  catch(e){}
   return /^fr\b|^fr-/i.test(dit) ? "fr" : "en";
 }
-const LANG = pickLang();
-const LOC  = LANG === "fr" ? "fr-FR" : "en-US";
+let LANG = pickLang();
+let LOC  = LANG === "fr" ? "fr-FR" : "en-US";
 function T(cle, vars){
   let t = (STR[LANG] && STR[LANG][cle]) || STR.en[cle] || cle;
   if (vars) for (const k in vars) t = t.split("{" + k + "}").join(vars[k]);
@@ -857,6 +890,20 @@ function poserTexte(el, texte){
     else el.appendChild(document.createTextNode(bout));
   });
 }
+/* Bascule d'une langue à l'autre sans recharger : on retraduit le balisage, puis
+   tout ce qui a été écrit par le jeu — bandeau d'état, écran de fin, classement,
+   info-bulles. Le choix est retenu et prime ensuite sur le navigateur. */
+function setLang(l){
+  LANG = (l === "fr") ? "fr" : "en";
+  LOC  = LANG === "fr" ? "fr-FR" : "en-US";
+  try { localStorage.setItem(LANG_KEY, LANG); } catch(e){}
+  disarm();                       // un bouton armé porte encore l'ancienne étiquette
+  traduire();
+  say(); syncMute(); syncButtons(); syncRewards();
+  peindreOverlay(); peindreClassement();
+  layout();
+}
+
 /* Applique la langue à tout ce que porte le balisage : contenu, titre au survol,
    texte de substitution et étiquette d'accessibilité. */
 function traduire(){
@@ -1452,11 +1499,11 @@ async function place(r, c){
   nextTurn();
 }
 function nextTurn(){
-  if (won === "now"){ won = true; SFX.play("gagne"); showOverlay(T("winTitle"), T("winText"), T("winBtn")); }
+  if (won === "now"){ won = true; SFX.play("gagne"); showOverlay("winTitle", "winText", "winBtn"); }
   if (!canPlaceSomewhere()){
     phase = "over";
     SFX.play("fin");
-    showOverlay(T("fullTitle"), Tn("endText", placed, { score: num(score), n: placed }), T("endBtn"));
+    showOverlay("fullTitle", "endText", "endBtn");
   } else {
     phase = "place";
   }
@@ -1508,7 +1555,7 @@ function forfeit(){
   clearGhost();
   phase = "over";
   SFX.play("fin");
-  showOverlay(T("forfeitedTitle"), Tn("endText", placed, { score: num(score), n: placed }), T("endBtn"));
+  showOverlay("forfeitedTitle", "endText", "endBtn");
   syncButtons(); syncRewards(); say(); saveGame();
 }
 function syncButtons(){
@@ -1548,11 +1595,22 @@ function say(){
     free <= 6        ? Tn("statusFree", free, { n: free }) :
                        T("statusTurn");
 }
-function showOverlay(title, text, btn){
-  document.getElementById("ovtitle").textContent = title;
-  document.getElementById("ovtext").textContent = text;
-  document.getElementById("ovbtn").textContent = btn;
+/* L'écran de fin retient ses clés plutôt que ses phrases : changer de langue en
+   cours de partie doit le retraduire, pas le figer dans celle d'avant. */
+let ovEtat = null;
+function showOverlay(kTitre, kTexte, kBouton){
+  ovEtat = { kTitre, kTexte, kBouton, rank: null };
+  peindreOverlay();
   overlayEl.classList.add("show");
+}
+function peindreOverlay(){
+  if (!ovEtat) return;
+  document.getElementById("ovtitle").textContent = T(ovEtat.kTitre);
+  document.getElementById("ovtext").textContent =
+    ovEtat.rank !== null   ? T("lbPublished", { rank: rang(ovEtat.rank) }) :
+    ovEtat.kTexte === "endText" ? Tn("endText", placed, { score: num(score), n: placed })
+                               : T(ovEtat.kTexte);
+  document.getElementById("ovbtn").textContent = T(ovEtat.kBouton);
 }
 
 /* ---------- bonus ----------
@@ -1733,6 +1791,25 @@ const LEADERBOARD_API = "https://domino-2048-leaderboard.squidhell-domino.worker
 let api = null;
 
 function setLbState(msg){ document.getElementById("lbstate").textContent = msg || ""; }
+/* Les lignes reçues sont gardées telles quelles : changer de langue redessine la
+   liste — les nombres se reformatent — sans redemander quoi que ce soit au
+   serveur. */
+let lbLignes = [];
+function peindreClassement(){
+  const list = document.getElementById("lblist");
+  list.textContent = "";
+  for (const s of lbLignes){
+    const li = document.createElement("li");
+    const rk = document.createElement("span"); rk.className = "rk"; rk.textContent = s.rank;
+    const nm = document.createElement("span"); nm.className = "nm";
+    nm.textContent = s.name;                       // texte, jamais du HTML
+    const sc = document.createElement("b");
+    sc.textContent = num(s.score);
+    li.append(rk, nm, sc);
+    list.appendChild(li);
+  }
+  setLbState(lbLignes.length ? "" : T("lbNone"));
+}
 
 /* null : on ne sait pas encore · true : le service a répondu au moins une fois ·
    false : il n'a jamais répondu. Le troisième cas n'est pas une panne passagère
@@ -1746,20 +1823,9 @@ async function loadBoard(){
     const res = await fetch(api + "/scores?limit=10", { headers: { accept: "application/json" } });
     if (!res.ok) throw new Error(res.status);
     const data = await res.json();
-    const list = document.getElementById("lblist");
-    list.textContent = "";
-    for (const s of data.scores || []){
-      const li = document.createElement("li");
-      const rk = document.createElement("span"); rk.className = "rk"; rk.textContent = s.rank;
-      const nm = document.createElement("span"); nm.className = "nm";
-      nm.textContent = s.name;                       // texte, jamais du HTML
-      const sc = document.createElement("b");
-      sc.textContent = num(s.score);
-      li.append(rk, nm, sc);
-      list.appendChild(li);
-    }
+    lbLignes = data.scores || [];
+    peindreClassement();
     lbJoignable = true;
-    setLbState((data.scores || []).length ? "" : T("lbNone"));
     syncPublish();
     layout();                                   // la liste change de hauteur
   } catch {
@@ -1797,8 +1863,7 @@ document.getElementById("publish").addEventListener("submit", async e => {
     if (!res.ok) throw new Error(data.error || res.status);
     published = true;
     SFX.play("publie");
-    document.getElementById("ovtext").textContent =
-      T("lbPublished", { rank: rang(data.rank) });
+    if (ovEtat){ ovEtat.rank = data.rank; peindreOverlay(); }
     syncPublish();
     loadBoard();
   } catch (err){
@@ -1884,6 +1949,11 @@ function closeHelp(){
   if (helpReturn && helpReturn.focus) helpReturn.focus();
   helpReturn = null;
 }
+document.getElementById("lang").addEventListener("click", () => {
+  setLang(LANG === "fr" ? "en" : "fr");
+  SFX.play("pivot");
+});
+
 helpBtn.addEventListener("click", () => helpVeil.hidden ? openHelp() : closeHelp());
 helpClose.addEventListener("click", closeHelp);
 // cliquer à côté du cadre le referme ; cliquer dedans, non
