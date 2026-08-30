@@ -60,6 +60,33 @@ jobs:
           [ -n "$CLOUDFLARE_API_TOKEN" ] || { echo "::error::CLOUDFLARE_API_TOKEN manque (Settings → Secrets and variables → Actions)"; exit 1; }
           [ -n "$CLOUDFLARE_ACCOUNT_ID" ] || { echo "::error::CLOUDFLARE_ACCOUNT_ID manque (Settings → Secrets and variables → Actions)"; exit 1; }
 
+      # Un jeton valide mais trop étroit échoue plus loin sur une « Authentication
+      # error » qui n'apprend rien. On éprouve les deux droits nécessaires ici, et
+      # on dit lequel manque.
+      - name: Éprouver les droits du jeton
+        run: |
+          set -uo pipefail
+          panne=0
+          if ! SORTIE="$($W d1 list --json 2>&1)"; then
+            printf '%s\n' "$SORTIE"
+            echo "::error::Le jeton n'a pas le droit d'agir sur les bases D1. Ajoute l'autorisation « Compte → D1 → Edit » : dash.cloudflare.com → menu du compte → Mes profils → Jetons d'API → sur ton jeton, Modifier → Ajouter davantage → Compte / D1 / Edit → Continuer → Enregistrer."
+            panne=1
+          else
+            echo "D1 : accessible."
+          fi
+          if ! SORTIE="$($W deployments list --name domino-2048-leaderboard 2>&1)"; then
+            case "$SORTIE" in
+              *[Aa]uthentication*|*10000*|*[Ff]orbidden*)
+                printf '%s\n' "$SORTIE"
+                echo "::error::Le jeton n'a pas le droit d'agir sur les Workers. Ajoute l'autorisation « Compte → Workers Scripts → Edit » au jeton."
+                panne=1 ;;
+              *) echo "Workers : accessible (le service n'existe pas encore, c'est normal au premier passage)." ;;
+            esac
+          else
+            echo "Workers : accessible."
+          fi
+          exit $panne
+
       - name: Base D1 — la retrouver ou la créer
         working-directory: server
         run: |
@@ -75,7 +102,12 @@ jobs:
           ID="$(id_base || true)"
           if [ -z "$ID" ]; then
             echo "création de « $BASE »…"
-            $W d1 create "$BASE"
+            if ! SORTIE="$($W d1 create "$BASE" 2>&1)"; then
+              printf '%s\n' "$SORTIE"
+              echo "::error::Création de la base D1 refusée. C'est presque toujours l'autorisation « Compte → D1 → Edit » qui manque au jeton."
+              exit 1
+            fi
+            printf '%s\n' "$SORTIE"
             ID="$(id_base || true)"
           else
             echo "« $BASE » existe déjà, on la réutilise."

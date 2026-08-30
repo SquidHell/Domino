@@ -40,9 +40,20 @@ l'adresse obtenue est réécrite dans `index.html` puis validée dans le dépôt
 
 **1 · Un jeton Cloudflare** — sur `dash.cloudflare.com`, menu du compte →
 *Mes profils* → *Jetons d'API* → *Créer un jeton* → gabarit **« Edit Cloudflare
-Workers »**. Avant de valider, vérifier que la liste des autorisations contient
-bien **Compte → D1 → Edit** ; si elle manque, l'ajouter. Copier le jeton : il
-n'est affiché qu'une fois.
+Workers »**.
+
+Ce gabarit ne suffit pas tel quel : il faut lui **ajouter D1**. Sur l'écran des
+autorisations, *Ajouter davantage* → **Compte** · **D1** · **Edit**. Le jeton
+doit finir avec ces deux lignes au minimum :
+
+| Portée | Ressource | Droit |
+|---|---|---|
+| Compte | Workers Scripts | Edit |
+| Compte | D1 | Edit |
+
+Sans la seconde, la création de la base échoue sur une « Authentication error »
+qui n'a rien à voir avec le jeton lui-même. Copier le jeton : il n'est affiché
+qu'une fois, et il ne se colle nulle part ailleurs que dans les secrets GitHub.
 
 **2 · L'identifiant du compte** — toujours sur `dash.cloudflare.com`, page
 *Workers & Pages* : l'*Account ID* est affiché dans le panneau latéral, et se
