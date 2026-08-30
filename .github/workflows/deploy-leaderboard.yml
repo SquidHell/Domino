@@ -15,6 +15,11 @@ name: Déployer le classement
 
 on:
   workflow_dispatch:
+    inputs:
+      sous_domaine:
+        description: "Sous-domaine workers.dev à enregistrer, si ce n'est pas déjà fait (lettres minuscules, chiffres, tirets). Le classement vivra sur https://domino-2048-leaderboard.<ce-nom>.workers.dev"
+        required: false
+        default: ""
   push:
     branches: [claude/html-domino-2048-game-8msl8i, main]
     paths: ['server/**', '.github/workflows/deploy-leaderboard.yml']
@@ -127,6 +132,33 @@ jobs:
             echo "Pas de secret ADMIN_TOKEN : les routes /admin resteront en 503."
           fi
 
+      # Un compte neuf n'a pas de sous-domaine workers.dev, et sans lui aucun Worker
+      # ne peut être publié. wrangler ne sait que le demander de façon interactive,
+      # donc jamais dans une exécution automatique : on passe par l'API.
+      - name: Sous-domaine workers.dev
+        if: inputs.sous_domaine != ''
+        env:
+          NOM: ${{ inputs.sous_domaine }}
+        run: |
+          set -uo pipefail
+          case "$NOM" in
+            *[!a-z0-9-]*|-*|*-|"")
+              echo "::error::« $NOM » n'est pas un sous-domaine valable : uniquement des lettres minuscules, des chiffres et des tirets, sans commencer ni finir par un tiret."
+              exit 1 ;;
+          esac
+          REP="$(curl -sS -X PUT \
+            "https://api.cloudflare.com/client/v4/accounts/$CLOUDFLARE_ACCOUNT_ID/workers/subdomain" \
+            -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" \
+            -H "Content-Type: application/json" \
+            --data "{\"subdomain\":\"$NOM\"}")"
+          printf '%s\n' "$REP"
+          if printf '%s' "$REP" | grep -q '"success":true'; then
+            echo "sous-domaine « $NOM » enregistré."
+          else
+            echo "::error::Cloudflare a refusé le sous-domaine « $NOM » — la réponse complète est juste au-dessus. Le plus souvent : le nom est déjà pris par un autre compte, ou un sous-domaine existe déjà (dans ce cas relance sans remplir ce champ)."
+            exit 1
+          fi
+
       - name: Déployer le Worker
         id: deploiement
         working-directory: server
@@ -138,7 +170,7 @@ jobs:
             printf '%s\n' "$SORTIE"
             case "$SORTIE" in
               *subdomain*|*"workers.dev"*)
-                echo "::error::Ton compte n'a pas encore de sous-domaine workers.dev — il s'en choisit un une seule fois. dash.cloudflare.com → Workers & Pages → Subdomain (ou « Sous-domaine ») → choisis un nom, enregistre, puis relance ce workflow." ;;
+                echo "::error::Ton compte n'a pas encore de sous-domaine workers.dev — il s'en choisit un une seule fois, et sans lui aucun Worker ne peut être publié. Relance ce workflow en remplissant le champ « Sous-domaine workers.dev » du formulaire Run workflow : il sera enregistré automatiquement." ;;
               *[Aa]uthentication*|*10000*|*[Ff]orbidden*|*[Uu]nauthorized*)
                 echo "::error::Le jeton n'a pas le droit de déployer un Worker. Ajoute l'autorisation « Compte → Workers Scripts → Edit »." ;;
               *)
