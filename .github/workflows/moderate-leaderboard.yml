@@ -1,0 +1,94 @@
+# Regarder le classement, et en retirer une ligne, sans terminal : tout se fait
+# depuis l'onglet Actions de GitHub, y compris sur un téléphone.
+#
+# Les mêmes deux secrets que le déploiement suffisent :
+#   CLOUDFLARE_API_TOKEN   (gabarit « Edit Cloudflare Workers », avec D1:Edit)
+#   CLOUDFLARE_ACCOUNT_ID
+# ADMIN_TOKEN n'est pas nécessaire : on parle à la base D1 directement, sans
+# passer par les routes /admin du Worker.
+#
+# Lancé sans rien remplir, ce travail ne fait que LIRE : il affiche le
+# classement avec l'identifiant de chaque ligne. Rien n'est supprimé tant qu'un
+# identifiant n'est pas donné explicitement.
+name: Modérer le classement
+
+on:
+  workflow_dispatch:
+    inputs:
+      supprimer_id:
+        description: "Identifiant de la ligne à supprimer. Laisser vide pour seulement afficher le classement."
+        required: false
+        default: ""
+
+concurrency:
+  group: classement
+  cancel-in-progress: false
+
+jobs:
+  moderer:
+    name: Classement
+    runs-on: ubuntu-latest
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+      SUPPRIMER_ID: ${{ inputs.supprimer_id }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Vérifier les secrets
+        shell: bash
+        run: |
+          manque=""
+          [ -n "$CLOUDFLARE_API_TOKEN" ]  || manque="$manque CLOUDFLARE_API_TOKEN"
+          [ -n "$CLOUDFLARE_ACCOUNT_ID" ] || manque="$manque CLOUDFLARE_ACCOUNT_ID"
+          if [ -n "$manque" ]; then
+            echo "::error::Secret(s) absent(s) :$manque — Settings → Secrets and variables → Actions."
+            exit 1
+          fi
+
+      # L'identifiant est validé ici, avant de toucher à quoi que ce soit : seul
+      # un entier passe. Aucune autre saisie n'atteint jamais du SQL.
+      - name: Contrôler l'identifiant demandé
+        shell: bash
+        run: |
+          if [ -n "$SUPPRIMER_ID" ] && ! printf '%s' "$SUPPRIMER_ID" | grep -qE '^[0-9]+$'; then
+            echo "::error::« $SUPPRIMER_ID » n'est pas un identifiant : il faut un nombre entier, celui de la colonne id."
+            exit 1
+          fi
+
+      - name: Lire le classement
+        id: avant
+        working-directory: server
+        shell: bash
+        run: |
+          npx --yes wrangler@4 d1 execute domino-2048 --remote --yes --json \
+            --command "SELECT id, name, score, moves, flags, created_at FROM scores ORDER BY score DESC, id ASC" \
+            > /tmp/avant.json 2>/tmp/avant.err || { cat /tmp/avant.err; exit 1; }
+          node "$GITHUB_WORKSPACE/.github/workflows/classement.mjs" table /tmp/avant.json "Classement actuel" | tee -a "$GITHUB_STEP_SUMMARY"
+
+      - name: Supprimer la ligne demandée
+        if: ${{ inputs.supprimer_id != '' }}
+        working-directory: server
+        shell: bash
+        run: |
+          # la ligne visée est montrée d'abord : le journal garde trace de ce qui
+          # a disparu et de ce qu'elle valait. Si elle n'existe pas, on s'arrête
+          # avant le DELETE.
+          node "$GITHUB_WORKSPACE/.github/workflows/classement.mjs" ligne /tmp/avant.json "$SUPPRIMER_ID" | tee -a "$GITHUB_STEP_SUMMARY"
+          npx --yes wrangler@4 d1 execute domino-2048 --remote --yes --json \
+            --command "DELETE FROM scores WHERE id = $SUPPRIMER_ID" \
+            > /tmp/suppr.json 2>/tmp/suppr.err || { cat /tmp/suppr.err; exit 1; }
+          node "$GITHUB_WORKSPACE/.github/workflows/classement.mjs" changes /tmp/suppr.json 1
+
+      - name: Relire le classement
+        if: ${{ inputs.supprimer_id != '' }}
+        working-directory: server
+        shell: bash
+        run: |
+          npx --yes wrangler@4 d1 execute domino-2048 --remote --yes --json \
+            --command "SELECT id, name, score, moves, flags, created_at FROM scores ORDER BY score DESC, id ASC" \
+            > /tmp/apres.json 2>/tmp/apres.err || { cat /tmp/apres.err; exit 1; }
+          node "$GITHUB_WORKSPACE/.github/workflows/classement.mjs" table /tmp/apres.json "Classement après suppression" | tee -a "$GITHUB_STEP_SUMMARY"
