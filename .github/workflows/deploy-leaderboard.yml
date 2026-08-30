@@ -1,40 +1,169 @@
-# Déploiement du classement depuis le dépôt : chaque push sur la branche
-# principale qui touche server/ rejoue les tests puis redéploie le Worker.
+# Met le classement en ligne sans toucher à un terminal : tout se fait depuis
+# l'onglet Actions de GitHub, y compris sur un téléphone.
 #
-# Deux secrets à poser dans Settings → Secrets and variables → Actions :
-#   CLOUDFLARE_API_TOKEN   (gabarit « Edit Cloudflare Workers »)
+# Deux secrets à poser une fois dans Settings → Secrets and variables → Actions :
+#   CLOUDFLARE_API_TOKEN   (gabarit « Edit Cloudflare Workers », avec D1:Edit)
 #   CLOUDFLARE_ACCOUNT_ID
+# Un troisième, facultatif :
+#   ADMIN_TOKEN            (sans lui, les routes /admin répondent 503)
+#
+# Le travail complet est fait ici : la base D1 est créée si elle n'existe pas,
+# son identifiant est écrit dans wrangler.toml, le schéma est appliqué, le
+# Worker est déployé, puis l'adresse obtenue est recopiée dans le jeu et validée
+# dans le dépôt. Rien à faire à la main entre deux étapes.
 name: Déployer le classement
 
 on:
-  push:
-    branches: [main]
-    paths: ['server/**', '.github/workflows/deploy-leaderboard.yml']
   workflow_dispatch:
+  push:
+    branches: [claude/html-domino-2048-game-8msl8i, main]
+    paths: ['server/**', '.github/workflows/deploy-leaderboard.yml']
+
+concurrency:
+  group: classement
+  cancel-in-progress: false
 
 jobs:
   test:
+    name: Tests du Worker
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - name: Tester le Worker
+      - name: 38 vérifications, sans réseau
         working-directory: server
         run: node --experimental-sqlite test/worker.test.mjs
 
   deploy:
+    name: Mise en ligne
     needs: test
     runs-on: ubuntu-latest
+    permissions:
+      contents: write          # pour réécrire l'adresse du classement dans le jeu
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+      BASE: domino-2048
+      W: npx --yes wrangler@4
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - name: Déployer sur Cloudflare
-        uses: cloudflare/wrangler-action@v3
-        with:
-          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          workingDirectory: server
+
+      - name: Vérifier les secrets
+        run: |
+          [ -n "$CLOUDFLARE_API_TOKEN" ] || { echo "::error::CLOUDFLARE_API_TOKEN manque (Settings → Secrets and variables → Actions)"; exit 1; }
+          [ -n "$CLOUDFLARE_ACCOUNT_ID" ] || { echo "::error::CLOUDFLARE_ACCOUNT_ID manque (Settings → Secrets and variables → Actions)"; exit 1; }
+
+      - name: Base D1 — la retrouver ou la créer
+        working-directory: server
+        run: |
+          set -euo pipefail
+          id_base(){
+            $W d1 list --json 2>/dev/null | BASE="$BASE" node -e '
+              let s=""; process.stdin.on("data",d=>s+=d).on("end",()=>{
+                let l=[]; try { l = JSON.parse(s); } catch(e){ return; }
+                const m = (Array.isArray(l)?l:[]).find(d => d.name === process.env.BASE);
+                if (m) process.stdout.write(String(m.uuid || m.database_id || ""));
+              });'
+          }
+          ID="$(id_base || true)"
+          if [ -z "$ID" ]; then
+            echo "création de « $BASE »…"
+            $W d1 create "$BASE"
+            ID="$(id_base || true)"
+          else
+            echo "« $BASE » existe déjà, on la réutilise."
+          fi
+          [ -n "$ID" ] || { echo "::error::identifiant de la base introuvable"; exit 1; }
+          echo "identifiant : $ID"
+          ID="$ID" node -e '
+            const fs = require("fs");
+            const t = fs.readFileSync("wrangler.toml", "utf8");
+            const n = t.replace(/^database_id = .*$/m, `database_id = "${process.env.ID}"`);
+            if (n !== t) fs.writeFileSync("wrangler.toml", n);
+          '
+
+      - name: Schéma
+        working-directory: server
+        # CREATE ... IF NOT EXISTS : rejouer ne perd aucune ligne du classement
+        run: $W d1 execute "$BASE" --remote --file=./schema.sql --yes
+
+      - name: Jeton d'administration
+        working-directory: server
+        env:
+          ADMIN_TOKEN: ${{ secrets.ADMIN_TOKEN }}
+        run: |
+          if [ -n "${ADMIN_TOKEN:-}" ]; then
+            printf '%s' "$ADMIN_TOKEN" | $W secret put ADMIN_TOKEN
+            echo "ADMIN_TOKEN posé."
+          else
+            echo "Pas de secret ADMIN_TOKEN : les routes /admin resteront en 503."
+          fi
+
+      - name: Déployer le Worker
+        id: deploiement
+        working-directory: server
+        run: |
+          set -euo pipefail
+          SORTIE="$($W deploy 2>&1)"
+          printf '%s\n' "$SORTIE"
+          URL="$(printf '%s' "$SORTIE" | grep -oE 'https://[a-zA-Z0-9.-]+\.workers\.dev' | head -1 || true)"
+          [ -n "$URL" ] || { echo "::error::adresse du Worker illisible dans la sortie"; exit 1; }
+          echo "url=$URL" >> "$GITHUB_OUTPUT"
+
+      - name: Vérifier que le service répond
+        run: |
+          set -euo pipefail
+          URL="${{ steps.deploiement.outputs.url }}"
+          for i in 1 2 3 4 5; do
+            if curl -fsS --max-time 10 "$URL/health" | grep -q '"ok"'; then
+              echo "sonde de santé : d'accord."; exit 0
+            fi
+            echo "pas encore prêt, nouvel essai dans 5 s…"; sleep 5
+          done
+          echo "::error::le Worker ne répond pas sur $URL/health"; exit 1
+
+      - name: Brancher le jeu sur le classement
+        id: branchement
+        run: |
+          set -euo pipefail
+          URL="${{ steps.deploiement.outputs.url }}" node -e '
+            const fs = require("fs");
+            const t = fs.readFileSync("index.html", "utf8");
+            const n = t.replace(/const LEADERBOARD_API = "[^"]*";/,
+                                `const LEADERBOARD_API = "${process.env.URL}";`);
+            if (n === t){ console.error("ligne LEADERBOARD_API introuvable"); process.exit(1); }
+            fs.writeFileSync("index.html", n);
+          '
+          [ -f tools/build-y8.py ] && python3 tools/build-y8.py || true
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html y8/index.html server/wrangler.toml
+          if git diff --cached --quiet; then
+            echo "rien à valider : le jeu pointait déjà au bon endroit."
+          else
+            git commit -m "Classement en ligne : ${{ steps.deploiement.outputs.url }} [skip ci]"
+            git push origin HEAD:"${{ github.ref_name }}"
+            echo "adresse validée dans le dépôt."
+          fi
+
+      - name: Récapitulatif
+        run: |
+          URL="${{ steps.deploiement.outputs.url }}"
+          {
+            echo "## Classement en ligne"
+            echo
+            echo "| | |"
+            echo "|---|---|"
+            echo "| Classement public | \`$URL/scores\` |"
+            echo "| Sonde de santé | \`$URL/health\` |"
+            echo "| Dépôt d'un score | \`POST $URL/scores\` |"
+            echo
+            echo "Le jeu a été mis à jour dans le dépôt : il pointe maintenant sur cette adresse."
+          } >> "$GITHUB_STEP_SUMMARY"

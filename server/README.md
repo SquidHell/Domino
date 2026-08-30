@@ -1,8 +1,9 @@
 # Classement Domino 2048 — Cloudflare Worker + D1
 
 Un fichier, zéro dépendance à l'exécution : `src/index.js` est déployé tel quel, sans
-étape de build. La base est D1 (le SQLite managé de Cloudflare). Le déploiement part du
-dépôt git : chaque push sur `main` qui touche `server/` rejoue les tests puis redéploie.
+étape de build. La base est D1 (le SQLite managé de Cloudflare). La mise en ligne se fait
+depuis l'onglet Actions de GitHub — donc depuis un téléphone si besoin — ou d'une seule
+commande depuis un ordinateur.
 
 ## Ce qui est conservé, et ce qui ne l'est pas
 
@@ -31,7 +32,44 @@ Au-delà de 50 000 points par coup, la ligne est refusée d'emblée (422) — c'
 d'atteinte, bonus publicitaires compris. Le reste passe : la modération se fait à la
 main, comme demandé.
 
-## Mise en route
+## Depuis un téléphone, sans terminal
+
+Tout se fait au doigt, dans deux onglets du navigateur. Le travail est fait par
+GitHub Actions : la base est créée, le schéma appliqué, le Worker déployé, et
+l'adresse obtenue est réécrite dans `index.html` puis validée dans le dépôt.
+
+**1 · Un jeton Cloudflare** — sur `dash.cloudflare.com`, menu du compte →
+*Mes profils* → *Jetons d'API* → *Créer un jeton* → gabarit **« Edit Cloudflare
+Workers »**. Avant de valider, vérifier que la liste des autorisations contient
+bien **Compte → D1 → Edit** ; si elle manque, l'ajouter. Copier le jeton : il
+n'est affiché qu'une fois.
+
+**2 · L'identifiant du compte** — toujours sur `dash.cloudflare.com`, page
+*Workers & Pages* : l'*Account ID* est affiché dans le panneau latéral, et se
+lit aussi dans l'adresse de la page (`dash.cloudflare.com/<identifiant>/...`).
+
+**3 · Poser les secrets** — sur GitHub, dépôt → *Settings* → *Secrets and
+variables* → *Actions* → *New repository secret*. Deux fois :
+
+| Nom | Valeur |
+|---|---|
+| `CLOUDFLARE_API_TOKEN` | le jeton de l'étape 1 |
+| `CLOUDFLARE_ACCOUNT_ID` | l'identifiant de l'étape 2 |
+
+Un troisième, facultatif : `ADMIN_TOKEN`, une longue chaîne inventée, qui ouvre
+les routes de modération. Sans lui elles répondent 503, ce qui est un bon défaut.
+
+**4 · Lancer** — onglet *Actions* → *Déployer le classement* → *Run workflow*.
+Trois minutes plus tard, le récapitulatif de l'exécution affiche l'adresse du
+classement, et le dépôt contient un commit « Classement en ligne ».
+
+> L'application GitHub pour mobile ne sait pas déclencher un workflow. Ouvrir
+> `github.com` dans le navigateur du téléphone, et demander la version bureau si
+> le bouton *Run workflow* ne s'affiche pas.
+
+Chaque push touchant `server/` redéploiera ensuite tout seul.
+
+## Mise en route depuis un ordinateur
 
 Une seule commande, depuis la racine du dépôt :
 
@@ -68,17 +106,17 @@ npm run deploy
 Wrangler affiche alors l'adresse du Worker, par exemple
 `https://domino-2048-leaderboard.ton-compte.workers.dev`.
 
-### Déploiement automatique depuis git
+### Ce que fait le workflow
 
-Une fois la première mise en ligne faite (l'identifiant de la base est alors dans
-`wrangler.toml`, validé dans le dépôt — ce n'est pas un secret),
-`.github/workflows/deploy-leaderboard.yml` prend le relais à chaque push.
-Deux secrets à poser dans **Settings → Secrets and variables → Actions** :
+`.github/workflows/deploy-leaderboard.yml` ne suppose rien de préparé : il
+retrouve la base D1 ou la crée, écrit son identifiant dans `wrangler.toml`,
+applique le schéma, pose `ADMIN_TOKEN` si le secret existe, déploie, interroge
+`/health` jusqu'à ce que le service réponde, puis recopie l'adresse dans
+`index.html`, régénère la build Y8 et valide le tout.
 
-- `CLOUDFLARE_API_TOKEN` — gabarit « Edit Cloudflare Workers »
-- `CLOUDFLARE_ACCOUNT_ID`
-
-Les tests tournent avant le déploiement : un Worker cassé ne part pas en production.
+Les tests tournent avant le déploiement : un Worker cassé ne part pas en
+production. Deux exécutions ne peuvent pas se marcher dessus. Le commit qu'il
+produit ne redéclenche pas le workflow.
 
 ## Brancher le jeu
 
