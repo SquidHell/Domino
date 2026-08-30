@@ -74,17 +74,6 @@ jobs:
           else
             echo "D1 : accessible."
           fi
-          if ! SORTIE="$($W deployments list --name domino-2048-leaderboard 2>&1)"; then
-            case "$SORTIE" in
-              *[Aa]uthentication*|*10000*|*[Ff]orbidden*)
-                printf '%s\n' "$SORTIE"
-                echo "::error::Le jeton n'a pas le droit d'agir sur les Workers. Ajoute l'autorisation « Compte → Workers Scripts → Edit » au jeton."
-                panne=1 ;;
-              *) echo "Workers : accessible (le service n'existe pas encore, c'est normal au premier passage)." ;;
-            esac
-          else
-            echo "Workers : accessible."
-          fi
           exit $panne
 
       - name: Base D1 — la retrouver ou la créer
@@ -142,11 +131,27 @@ jobs:
         id: deploiement
         working-directory: server
         run: |
-          set -euo pipefail
-          SORTIE="$($W deploy 2>&1)"
+          # surtout pas « set -e » ici : une affectation qui échoue couperait le
+          # script avant qu'on ait pu montrer ce que wrangler avait à dire
+          set -uo pipefail
+          if ! SORTIE="$($W deploy 2>&1)"; then
+            printf '%s\n' "$SORTIE"
+            case "$SORTIE" in
+              *subdomain*|*"workers.dev"*)
+                echo "::error::Ton compte n'a pas encore de sous-domaine workers.dev — il s'en choisit un une seule fois. dash.cloudflare.com → Workers & Pages → Subdomain (ou « Sous-domaine ») → choisis un nom, enregistre, puis relance ce workflow." ;;
+              *[Aa]uthentication*|*10000*|*[Ff]orbidden*|*[Uu]nauthorized*)
+                echo "::error::Le jeton n'a pas le droit de déployer un Worker. Ajoute l'autorisation « Compte → Workers Scripts → Edit »." ;;
+              *)
+                echo "::error::Le déploiement a échoué. Le détail de wrangler est juste au-dessus." ;;
+            esac
+            exit 1
+          fi
           printf '%s\n' "$SORTIE"
-          URL="$(printf '%s' "$SORTIE" | grep -oE 'https://[a-zA-Z0-9.-]+\.workers\.dev' | head -1 || true)"
-          [ -n "$URL" ] || { echo "::error::adresse du Worker illisible dans la sortie"; exit 1; }
+          URL="$(printf '%s' "$SORTIE" | grep -oE 'https://[a-zA-Z0-9.-]+\.workers\.dev' | head -1)"
+          if [ -z "$URL" ]; then
+            echo "::error::Worker déployé, mais son adresse est illisible dans la sortie ci-dessus."
+            exit 1
+          fi
           echo "url=$URL" >> "$GITHUB_OUTPUT"
 
       - name: Vérifier que le service répond
