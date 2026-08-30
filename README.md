@@ -30,9 +30,9 @@ Ouvre `index.html` dans un navigateur. C'est tout.
    qui vont fusionner avec la pose.
 5. **Le talon** ne sort un numéro qu'une fois *débloqué* : la partie commence avec des 2
    seulement, le 4 devient distribuable dès qu'une fusion en a fabriqué un, puis le 8, le
-   16, le 32 et enfin le **64**. Au-delà de 64, les grosses tuiles ne s'obtiennent plus
-   qu'en fusionnant. Le tirage penche vers le haut le poids d'un numéro est sa valeur
-   sans quoi la matière distribuée reste trop maigre pour bâtir un 2048.
+   16, le 32, le 64 et enfin le **128**. Au-delà de 128, les grosses tuiles ne s'obtiennent
+   plus qu'en fusionnant. Le tirage penche vers le haut, le poids d'un numéro est la racine
+   carrée de sa valeur, sans quoi la matière distribuée reste trop maigre pour bâtir un 2048.
 6. Objectif : la tuile **2048**, atteignable pour qui joue bien. Le **4096** existe, mais il
    ne se voit presque jamais. La partie s'arrête quand il ne reste plus deux cases voisines
    libres sur la grille 6×6.
@@ -89,7 +89,7 @@ Quatre profils de joueur sont simulés, du plus négligent (`naive`) au plus for
 
 ### Réglage retenu
 
-Grille **6×6**, talon débloqué jusqu'à **64**, tirage pondéré par la valeur. `tools/sweep.mjs`
+Grille **6×6**, talon débloqué jusqu'à **128**, tirage pondéré par la racine de la valeur. `tools/sweep.mjs`
 balaie taille de grille × plafond du talon × pondération et mesure la part des parties qui
 atteignent chaque palier ; ce réglage est celui qui rend le 2048 réellement atteignable tout
 en gardant le 4096 exceptionnel.
