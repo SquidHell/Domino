@@ -1537,11 +1537,17 @@ function showGhost(r, c){
    ou à chaud via Domino.setLeaderboard(). Le serveur vit dans server/ (Worker
    Cloudflare + D1) ; il reçoit pseudo, score et nombre de coups, mais n'affiche
    jamais le nombre de coups — il ne sert qu'à repérer une partie douteuse. */
-const LEADERBOARD_API = "https://domino-2048-leaderboard.squidhell-domino.workers.dev";        // ex. "https://domino-2048-leaderboard.xxx.workers.dev"
+const LEADERBOARD_API = "https://domino-2048-leaderboard.squidhell-domino.workers.dev";
 let api = null;
 
 function setLbState(msg){ document.getElementById("lbstate").textContent = msg || ""; }
 
+/* null : on ne sait pas encore · true : le service a répondu au moins une fois ·
+   false : il n'a jamais répondu. Le troisième cas n'est pas une panne passagère
+   mais un contexte qui interdit la sortie réseau — une page publiée en artefact,
+   par exemple. On y retire le classement et le formulaire d'envoi plutôt que
+   d'exhiber un panneau vide et un bouton qui échouera. */
+let lbJoignable = null;
 async function loadBoard(){
   if (!api) return;
   try {
@@ -1560,16 +1566,25 @@ async function loadBoard(){
       li.append(rk, nm, sc);
       list.appendChild(li);
     }
+    lbJoignable = true;
     setLbState((data.scores || []).length ? "" : "personne encore");
+    syncPublish();
     layout();                                   // la liste change de hauteur
   } catch {
-    setLbState("indisponible");
+    if (lbJoignable === null){
+      lbJoignable = false;                      // jamais joint : on n'en parle plus
+      document.getElementById("lb").hidden = true;
+    } else {
+      setLbState("indisponible");               // il répondait, il est retombé
+    }
+    syncPublish();
+    layout();
   }
 }
 
 function syncPublish(){
   const form = document.getElementById("publish");
-  form.hidden = !(api && phase === "over" && score > 0 && !published);
+  form.hidden = !(api && lbJoignable !== false && phase === "over" && score > 0 && !published);
 }
 
 document.getElementById("publish").addEventListener("submit", async e => {
@@ -1602,6 +1617,7 @@ document.getElementById("publish").addEventListener("submit", async e => {
 
 function useLeaderboard(url){
   api = url ? String(url).trim().replace(/\/+$/, "") : null;
+  lbJoignable = null;
   document.getElementById("lb").hidden = !api;
   syncPublish();
   layout();
