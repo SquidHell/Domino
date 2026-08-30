@@ -1537,7 +1537,7 @@ function showGhost(r, c){
    ou à chaud via Domino.setLeaderboard(). Le serveur vit dans server/ (Worker
    Cloudflare + D1) ; il reçoit pseudo, score et nombre de coups, mais n'affiche
    jamais le nombre de coups — il ne sert qu'à repérer une partie douteuse. */
-const LEADERBOARD_API = "";        // ex. "https://domino-2048-leaderboard.xxx.workers.dev"
+const LEADERBOARD_API = "https://domino-2048-leaderboard.squidhell-domino.workers.dev";        // ex. "https://domino-2048-leaderboard.xxx.workers.dev"
 let api = null;
 
 function setLbState(msg){ document.getElementById("lbstate").textContent = msg || ""; }

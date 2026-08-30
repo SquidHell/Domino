@@ -7,7 +7,7 @@ compatibility_date = "2026-08-01"
 [[d1_databases]]
 binding = "DB"
 database_name = "domino-2048"
-database_id = "à-remplacer-après-wrangler-d1-create"
+database_id = "9cb25703-2f62-4a8d-af0c-5ed8d0465017"
 
 # ADMIN_TOKEN n'est pas ici : c'est un secret.
 #   npx wrangler secret put ADMIN_TOKEN
