@@ -280,6 +280,15 @@
   }
   .sheetbody p{margin:0;font-size:13.5px;line-height:1.55;color:var(--ink-2)}
   .sheetbody b{color:var(--ink);font-weight:700}
+  /* Les raccourcis : la touche à gauche, ce qu'elle fait à droite. */
+  .keys{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:7px}
+  .keys li{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--ink-2)}
+  .keys em{font-style:normal;margin-left:4px}
+  .kk{
+    flex:none;min-width:22px;padding:2px 6px;border-radius:3px;text-align:center;
+    background:var(--panel);border:1px solid var(--line);
+    font-size:11.5px;font-weight:700;color:var(--ink);font-variant-numeric:tabular-nums;
+  }
 
   .publish{display:flex;gap:6px;justify-content:center;flex-wrap:wrap}
   .publish[hidden]{display:none}
@@ -668,6 +677,19 @@
       <section><h3 data-i18n="h4">The boneyard</h3><p data-i18n="p4" data-i18n-rich></p></section>
       <section><h3 data-i18n="h5">Game over</h3><p data-i18n="p5" data-i18n-rich></p></section>
       <section><h3 data-i18n="h6">The goal</h3><p data-i18n="p6" data-i18n-rich></p></section>
+      <section>
+        <h3 data-i18n="h7">Keyboard</h3>
+        <ul class="keys">
+          <li><span class="kk">←</span><span class="kk">↑</span><span class="kk">→</span><span class="kk">↓</span><em data-i18n="kMove">Aim at a square</em></li>
+          <li><span class="kk" data-i18n="kSpace">Space</span><span class="kk">R</span><em data-i18n="kRotate">Rotate the domino</em></li>
+          <li><span class="kk" data-i18n="kEnter">Enter</span><em data-i18n="kPlace">Place it there</em></li>
+          <li><span class="kk">?</span><span class="kk">H</span><em data-i18n="kHelp">Open this panel</em></li>
+          <li><span class="kk" data-i18n="kEsc">Esc</span><em data-i18n="kClose">Close it</em></li>
+          <li><span class="kk">M</span><em data-i18n="kSound">Sound on or off</em></li>
+          <li><span class="kk">N</span><em data-i18n="kNew">New game</em></li>
+          <li><span class="kk">L</span><em data-i18n="kLang">Switch language</em></li>
+        </ul>
+      </section>
     </div>
   </div>
 </div>
@@ -717,17 +739,27 @@ const STR = {
     helpTitle:    "How to play",
     helpClose:    "Close",
     h1:  "Placing",
-    p1:  "Every domino carries two numbers. Tap a free square to lay it down: it takes two neighbouring squares. **Rotate** turns it a quarter turn; on a keyboard, the space bar, R or an arrow key.",
+    p1:  "Every domino carries two numbers. Tap a free square to lay it down, it takes two neighbouring squares. **Rotate** turns it a quarter turn.",
     h2:  "Merging",
     p2:  "Two tiles **of the same value that touch** merge, and nothing else: no diagonals, no different values. A merge gives you double, and scores that much.",
     h3:  "Chaining",
-    p3:  "Merges happen one at a time, in a cascade. The game always picks the chain that climbs highest: two 2s beside a 4 give you an 8 — not two 4s.",
+    p3:  "Merges happen one at a time, in a cascade. The game always picks the chain that climbs highest: two 2s beside a 4 give you an 8, not two 4s.",
     h4:  "The boneyard",
     p4:  "The game opens on 2s. A number only enters the boneyard once a merge has built it on the board: make a 4 and 4s start being dealt, then 8s, up to **128**. Above that, big tiles are earned by merging alone.",
     h5:  "Game over",
-    p5:  "It ends when no domino fits any more — two free squares side by side are needed. **Resign** ends it on purpose, and gives up any second chance.",
+    p5:  "It ends when no domino fits any more, two free squares side by side are needed. **Resign** ends it on purpose, and gives up any second chance.",
     h6:  "The goal",
-    p6:  "Build a **2048**. A careful player gets there about one game in two. 4096 exists: roughly one game in sixty.",
+    h7:  "Keyboard",
+    kSpace: "Space", kEnter: "Enter", kEsc: "Esc",
+    kMove:   "Aim at a square",
+    kRotate: "Rotate the domino",
+    kPlace:  "Place it there",
+    kHelp:   "Open this panel",
+    kClose:  "Close it",
+    kSound:  "Sound on or off",
+    kNew:    "New game",
+    kLang:   "Switch language",
+    p6:  "Reach **2048** and top the leaderboard.",
     statusTurn:   "Your move.",
     statusFree:   "Only {n} free squares left.",
     statusFreeOne: "Only one free square left.",
@@ -741,13 +773,13 @@ const STR = {
     endTextOne:   "Score: {score} · one domino placed",
     endBtn:       "Play again",
     forfeitedTitle: "Resigned",
-    askRestart:   "Game in progress — tap again to wipe it.",
+    askRestart:   "Game in progress, tap again to wipe it.",
     askForfeit:   "Tap again to give up this game.",
     offer:        "Offer: double this domino before you place it.",
     unlocked:     "{v} is unlocked: it can come out of the boneyard from now on.",
     undone:       "Move undone.",
-    revived:      "{n} tiles removed — the game goes on.",
-    revivedOne:   "One tile removed — the game goes on.",
+    revived:      "{n} tiles removed, the game goes on.",
+    revivedOne:   "One tile removed, the game goes on.",
     smashAim:     "Aim at a tile to remove.",
     smashPick:    "Pick the tile to remove.",
     smashDone:    "Tile {v} removed.",
@@ -795,17 +827,27 @@ const STR = {
     helpTitle:    "Comment on joue",
     helpClose:    "Fermer",
     h1:  "Poser",
-    p1:  "Chaque domino porte deux numéros. Clique une case libre pour le poser : il occupe deux cases voisines. **Pivoter** le fait tourner d'un quart de tour ; au clavier, la barre d'espace, R ou une flèche.",
+    p1:  "Chaque domino porte deux numéros. Clique une case libre pour le poser, il occupe deux cases voisines. **Pivoter** le fait tourner d'un quart de tour.",
     h2:  "Fusionner",
     p2:  "Deux tuiles **de même valeur qui se touchent** fusionnent, et rien d'autre : ni diagonale, ni valeur différente. La fusion donne le double et rapporte autant de points.",
     h3:  "Enchaîner",
-    p3:  "Les fusions se font une par une, en cascade. Le jeu choisit toujours l'enchaînement qui monte le plus haut : deux 2 côte à côte d'un 4, et c'est un 8 qui sort — pas deux 4.",
+    p3:  "Les fusions se font une par une, en cascade. Le jeu choisit toujours l'enchaînement qui monte le plus haut : deux 2 côte à côte d'un 4, et c'est un 8 qui sort, pas deux 4.",
     h4:  "Le talon",
     p4:  "La partie ouvre sur des 2. Un numéro n'entre au talon qu'une fois qu'une fusion l'a fabriqué sur le tapis : fais un 4, les 4 se distribuent ; puis le 8, jusqu'au **128**. Au-delà, les grosses tuiles se gagnent uniquement en fusionnant.",
     h5:  "Fin de partie",
-    p5:  "Elle s'arrête quand plus aucun domino ne rentre — il faut deux cases voisines libres. **Déclarer forfait** y met fin volontairement, et renonce à toute reprise.",
+    p5:  "Elle s'arrête quand plus aucun domino ne rentre, il faut deux cases voisines libres. **Déclarer forfait** y met fin volontairement, et renonce à toute reprise.",
     h6:  "Objectif",
-    p6:  "Monter un **2048**. Un joueur appliqué y arrive environ une partie sur deux. Le 4096 existe : à peu près une partie sur soixante.",
+    h7:  "Clavier",
+    kSpace: "Espace", kEnter: "Entrée", kEsc: "Échap",
+    kMove:   "Viser une case",
+    kRotate: "Faire pivoter le domino",
+    kPlace:  "Le poser là",
+    kHelp:   "Ouvrir ce panneau",
+    kClose:  "Le fermer",
+    kSound:  "Couper ou remettre le son",
+    kNew:    "Nouvelle partie",
+    kLang:   "Changer de langue",
+    p6:  "Atteindre **2048** et être le premier du classement.",
     statusTurn:   "À toi de jouer.",
     statusFree:   "Plus que {n} cases libres.",
     statusFreeOne: "Plus qu'une case libre.",
@@ -819,13 +861,13 @@ const STR = {
     endTextOne:   "Score : {score} · un domino posé",
     endBtn:       "Rejouer",
     forfeitedTitle: "Forfait",
-    askRestart:   "Partie en cours — clique encore pour tout effacer.",
+    askRestart:   "Partie en cours, clique encore pour tout effacer.",
     askForfeit:   "Clique encore pour abandonner la partie.",
     offer:        "Offre : double ce domino avant de le poser.",
     unlocked:     "Le {v} est débloqué : il peut désormais sortir du talon.",
     undone:       "Coup annulé.",
-    revived:      "{n} tuiles retirées — la partie continue.",
-    revivedOne:   "Une tuile retirée — la partie continue.",
+    revived:      "{n} tuiles retirées, la partie continue.",
+    revivedOne:   "Une tuile retirée, la partie continue.",
     smashAim:     "Vise une tuile à retirer.",
     smashPick:    "Choisis la tuile à retirer.",
     smashDone:    "Tuile {v} retirée.",
@@ -1721,16 +1763,7 @@ function syncRewards(){
   bar.hidden = !ads;
   ov.hidden   = !ads || phase !== "over";
   if (!ads) return;
-  const muteBtn = document.getElementById("mute");
-function syncMute(){
-  const off = SFX.muted();
-  muteBtn.classList.toggle("off", off);
-  muteBtn.setAttribute("aria-pressed", off ? "true" : "false");
-  muteBtn.title = off ? T("soundOn") : T("soundOff");
-}
-muteBtn.addEventListener("click", () => { SFX.toggle(); syncMute(); if (!SFX.muted()) SFX.play("pivot"); });
-
-document.querySelectorAll("[data-reward]").forEach(b => {
+  document.querySelectorAll("[data-reward]").forEach(b => {
     const r = REWARDS[b.dataset.reward];
     b.disabled = adBusy || !r || !r.can();
   });
@@ -1753,13 +1786,19 @@ document.querySelectorAll("[data-reward]").forEach(b =>
 
 /* ---------- aperçu ---------- */
 let ghosts = [];
+/* La case visée : le survol, le doigt et le clavier écrivent tous ici, et le
+   fantôme affiché en est le reflet. Entrée pose donc toujours là où l'on voit
+   le domino, quelle que soit la façon dont on a visé. */
+let vise = null;
 function clearGhost(){
+  vise = null;
   ghosts.forEach(g => g.remove()); ghosts = [];
   boardEl.querySelectorAll(".tile.match,.tile.doomed").forEach(el => el.classList.remove("match","doomed"));
 }
 function showGhost(r, c){
   clearGhost();
   if (phase !== "place" || paused) return;
+  vise = [r, c];
   if (hammer){
     const t = grid[r][c];
     if (t) t.el.classList.add("doomed");
@@ -1888,7 +1927,13 @@ function cellFromPoint(x, y){
   const r = Math.floor((y - b.top  - gap/2) / (cell + gap));
   return inB(r,c) ? [r,c] : null;
 }
-function rotate(){ disarm(); if (paused || hammer) return; SFX.play("pivot"); rot = (rot + 1) % 4; drawPieces(); clearGhost(); }
+function rotate(){
+  disarm(); if (paused || hammer) return;
+  SFX.play("pivot"); rot = (rot + 1) % 4; drawPieces();
+  const ou = vise;                    // pivoter change la forme, pas la case visée
+  clearGhost();
+  if (ou) showGhost(ou[0], ou[1]);
+}
 
 boardEl.addEventListener("mousemove", e => {
   const p = cellFromPoint(e.clientX, e.clientY);
@@ -1959,12 +2004,51 @@ helpClose.addEventListener("click", closeHelp);
 // cliquer à côté du cadre le referme ; cliquer dedans, non
 helpVeil.addEventListener("click", e => { if (e.target === helpVeil) closeHelp(); });
 
+/* ---------- jouer au clavier ----------
+   Les flèches déplacent la visée sur le plateau, Entrée pose. Le fantôme sert de
+   curseur : il n'y a pas deux notions de « où je vise » qui pourraient diverger.
+   Au premier appui, on part du centre du tapis. */
+let ancre = null;                     // dernière case visée au clavier
+function viser(dr, dc){
+  if (paused || (phase !== "place" && !hammer)) return;
+  const base = vise || ancre;
+  const r = base ? base[0] + dr : Math.floor(N / 2);
+  const c = base ? base[1] + dc : Math.floor(N / 2);
+  if (!inB(r, c)) return;
+  ancre = [r, c];
+  showGhost(r, c);
+}
 document.addEventListener("keydown", e => {
   const k = e.key.toLowerCase();
-  if (k === "escape"){ closeHelp(); return; }
+  if (k === "escape"){ closeHelp(); if (armed){ disarm(); say(); } return; }
   if (k === "?" || (k === "h" && !e.ctrlKey && !e.metaKey)){ e.preventDefault(); openHelp(); return; }
   if (!helpVeil.hidden) return;                    // le cadre d'aide a la main
-  if (k === "r" || k === " " || k.startsWith("arrow")){ e.preventDefault(); rotate(); }
+  if (e.ctrlKey || e.metaKey || e.altKey) return;  // on ne détourne pas les raccourcis du navigateur
+  // pendant la saisie du pseudo, les touches appartiennent au champ
+  const cible = e.target;
+  if (cible && (cible.tagName === "INPUT" || cible.tagName === "TEXTAREA")) return;
+
+  if (k === "arrowleft"){  e.preventDefault(); return viser(0, -1); }
+  if (k === "arrowright"){ e.preventDefault(); return viser(0,  1); }
+  if (k === "arrowup"){    e.preventDefault(); return viser(-1, 0); }
+  if (k === "arrowdown"){  e.preventDefault(); return viser(1,  0); }
+  if (k === "enter"){
+    if (!vise) return;                             // rien de visé, rien à poser
+    e.preventDefault();
+    const r = vise[0], c = vise[1];
+    ancre = [r, c];
+    disarm();
+    if (paused) return;
+    if (hammer){ smash(r, c); return; }
+    Promise.resolve(place(r, c)).then(() => {
+      if (phase === "place") showGhost(r, c);   // le curseur reste sous la main
+    });
+    return;
+  }
+  if (k === "r" || k === " "){ e.preventDefault(); return rotate(); }
+  if (k === "m"){ e.preventDefault(); return muteBtn.click(); }
+  if (k === "n"){ e.preventDefault(); return restartBtn.click(); }
+  if (k === "l"){ e.preventDefault(); return document.getElementById("lang").click(); }
 });
 window.addEventListener("resize", layout);
 /* Le classement arrive du réseau après coup, la barre de bonus apparaît en
