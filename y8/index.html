@@ -2070,12 +2070,22 @@ function rotate(){
   if (ou) showGhost(ou[0], ou[1]);
 }
 
+/* Après un toucher, le navigateur émet en plus un clic de compatibilité au
+   même endroit, quelques dizaines de millisecondes plus tard. Une pose y
+   survivait par accident : place() rend la main en phase « anim », et le clic
+   fantôme s'y heurtait. Le marteau, lui, rend la main en phase « place » —
+   le clic fantôme retombait donc sur place(), et un seul tapotement retirait
+   une tuile *et* posait un domino. On ignore le clic qui suit un toucher. */
+let dernierToucher = 0;
+const clicFantome = () => Date.now() - dernierToucher < 700;
+
 boardEl.addEventListener("mousemove", e => {
   const p = cellFromPoint(e.clientX, e.clientY);
   if (p) showGhost(p[0], p[1]); else clearGhost();
 });
 boardEl.addEventListener("mouseleave", clearGhost);
 boardEl.addEventListener("click", e => {
+  if (clicFantome()) return;              // le doigt a déjà été servi
   const p = cellFromPoint(e.clientX, e.clientY);
   disarm();
   if (!p || paused) return;
@@ -2083,6 +2093,7 @@ boardEl.addEventListener("click", e => {
 });
 /* tactile : on glisse le doigt pour viser, on lève pour poser */
 boardEl.addEventListener("touchstart", e => {
+  dernierToucher = Date.now();
   const p = cellFromPoint(e.touches[0].clientX, e.touches[0].clientY);
   if (p) showGhost(p[0], p[1]);
 }, {passive:true});
@@ -2092,9 +2103,11 @@ boardEl.addEventListener("touchmove", e => {
   if (p) showGhost(p[0], p[1]); else clearGhost();
 }, {passive:false});
 boardEl.addEventListener("touchend", e => {
+  dernierToucher = Date.now();
   const p = cellFromPoint(e.changedTouches[0].clientX, e.changedTouches[0].clientY);
   const wasHammer = hammer;
   clearGhost();
+  disarm();                               // le clic fantôme ne le fera plus
   if (!p || paused) return;
   if (wasHammer) smash(p[0], p[1]); else place(p[0], p[1]);
 }, {passive:true});
@@ -2226,6 +2239,12 @@ const isPow2 = v => Number.isInteger(v) && v >= 2 && v <= 1048576 && (v & (v - 1
 
 function saveGame(){
   try {
+    /* Une cascade en cours n'est pas un état de jeu : elle passe par des tapis
+       où deux tuiles égales se touchent encore. Enregistré tel quel — l'onglet
+       part en arrière-plan au mauvais moment — ce tapis serait repris figé, et
+       la fusion attendue n'arriverait jamais. Le dernier enregistrement, pris
+       en fin de tour, reste valable : on perd au pire le coup en cours. */
+    if (phase === "anim") return;
     // une partie finie n'a rien à reprendre, une partie vierge non plus
     if (phase === "over" || placed === 0){ localStorage.removeItem(SAVE_KEY); return; }
     localStorage.setItem(SAVE_KEY, JSON.stringify({
@@ -2254,6 +2273,16 @@ function readSave(){
   for (const row of s.cells){
     if (!Array.isArray(row) || row.length !== N) return null;
     for (const v of row) if (v !== 0 && !isPow2(v)) return null;
+  }
+  /* Deux tuiles égales côte à côte : le tapis a été pris au milieu d'une
+     cascade. Les versions livrées avant le garde-fou de saveGame() ont pu en
+     écrire ; on repart d'une partie neuve plutôt que de reprendre un tapis où
+     une fusion due n'arrivera jamais. */
+  for (let r = 0; r < N; r++) for (let c = 0; c < N; c++){
+    const v = s.cells[r][c];
+    if (!v) continue;
+    if (c + 1 < N && s.cells[r][c + 1] === v) return null;
+    if (r + 1 < N && s.cells[r + 1][c] === v) return null;
   }
   if (!Number.isInteger(s.score)  || s.score < 0)   return null;
   if (!Number.isInteger(s.placed) || s.placed < 1)  return null;
