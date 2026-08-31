@@ -29,6 +29,7 @@
     --danger:#c05a45;
     --stop:#b8472f;        /* forfait : rouge brique, 4,9:1 sur son texte clair */
     --stop-ink:#f9f6f2;
+    --mur:rgba(119,110,101,.42);  /* case murée : plus sombre que le tapis, pleine */
     --armed:#3c3a32;       /* confirmation : le brun sombre des grosses tuiles */
     --armed-ink:#f9f6f2;
     --veil:rgba(238,228,218,.86);
@@ -136,6 +137,10 @@
     color:var(--muted);margin-bottom:6px;
   }
   .slot{display:flex;flex-direction:column;align-items:center}
+  /* un display posé ici l'emporte sur celui que l'attribut hidden apporte :
+     sans cette ligne, « Suivant » restait à l'écran pendant les défis, où il
+     n'y a pourtant rien à annoncer */
+  .slot[hidden]{display:none}
   .slot.next{opacity:.85}
   /* le domino : plaque posée, moitiés séparées par la rainure */
   .piece{display:flex;gap:4px;padding:4px;border-radius:4px;background:var(--board)}
@@ -266,6 +271,73 @@
   }
   .ovrewards{display:flex;flex-direction:column;gap:8px;align-items:stretch}
   .ovrewards button{justify-content:center;background:transparent;color:var(--veil-ink);border-color:var(--veil-ink)}
+
+  /* ---- défis : le tapis troué, l'objectif, la main ----
+     Une case murée n'est pas une case vide : elle est pleine, et se lit comme
+     telle — plus sombre que le tapis, sans le creux des cases libres. */
+  .cell.mur{background:var(--mur);box-shadow:none}
+
+  .defibar{display:flex;flex-direction:column;gap:8px}
+  .defibar[hidden]{display:none}
+  .obj{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
+  .objlbl{
+    font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);
+  }
+  .obj b{font-size:15px;font-weight:800;color:var(--ink)}
+  .lvltag{margin-left:auto;font-size:11px;font-weight:700;color:var(--muted)}
+
+  /* La main : tous les dominos restants, en ligne. C'est au joueur de choisir
+     lequel poser — c'est là que se joue le défi — donc ils sont tous lisibles
+     d'un coup d'œil, et celui qui est en main se détache. */
+  .rack{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+  .rack button{
+    padding:4px;background:var(--panel);border:2px solid var(--line);border-radius:4px;
+    display:flex;line-height:0;
+  }
+  .rack button:hover:not([disabled]){border-color:var(--btn);filter:none}
+  .rack button.pris{border-color:var(--btn);background:var(--btn)}
+  .rack button.pris .half{box-shadow:0 0 0 1px rgba(249,246,242,.35)}
+  /* l'indice payé : le domino à poser cligne, on ne peut pas le manquer */
+  .rack button.montre{animation:offer 1.4s ease-in-out infinite;border-color:var(--btn)}
+  .hintbtn{
+    align-self:flex-start;display:inline-flex;align-items:center;gap:8px;
+    background:transparent;color:var(--muted);border:2px solid var(--line);
+    padding:6px 11px;font-size:12px;
+  }
+  .hintbtn[hidden]{display:none}
+  .hintbtn:hover:not([disabled]){background:var(--btn);color:var(--btn-ink);border-color:var(--btn);filter:none}
+  .hintbtn:hover:not([disabled]) .ad{background:var(--btn-ink);color:var(--btn)}
+  /* La case que l'indice désigne : un anneau qui bat à l'intérieur de la case.
+     Il lui faut ses propres images-clés — celles de « offer » animent l'ombre
+     depuis le transparent, et effaçaient donc l'anneau une fois sur deux. */
+  @keyframes viser{
+    0%,100%{box-shadow:0 0 0 3px var(--btn) inset}
+    50%    {box-shadow:0 0 0 6px var(--btn) inset}
+  }
+  .cell.vise{box-shadow:0 0 0 3px var(--btn) inset;animation:viser 1.4s ease-in-out infinite}
+
+  /* ---- les sept niveaux de la semaine ---- */
+  .niveaux{display:flex;flex-direction:column;gap:8px;padding:12px 0 4px}
+  .niveaux button{
+    display:flex;align-items:center;gap:10px;text-align:left;padding:11px 13px;
+    background:var(--panel);color:var(--ink);border:2px solid var(--line);
+  }
+  .niveaux button:hover:not([disabled]){
+    background:var(--btn);color:var(--btn-ink);border-color:var(--btn);filter:none;
+  }
+  .niveaux button[disabled]{opacity:.55}
+  .nvnum{
+    flex:none;width:26px;height:26px;border-radius:50%;display:flex;align-items:center;
+    justify-content:center;font-size:12px;font-weight:800;
+    background:var(--line);color:var(--ink-2);
+  }
+  .niveaux button.fait .nvnum{background:var(--btn);color:var(--btn-ink)}
+  .nvtxt{display:flex;flex-direction:column;gap:2px;min-width:0}
+  .nvobj{font-size:13.5px;font-weight:800}
+  .nvsub{font-size:11.5px;font-weight:500;color:var(--ink-2)}
+  .niveaux button:hover:not([disabled]) .nvsub{color:var(--btn-ink)}
+  .niveaux button[disabled] .nvsub{color:var(--muted)}
+  .nvetat{margin-left:auto;flex:none;font-size:14px}
 
   /* ---- menu d'accueil ----
      Un mode par bouton : son nom sur la première ligne, ce qu'il promet sur la
@@ -532,6 +604,9 @@
   html.portrait.bas700 .acts button,
   html.portrait.bas700 .lbbtn{padding:6px 8px;font-size:11.5px}
   html.portrait.bas700 .bonusbar button{padding:7px 9px;font-size:11.5px}
+  html.portrait.bas700 .defibar{gap:6px}
+  html.portrait.bas700 .obj b{font-size:13.5px}
+  html.portrait.bas700 .rack .half{width:20px;height:20px;--hs:11px}
   html.portrait.bas700 .lb li{padding:5px 9px;font-size:12px}
   html.portrait.bas700 .credits{font-size:11px}
 
@@ -574,12 +649,20 @@
   html.paysage .bar{gap:8px}
   html.paysage .status{font-size:12px}
   html.paysage .acts{margin-left:0;width:100%;display:grid;grid-template-columns:auto 1fr;gap:6px}
-  /* la colonne est étroite : le bouton du classement y prend sa propre ligne,
-     pleine largeur, plutôt que de disputer la sienne aux deux autres */
-  html.paysage .lbbtn{width:100%}
+  /* Menu et Classement partagent une ligne, à parts égales : chacun la sienne,
+     c'était une rangée de perdue dans une colonne qui doit aussi loger
+     l'objectif et la main d'un défi. */
+  html.paysage .lbbtn{flex:1 1 0;min-width:0}
   html.paysage .acts button,
   html.paysage .lbbtn{padding:10px 8px;font-size:12.5px}
   html.paysage .bonusbar button{padding:9px 8px;font-size:11.5px;gap:5px}
+  html.paysage .defibar{gap:6px}
+  html.paysage .hintbtn{width:100%;justify-content:center}
+  /* la main doit tenir sous les boutons sans qu'on ait à faire défiler */
+  html.paysage .rack{gap:4px}
+  html.paysage .rack button{padding:3px}
+  html.paysage .rack .half{width:20px;height:20px;--hs:11px}
+  html.paysage .obj b{font-size:14px}
   /* le pied de page se pose au bas de la colonne, pas juste sous les boutons */
   html.paysage .bottom{gap:6px;justify-content:flex-end;
                        overflow-x:hidden;overflow-y:auto;scrollbar-width:thin}
@@ -608,6 +691,8 @@
   html.paysage.bas480 .acts button,
   html.paysage.bas480 .lbbtn{padding:7px 6px;font-size:11.5px}
   html.paysage.bas480 .bonusbar button{padding:7px 6px;font-size:10.5px}
+  html.paysage.bas480 .obj b{font-size:13px}
+  html.paysage.bas480 .rack .half{width:19px;height:19px;--hs:10.5px}
   html.paysage.bas480 .lb li{padding:4px 8px;font-size:12px}
   html.paysage.bas480 .credits{font-size:10px}
   html.paysage.bas480 .langbtn{padding:3px 7px;font-size:10px}
@@ -643,6 +728,7 @@
   @media (prefers-reduced-motion: reduce){
     .tile{transition:none}
     .tile.new,.tile.merged,.float.go,.bonusbar button.offer{animation:none}
+    .cell.vise,.rack button.montre{animation:none}
     .float.go{opacity:0}
     /* le palier reste annoncé, mais sans balayage : seul le chiffre paraît */
     .milestone.go .s1,.milestone.go .s2,.tile.crowned{animation:none}
@@ -676,7 +762,9 @@
       <div id="cur"></div>
       <div class="arrowhint" id="hint">→</div>
     </div>
-    <div class="slot next">
+    <!-- En défi, la main est donnée d'avance : il n'y a rien à annoncer, et
+         ce créneau cède la place au râtelier ci-dessous. -->
+    <div class="slot next" id="slotnext">
       <div class="lbl" data-i18n="slotNext">Next</div>
       <div id="nxt"></div>
     </div>
@@ -688,12 +776,33 @@
     <!-- Le classement ne s'étale plus sous le plateau : ce bouton l'ouvre dans
          son cadre. Il est posé hors de .acts pour tenir le bord gauche du
          bandeau, les actions de partie restant groupées à droite. -->
+    <!-- Deux modes valent deux portes : sans ce bouton, le défi de la semaine
+         serait hors d'atteinte dès le menu refermé. Il voisine avec le
+         classement — ni l'un ni l'autre ne touche à la partie en cours. -->
+    <button id="menu" type="button" class="lbbtn" aria-haspopup="dialog" aria-expanded="false"
+            data-i18n-title="menuOpen" title="Back to the modes" data-i18n="menuBtn">Menu</button>
     <button id="classement" type="button" class="lbbtn" aria-haspopup="dialog" aria-expanded="false"
             data-i18n-title="lbOpen" title="Opens the leaderboard" data-i18n="leaderboard">Leaderboard</button>
     <div class="acts">
       <button id="mute" type="button" class="mute" aria-pressed="false" title="Turn the sound off" data-i18n="sound">Sound</button>
       <button id="forfeit" type="button" data-i18n-title="forfeitTitle" title="Ends the game in progress" data-i18n="forfeit">Resign</button>
     </div>
+  </div>
+
+  <!-- Défi : ce qu'il faut atteindre, la main dont on dispose, et l'indice.
+       Tout est masqué en partie classique. -->
+  <div class="defibar" id="defibar" hidden>
+    <div class="obj">
+      <span class="objlbl" data-i18n="objLabel">Goal</span>
+      <b id="objtxt"></b>
+      <span class="lvltag" id="lvltag"></span>
+    </div>
+    <div class="rack" id="rack" role="group"
+         data-i18n-aria="rackAria" aria-label="Your hand: pick the domino to place"></div>
+    <button id="indice" type="button" class="hintbtn" data-reward="indice" hidden
+            data-i18n-title="hintTitle" title="Shows the opening move">
+      <span data-i18n="hint">Hint</span><span class="ad" data-i18n="ad">ad</span>
+    </button>
   </div>
 
   <!-- Bonus : un seul bouton dans la colonne, qui ouvre le cadre des quatre
@@ -749,6 +858,7 @@
   <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="menutitle">
     <div class="sheethead">
       <h2 id="menutitle" data-i18n="menuTitle">Choose a mode</h2>
+      <button id="menuclose" type="button" class="qmark" data-i18n-title="helpClose" title="Close" hidden>✕</button>
     </div>
     <div class="sheetbody">
       <p class="menuintro" data-i18n="menuIntro">Two ways to play. Only one is open for now.</p>
@@ -757,11 +867,28 @@
           <span class="modename" data-i18n="modeClassic">Play classic</span>
           <span class="modehint" data-i18n="modeClassicHint">Endless: place, merge, chain, as far as you can take it.</span>
         </button>
-        <button id="playweekly" type="button" disabled>
-          <span class="modename"><span data-i18n="modeWeekly">Weekly challenge</span><span class="soon" data-i18n="soon">soon</span></span>
-          <span class="modehint" data-i18n="modeWeeklyHint">Not open yet: one board a week, the same for everyone.</span>
+        <button id="playweekly" type="button" aria-haspopup="dialog" aria-expanded="false">
+          <span class="modename" data-i18n="modeWeekly">Weekly challenge</span>
+          <span class="modehint" data-i18n="modeWeeklyHint">Seven set boards, a new set every week. Clear one to open the next.</span>
         </button>
       </div>
+    </div>
+  </div>
+</div>
+
+<!-- ---- les sept défis de la semaine ----
+     Sept niveaux, du plus simple au plus retors, et on n'ouvre le suivant
+     qu'en ayant passé le précédent. La liste se peuple au moment de l'ouvrir :
+     elle dépend de la semaine et de ce qui a déjà été réussi. -->
+<div class="sheetveil" id="defiveil" hidden>
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="defititle">
+    <div class="sheethead">
+      <h2 id="defititle" data-i18n="modeWeekly">Weekly challenge</h2>
+      <button id="deficlose" type="button" class="qmark" data-i18n-title="helpClose" title="Close">✕</button>
+    </div>
+    <div class="sheetbody">
+      <p class="menuintro" id="defiintro"></p>
+      <div class="niveaux" id="niveaux"></div>
     </div>
   </div>
 </div>
@@ -855,8 +982,30 @@ const STR = {
     modeClassic:  "Play classic",
     modeClassicHint: "Endless: place, merge, chain, as far as you can take it.",
     modeWeekly:   "Weekly challenge",
-    modeWeeklyHint: "Not open yet: one board a week, the same for everyone.",
-    soon:         "soon",
+    modeWeeklyHint: "Seven set boards, a new set every week. Clear one to open the next.",
+    defiIntro:    "Week {s}. Seven boards, each one opened by clearing the one before. {n} of 7 done.",
+    objLabel:     "Goal",
+    objTuile:     "build the {v} tile",
+    objScore:     "score {n} points",
+    lvlTag:       "Week {s} · level {n}",
+    nvSub:        "{n}×{n} board · {d} dominoes",
+    nvTrouee:     "holed board",
+    nvFait:       "cleared",
+    nvOuvert:     "open",
+    nvFerme:      "locked",
+    rackAria:     "Your hand: pick the domino to place",
+    rackPick:     "Take the {a} and {b} domino",
+    hint:         "Hint",
+    hintTitle:    "Shows the opening move",
+    hintDone:     "Opening move: this domino, on row {r}, column {c}.",
+    defiWinTitle: "Challenge cleared",
+    defiWinText:  "{obj} — done in {n} dominoes. The next level is open.",
+    defiWinTextOne: "{obj} — done in one domino. The next level is open.",
+    defiWinBtn:   "The seven levels",
+    defiLostTitle: "Not this time",
+    defiLostText: "{obj} was the goal. Nothing is lost: the board starts over exactly the same.",
+    defiLostBtn:  "Try again",
+    statusDefi:   "Pick a domino, then a square.",
     scoreLabel:   "Score",
     bestLabel:    "Best",
     slotCurrent:  "To place",
@@ -869,6 +1018,8 @@ const STR = {
     forfeit:      "Resign",
     forfeitTitle: "Ends the game in progress",
     lbOpen:       "Opens the leaderboard",
+    menuBtn:      "Menu",
+    menuOpen:     "Back to the modes",
     confirm:      "Confirm?",
     ad:           "ad",
     bonus:        "Bonus",
@@ -952,8 +1103,30 @@ const STR = {
     modeClassic:  "Jouer classique",
     modeClassicHint: "Sans fin : pose, fusionne, enchaîne, aussi loin que tu peux aller.",
     modeWeekly:   "Défi de la semaine",
-    modeWeeklyHint: "Pas encore ouvert : un tapis par semaine, le même pour tout le monde.",
-    soon:         "bientôt",
+    modeWeeklyHint: "Sept tapis posés d'avance, renouvelés chaque semaine. Chacun s'ouvre en passant le précédent.",
+    defiIntro:    "Semaine {s}. Sept tapis, et l'on n'ouvre le suivant qu'en passant le précédent. {n} sur 7 de faits.",
+    objLabel:     "Objectif",
+    objTuile:     "monter la tuile {v}",
+    objScore:     "atteindre {n} points",
+    lvlTag:       "Semaine {s} · niveau {n}",
+    nvSub:        "tapis {n}×{n} · {d} dominos",
+    nvTrouee:     "grille trouée",
+    nvFait:       "réussi",
+    nvOuvert:     "ouvert",
+    nvFerme:      "fermé",
+    rackAria:     "Ta main : choisis le domino à poser",
+    rackPick:     "Prendre le domino {a} et {b}",
+    hint:         "Indice",
+    hintTitle:    "Montre le coup d'ouverture",
+    hintDone:     "Coup d'ouverture : ce domino, ligne {r}, colonne {c}.",
+    defiWinTitle: "Défi réussi",
+    defiWinText:  "{obj} — en {n} dominos. Le niveau suivant est ouvert.",
+    defiWinTextOne: "{obj} — en un domino. Le niveau suivant est ouvert.",
+    defiWinBtn:   "Les sept niveaux",
+    defiLostTitle: "Pas cette fois",
+    defiLostText: "Il fallait {obj}. Rien n'est perdu : le tapis repart exactement le même.",
+    defiLostBtn:  "Réessayer",
+    statusDefi:   "Choisis un domino, puis une case.",
     scoreLabel:   "Score",
     bestLabel:    "Record",
     slotCurrent:  "À poser",
@@ -966,6 +1139,8 @@ const STR = {
     forfeit:      "Déclarer forfait",
     forfeitTitle: "Met fin à la partie en cours",
     lbOpen:       "Ouvre le classement",
+    menuBtn:      "Menu",
+    menuOpen:     "Revenir aux modes",
     confirm:      "Confirmer ?",
     ad:           "pub",
     bonus:        "Bonus",
@@ -1100,7 +1275,7 @@ function setLang(l){
   disarm();                       // un bouton armé porte encore l'ancienne étiquette
   traduire();
   say(); syncMute(); syncButtons(); syncRewards();
-  peindreOverlay(); peindreClassement();
+  peindreOverlay(); peindreClassement(); peindreDefi();
   layout();
 }
 
@@ -1119,7 +1294,14 @@ function traduire(){
     el.setAttribute("aria-label", T(el.dataset.i18nAria)));
 }
 
-const N = 6;
+/* La grille classique est une 6×6 pleine. Les défis, eux, jouent sur des
+   tapis plus petits et parfois troués : N cesse donc d'être une constante, et
+   un jeu de cases murées vient s'y ajouter.
+   Un mur n'est pas une case occupée : c'est une case qui n'existe pas. Tout
+   passe par inB — la pose, le voisinage, les fusions, la fin de partie — de
+   sorte qu'aucune règle n'a eu à apprendre ce qu'est un mur. */
+let N = 6;
+let murs = new Set();                         // indices r*N+c murés, vide en classique
 const ROTS   = [[0,1],[1,0],[0,-1],[-1,0]];   // droite, bas, gauche, haut
 const ARROWS = ["→","↓","←","↑"];
 const NB     = [[-1,0],[1,0],[0,-1],[0,1]];
@@ -1138,6 +1320,17 @@ let grid, tiles, score, best, phase, rot, piece, nextPiece, uid, won, placed, un
 let history, hammer, revives, paused, adBusy, games, forfeited;
 let boostTurns, boostOffer;   // les deux moments où l'offre « ×2 » se présente
 let published;                // score de la partie déjà envoyé au classement ?
+/* ---------- le mode ----------
+   « classique » est la partie sans fin : le talon distribue, on joue jusqu'à
+   ce que plus rien ne rentre. « defi » est un problème posé : une grille
+   donnée, une main donnée, un objectif à atteindre. Tout ce qui diffère entre
+   les deux passe par ces variables — le reste du jeu ne sait pas qu'il y a
+   deux modes. */
+let mode = "classique";
+let defi = null;              // le défi en cours : { n, murs, main, obj, indice, … }
+let mainDefi = [];            // les dominos qu'il reste à poser
+let choisi = 0;               // celui qu'on tient, par son rang dans la main
+let indiceVu = false;         // l'indice a-t-il été payé pour ce niveau ?
 let ads = null;                                 // régie publicitaire branchée, si build partenaire
 
 /* ---------- bruitages ----------
@@ -1401,7 +1594,7 @@ function fontFor(txt){
   return Math.round(cell * (n <= 2 ? 0.44 : n === 3 ? 0.34 : n === 4 ? 0.27 : 0.22)) + "px";
 }
 function cls(v){ return v <= 1024 ? "v" + v : (v === 2048 ? "v2048" : "vbig"); }
-const inB   = (r,c) => r >= 0 && r < N && c >= 0 && c < N;
+const inB   = (r,c) => r >= 0 && r < N && c >= 0 && c < N && !murs.has(r * N + c);
 const sleep = ms => new Promise(res => setTimeout(res, ms));
 
 /* ---------- le talon ----------
@@ -1746,13 +1939,23 @@ async function place(r, c){
   addTile(r2, c2, piece.b);
   SFX.play("pose");
   placed++;
-  piece = nextPiece; nextPiece = makePiece();
+  if (mode === "defi"){
+    // le domino posé quitte la main ; on garde le doigt au même endroit du
+    // râtelier, ou sur le dernier s'il n'y a plus rien après
+    mainDefi.splice(choisi, 1);
+    choisi = Math.max(0, Math.min(choisi, mainDefi.length - 1));
+    if (mainDefi.length) piece = mainDefi[choisi];
+  } else {
+    piece = nextPiece; nextPiece = makePiece();
+  }
   drawPieces();
+  montrerIndice();               // le halo de l'indice s'éteint avec la pose
   await sleep(160);
   await resolve();
   nextTurn();
 }
 function nextTurn(){
+  if (mode === "defi") return tourDefi();
   if (won === "now"){ won = true; SFX.play("gagne"); showOverlay("winTitle", "winText", "winBtn"); }
   if (!canPlaceSomewhere()){
     phase = "over";
@@ -1773,6 +1976,182 @@ function nextTurn(){
     flash(T("unlocked", { v: v }), "good");
   } else say();
   syncButtons(); syncRewards(); saveGame();
+}
+
+/* ---------- la table des défis ----------
+   Cinquante semaines de sept niveaux, fabriquées et vérifiées hors ligne par
+   tools/defis.mjs puis gravées ici par tools/embed-defis.mjs. Elles vivent
+   dans le fichier plutôt qu'à côté : le jeu tient en un seul document, et doit
+   tourner sans réseau — dans une archive chez un portail, par exemple.
+
+   L'encodage est décrit en tête de tools/embed-defis.mjs. On le déplie une
+   fois au chargement : 350 défis, c'est trop peu pour que ça se sente, et le
+   reste du code n'a alors affaire qu'à des objets ordinaires. */
+const A64 = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ+-";
+const DEFIS_BRUT = "5,,13122311,s40,0000;5,,31112142,t16,3000;5,29fm,1122322131,t16,2000;6,01456botuvyz,2341111321,s70,1020;6,1234789adefgjklm,111312232233,t16,5400;6,789adefgjklmpqrs,22422313343321,s150,5000;6,79bjlnvxz,3112413433421144,t64,7000|5,,23332212,t16,1000;5,04ko,42442113,s90,1010;5,ae,1132213122,t16,1000;6,79bdfhjlnprt,3412143231,s100,0030;6,1234789adefgjklm,233331112221,t16,1400;6,789adefgjklmpqrs,34443221144211,t64,0000;6,014567abopstuvyz,2143234113332444,t128,7020|5,,22211133,t8,3000;5,,12331423,t16,1000;5,29fm,1311122333,t16,0000;6,01456botuvyz,2343331321,s150,2020;6,chinotuz,311121323322,t16,4000;6,23459abghinopuvw,23241233341141,t64,1000;6,79bjlnvxz,4433314342142223,s300,0000|5,,33221213,t16,0000;5,,12321424,t16,2000;5,29fm,2312113122,t16,0000;6,01456botuvyz,2122411144,t32,4020;6,1234789adefgjklm,322122333111,t16,3400;6,23459abghinopuvw,32242212413343,t64,1000;6,23459abghinopuvw,4231442214123423,t64,0000|5,,12223133,t16,3000;5,04ko,31224133,t16,3010;5,ae,1332212211,t16,0000;6,79bdfhjlnprt,3322142412,t32,0010;6,014567abopstuvyz,122311221333,t16,5020;6,789adefgjklmpqrs,14324434214222,t64,2000;6,01456botuvyz,3214422131444333,s400,5020|5,,31221121,s20,0000;5,04ko,22133341,s40,2010;5,29fm,1322122333,t16,4000;6,01456botuvyz,1413433244,t32,4020;6,1234789adefgjklm,331322232111,t16,0400;6,23459abghinopuvw,11232114423344,s200,6000;6,01456botuvyz,4143334432421311,s400,3020|5,,12312232,t16,1000;5,04ko,22433141,t16,1010;5,ae,1131123323,t16,1000;6,01456botuvyz,1311413343,t32,3020;6,014567abopstuvyz,223332111231,s100,1020;6,23459abghinopuvw,11334441212232,t64,2000;6,014567abopstuvyz,1421324411424333,t128,3020|5,,13211133,s40,0000;5,04ko,32312211,t16,0010;5,ae,3311223132,s70,0000;6,9lx,2444123214,t32,1000;6,1234789adefgjklm,311232221133,s100,5400;6,23459abghinopuvw,22124311413132,t64,2000;6,01456botuvyz,2434124433131122,t64,3020|5,,21233111,t16,1000;5,04ko,31123234,s40,3010;5,04ko,1231231122,s60,1010;6,9lx,1214313343,t32,3000;6,1234789adefgjklm,111223221333,s100,5400;6,23459abghinopuvw,21114124334313,t64,4000;6,014567abopstuvyz,4323123313112241,t64,0020|5,,12313222,t16,1000;5,04ko,21441411,t16,1010;5,04ko,3132122233,t16,4010;6,79bdfhjlnprt,1334244111,s70,1000;6,chinotuz,133211123322,t16,4000;6,789adefgjklmpqrs,42331332221411,t32,1000;6,23459abghinopuvw,2422313243111214,t64,0000|5,,11221312,t8,2000;5,04ko,13414412,s90,2010;5,04ko,2321331322,s70,2010;6,79bdfhjlnprt,3123414411,s100,3000;6,1234789adefgjklm,111213222333,t16,5400;6,789adefgjklmpqrs,22121442112343,t32,2000;6,014567abopstuvyz,4142113321314322,t64,3020|5,,32131112,t16,0000;5,04ko,12323313,s40,1010;5,29fm,1231322233,s70,4000;6,01456botuvyz,3411214431,t32,0020;6,chinotuz,232213213311,t16,4000;6,23459abghinopuvw,31222133414443,t64,5000;6,01456botuvyz,2132224213334134,t64,3020|5,,23123122,s40,3000;5,,23143312,t16,2000;5,29fm,1232133311,t16,1000;6,79bdfhjlnprt,1421334434,t32,3000;6,chinotuz,212231112333,t16,5000;6,23459abghinopuvw,32343342214111,s200,2000;6,01456botuvyz,1241231122243431,t64,1020|5,,22122333,t16,3000;5,04ko,43244423,t32,0010;5,ae,2321113313,s70,0000;6,9lx,1333322434,t32,1000;6,014567abopstuvyz,311122323321,t16,4020;6,789adefgjklmpqrs,33421311221214,t32,0000;6,23459abghinopuvw,1223431114241322,s200,2000|5,,31111232,t16,0000;5,,42334341,s80,1000;5,04ko,1213233322,s70,3010;6,79bdfhjlnprt,1222134424,s100,3000;6,014567abopstuvyz,233111221233,t16,5020;6,789adefgjklmpqrs,44114112332224,s200,0010;6,79bjlnvxz,4142134322123332,s250,6010|5,,21231322,t16,3000;5,04ko,14343142,t32,0020;5,04ko,2312133311,t16,0010;6,79bdfhjlnprt,4324143133,t32,4010;6,chinotuz,311112323322,t16,4000;6,789adefgjklmpqrs,34214133232211,t32,0000;6,23459abghinopuvw,3144221443211133,s200,1000|5,,32132122,s40,3000;5,,31443314,t32,1000;5,04ko,2111332331,s70,3010;6,01456botuvyz,4424432233,s150,0020;6,chinotuz,313233111222,t16,2000;6,789adefgjklmpqrs,13224112432342,t32,2000;6,23459abghinopuvw,2211233442334112,s200,3000|5,,22123233,t16,3000;5,04ko,22121143,t16,3010;5,29fm,3323111312,s70,1000;6,9lx,1342113412,t16,1000;6,chinotuz,121332112233,t16,5000;6,79bjlnvxz,34231242332213,s200,0010;6,23459abghinopuvw,3341111312432422,t64,0000|5,,22132312,s40,1000;5,,13334121,t16,1000;5,29fm,3132112133,t16,0000;6,9lx,4231112132,t16,0000;6,chinotuz,123322111323,s100,1000;6,79bjlnvxz,22311214343342,t64,5010;6,01456botuvyz,4322243344112312,t64,4020|5,,12221311,t8,2000;5,04ko,43214122,t16,0010;5,04ko,3122213211,t16,0010;6,01456botuvyz,3312134324,s100,0020;6,1234789adefgjklm,222111313323,s100,4400;6,789adefgjklmpqrs,34331241423122,s150,0000;6,23459abghinopuvw,1411312232434233,s250,7000|5,,23133321,t16,0000;5,04ko,41334313,s90,1010;5,ae,2223113313,s70,3000;6,01456botuvyz,2114341122,t16,1020;6,chinotuz,231312221133,t16,5000;6,79bjlnvxz,22312312444111,t64,4000;6,014567abopstuvyz,3144322243124214,s400,4020|5,,12322231,s40,2000;5,,33433144,t32,3000;5,04ko,2213323311,s70,3010;6,79bdfhjlnprt,3231144312,t16,2000;6,014567abopstuvyz,321131123322,s100,4020;6,79bjlnvxz,11441234143122,t64,3000;6,014567abopstuvyz,3123212433432211,s250,3020|5,,13223212,t16,0000;5,,22332344,s60,3000;5,ae,2212231131,s60,2000;6,79bdfhjlnprt,3431412322,s80,0000;6,014567abopstuvyz,113221133322,t16,4020;6,789adefgjklmpqrs,43311112422344,t64,0000;6,014567abopstuvyz,3141333222114243,t64,2020|5,,11312312,t16,1000;5,,42134133,t32,3000;5,ae,3231331121,t16,0000;6,01456botuvyz,3444122314,t32,0020;6,014567abopstuvyz,131223112233,s100,5020;6,789adefgjklmpqrs,44313411243212,t64,2000;6,014567abopstuvyz,1122214441134333,t64,3020|5,,21323122,s40,3000;5,04ko,32434113,s100,1010;5,29fm,2123112231,t16,1000;6,79bdfhjlnprt,2422334323,t32,2030;6,014567abopstuvyz,221312113332,t16,4020;6,23459abghinopuvw,42223323213411,s200,0000;6,01456botuvyz,3144421233141122,t64,1020|5,,32331222,s40,1000;5,04ko,42221413,t16,0010;5,04ko,3222121113,t16,0010;6,79bdfhjlnprt,4413143442,t32,0000;6,1234789adefgjklm,311122332312,t16,3400;6,23459abghinopuvw,22413244341224,t64,3000;6,23459abghinopuvw,2341342144223142,s300,4000|5,,33113121,t16,2000;5,04ko,21321324,t16,3010;5,29fm,1323213311,s70,0000;6,01456botuvyz,1334333242,s100,2020;6,chinotuz,331232112231,s100,0000;6,79bjlnvxz,34243133111244,s200,6000;6,01456botuvyz,4124311132434433,t128,6020|5,,22213331,t16,2000;5,04ko,14112421,s40,0010;5,ae,2313111222,t16,0000;6,01456botuvyz,3334311112,s60,0020;6,chinotuz,121311222333,t16,5000;6,789adefgjklmpqrs,14114322214231,t32,0000;6,23459abghinopuvw,2343314422141142,t128,1000|5,,32333112,t16,0000;5,,32142231,t16,1000;5,04ko,3233121311,t16,0010;6,79bdfhjlnprt,2231342142,t32,2030;6,chinotuz,312232332111,s100,3000;6,79bjlnvxz,14131143124422,s200,5000;6,23459abghinopuvw,3244131412112433,t64,1000|5,,22311211,t8,1000;5,,33124411,t16,2000;5,04ko,3133322122,s70,1010;6,79bdfhjlnprt,1321244323,s60,2000;6,014567abopstuvyz,222111323133,t16,5020;6,789adefgjklmpqrs,22314341242123,s150,2000;6,01456botuvyz,4333132124324414,s400,6020|5,,32121113,t16,0000;5,,31321422,s50,2000;5,ae,3112113233,s70,0000;6,01456botuvyz,1443334442,s100,3020;6,1234789adefgjklm,111233222331,t16,2400;6,23459abghinopuvw,43234424141222,t64,0000;6,014567abopstuvyz,3422241333121144,t64,7020|5,,23332113,s30,0000;5,04ko,13233442,t32,2010;5,04ko,1323222133,s70,4010;6,79bdfhjlnprt,2244132133,t16,1000;6,chinotuz,213222131133,s100,5000;6,789adefgjklmpqrs,14112422444312,t64,4000;6,79bjlnvxz,4212233122334434,s250,6000|5,,23312111,t16,0000;5,04ko,13334112,t16,1010;5,ae,2322123111,t16,0000;6,9lx,3123341133,s150,4000;6,chinotuz,213222313311,t16,4000;6,79bjlnvxz,21314341243322,t64,2000;6,23459abghinopuvw,3122324324121114,t64,3000|5,,23221113,t16,0000;5,,22334311,t16,2000;5,29fm,2223311233,t16,4000;6,9lx,3132224121,t16,3000;6,014567abopstuvyz,122211233133,t16,5020;6,23459abghinopuvw,33131144221224,t64,3000;6,01456botuvyz,2422123211134333,s250,0020|5,,33221231,s40,0000;5,04ko,34324124,t32,0010;5,04ko,3231222133,t16,4010;6,79bdfhjlnprt,1223434213,t32,2000;6,chinotuz,121113332232,t16,3000;6,789adefgjklmpqrs,13122434413244,s200,6000;6,79bjlnvxz,4112313244342422,t64,4000|5,,11213231,t16,2000;5,04ko,24433322,t32,2010;5,04ko,3132222133,s70,4010;6,01456botuvyz,1321334314,t32,2020;6,chinotuz,221312113233,t16,5000;6,79bjlnvxz,11124213324133,s200,6010;6,23459abghinopuvw,2314224311312421,t64,1000|5,,13212322,s40,0000;5,04ko,11142324,t16,1010;5,ae,2312331113,t16,0000;6,01456botuvyz,3411142312,s90,0020;6,014567abopstuvyz,221211132333,t16,5020;6,23459abghinopuvw,31114243334412,t64,5000;6,01456botuvyz,4132113421334413,t64,6020|5,,21132311,s40,1000;5,04ko,12113231,s50,2010;5,04ko,1323111222,t16,0010;6,01456botuvyz,4313422232,t32,0020;6,014567abopstuvyz,222111133332,t16,4020;6,789adefgjklmpqrs,33141322114434,t64,5010;6,79bjlnvxz,3122241234334123,t64,5010|5,,12311133,s40,1000;5,,14312211,t16,0000;5,29fm,3211213313,t16,0000;6,01456botuvyz,2141313222,s60,1020;6,014567abopstuvyz,221131123332,t16,4020;6,23459abghinopuvw,23211322342433,t64,4000;6,01456botuvyz,1423132443221244,s300,7020|5,,22313311,t16,2000;5,,32413342,s100,2000;5,04ko,1312332211,t16,2010;6,79bdfhjlnprt,4241444311,t32,2000;6,014567abopstuvyz,233313212211,s100,1020;6,79bjlnvxz,12243433324413,t64,5000;6,014567abopstuvyz,1231343341222411,t64,2020|5,,11123122,s20,2000;5,04ko,12234133,t16,3010;5,ae,1332112133,s70,0000;6,79bdfhjlnprt,2141442242,t32,2000;6,014567abopstuvyz,322111312233,t16,5020;6,79bjlnvxz,14424422231312,t64,2000;6,014567abopstuvyz,3242143312341144,t128,7020|5,,33231321,t16,1000;5,,43444112,t32,1000;5,04ko,2221323331,t16,3010;6,9lx,2421413222,t16,0000;6,014567abopstuvyz,231122121333,t16,5020;6,79bjlnvxz,31114232341412,s150,2020;6,014567abopstuvyz,4332331112242214,s200,0020|5,,21132232,t16,1000;5,,43113144,s80,0000;5,04ko,2123312233,t16,4010;6,79bdfhjlnprt,3121144432,t32,3000;6,1234789adefgjklm,111323122233,s100,5400;6,23459abghinopuvw,21434442114122,t64,1000;6,79bjlnvxz,1343334222142311,t64,1000|5,,31211122,t8,0000;5,04ko,13234341,t32,2010;5,ae,2123221311,t16,1000;6,01456botuvyz,1124332214,s100,2020;6,chinotuz,111322233312,t16,4000;6,789adefgjklmpqrs,34134244333212,s200,3010;6,23459abghinopuvw,4342233121443311,s200,5000|5,,13122223,t16,0000;5,04ko,41444221,t32,1010;5,29fm,3121322233,t16,4000;6,9lx,4123214244,t32,4000;6,1234789adefgjklm,132321223311,s100,4400;6,79bjlnvxz,11311444123422,s200,3000;6,01456botuvyz,2331124234224414,s400,3020|5,,33232211,t16,0000;5,,31124211,t16,2000;5,ae,2212331113,s60,2000;6,01456botuvyz,3311413244,t32,4020;6,1234789adefgjklm,221112313233,t16,5400;6,23459abghinopuvw,12243432314433,t64,5000;6,79bjlnvxz,1413123334442211,t64,5000|5,,11213133,t16,2000;5,,21244122,t16,1000;5,04ko,3222333112,s70,2010;6,79bdfhjlnprt,4442411112,t32,0000;6,chinotuz,232212313311,t16,4000;6,79bjlnvxz,11124413224342,t64,5000;6,79bjlnvxz,4324311411334432,t64,6000|5,,31222133,s40,3000;5,,13113234,t16,3000;5,04ko,2233212331,s70,1010;6,79bdfhjlnprt,1334141132,s100,1030;6,014567abopstuvyz,332123131122,s100,0020;6,79bjlnvxz,34112231122333,s100,0000;6,01456botuvyz,3323121334224241,s250,4020|5,,22131132,t16,0000;5,04ko,11133444,t32,2010;5,ae,2221313332,t16,3000;6,9lx,4124224312,t32,0000;6,1234789adefgjklm,331323121122,t16,0400;6,79bjlnvxz,41221121334424,t64,5000;6,79bjlnvxz,2434111214313222,t64,0010|5,,23221213,t16,1000;5,,24143134,s90,0010;5,29fm,3222111333,t16,4000;6,79bdfhjlnprt,2232344233,s150,2010;6,chinotuz,231213113322,t16,4000;6,789adefgjklmpqrs,14223433132423,t64,3000;6,01456botuvyz,3341433242114413,s400,6020";
+const DEFIS = DEFIS_BRUT.split("|").map((sem, s) => sem.split(";").map((txt, niveau) => {
+  const [n, murs, main, obj, ind] = txt.split(",");
+  const paires = [];
+  for (let i = 0; i + 1 < main.length; i += 2)
+    paires.push([2 ** +main[i], 2 ** +main[i+1]]);
+  return {
+    n: +n,
+    murs: [...murs].map(ch => A64.indexOf(ch)),
+    main: paires,
+    obj: { type: obj[0], valeur: +obj.slice(1) },
+    indice: { i: A64.indexOf(ind[0]), r: A64.indexOf(ind[1]),
+              c: A64.indexOf(ind[2]), rot: A64.indexOf(ind[3]) },
+    semaine: s, niveau
+  };
+}));
+
+/* ---------- le défi ----------
+   Un défi se gagne dès que l'objectif paraît — une tuile de la valeur
+   demandée, ou le score atteint — et non à la fin de la main : monter le 64
+   au troisième domino sur cinq, c'est gagné, les deux qui restent ne peuvent
+   plus rien enlever. Il se perd quand la main est vide, ou quand plus aucun
+   des dominos qui restent ne rentre nulle part. */
+function objectifAtteint(){
+  if (!defi) return false;
+  if (defi.obj.type === "s") return score >= defi.obj.valeur;
+  return tiles.some(t => t.value >= defi.obj.valeur);
+}
+// la main peut rester pleine et le tapis bloqué : il faut deux cases voisines
+// libres, ce que canPlaceSomewhere() sait déjà dire, murs compris
+function defiBloque(){ return !mainDefi.length || !canPlaceSomewhere(); }
+
+function tourDefi(){
+  if (objectifAtteint()){
+    phase = "over";
+    SFX.play("gagne");
+    reussir(defi.semaine, defi.niveau);
+    showOverlay("defiWinTitle", "defiWinText", "defiWinBtn");
+  } else if (defiBloque()){
+    phase = "over";
+    SFX.play("fin");
+    showOverlay("defiLostTitle", "defiLostText", "defiLostBtn");
+  } else {
+    phase = "place";
+  }
+  peindreMain();
+  syncButtons(); syncRewards();
+  if (phase === "place") say();
+}
+
+/* ---------- la semaine ----------
+   Cinquante semaines de défis dorment dans la table ; celle qu'on joue se
+   déduit du calendrier, et la table repart au début passé la cinquantième.
+   L'origine est un lundi : une semaine de défis commence donc un lundi, où
+   que l'on soit. « ?semaine=3 » force la semaine, ce qui sert aux essais. */
+const SEMAINE_ZERO = Date.UTC(2026, 0, 5);          // lundi 5 janvier 2026
+function semaineCourante(){
+  const forcee = new URLSearchParams(location.search).get("semaine");
+  if (forcee !== null && /^\d+$/.test(forcee)) return Number(forcee) % DEFIS.length;
+  const jours = Math.floor((Date.now() - SEMAINE_ZERO) / 86400000);
+  const s = Math.floor(jours / 7) % DEFIS.length;
+  return (s + DEFIS.length) % DEFIS.length;         // avant l'origine, on remonte
+}
+
+/* ---------- ce qui est déjà passé ----------
+   Une semaine retient le nombre de niveaux enchaînés depuis le premier : c'est
+   tout ce dont on a besoin, puisqu'on ne peut ouvrir le suivant qu'en ayant
+   passé le précédent. Les semaines déjà jouées gardent leur trace — revenir
+   dessus dans cinquante semaines ne repart pas de zéro. */
+const DEFIS_KEY = "domino2048.defis";
+function litProgres(){
+  try {
+    const o = JSON.parse(localStorage.getItem(DEFIS_KEY) || "{}");
+    return (o && typeof o === "object") ? o : {};
+  } catch(e){ return {}; }
+}
+// combien de niveaux la semaine `s` a-t-elle vu tomber ?
+function faits(s){
+  const v = litProgres()[s];
+  return Number.isInteger(v) && v >= 0 ? Math.min(v, 7) : 0;
+}
+function reussir(s, niveau){
+  if (niveau + 1 <= faits(s)) return;               // déjà acquis, rien à écrire
+  try {
+    const o = litProgres();
+    o[s] = niveau + 1;
+    localStorage.setItem(DEFIS_KEY, JSON.stringify(o));
+  } catch(e){}                                      // navigation privée : tant pis
+}
+
+/* ---------- entrer dans un défi ---------- */
+function texteObjectif(d){
+  return d.obj.type === "s" ? T("objScore", { n: num(d.obj.valeur) })
+                            : T("objTuile", { v: num(d.obj.valeur) });
+}
+function demarrerDefi(s, niveau){
+  const d = DEFIS[s][niveau];
+  if (!d) return;
+  mode = "defi";
+  defi = { ...d, semaine: s, niveau };
+  N = d.n; murs = new Set(d.murs);
+  mainDefi = d.main.map(([a,b]) => ({ a, b }));
+  choisi = 0; indiceVu = false;
+  resetGame();                                      // rebâtit le tapis à la bonne taille
+  piece = mainDefi[0]; nextPiece = mainDefi[0];     // « suivant » ne sert pas ici
+  forgetSave();                                     // un défi ne se reprend pas
+  document.getElementById("defibar").hidden = false;
+  document.getElementById("slotnext").hidden = true;
+  peindreDefi();
+  drawPieces(); layout(); say(); syncButtons(); syncRewards();
+}
+/* Tout ce que le défi écrit dans la colonne : l'objectif, l'étiquette du
+   niveau, le râtelier. Rappelé au changement de langue, comme le reste. */
+function peindreDefi(){
+  if (mode !== "defi" || !defi) return;
+  document.getElementById("objtxt").textContent = texteObjectif(defi);
+  document.getElementById("lvltag").textContent =
+    T("lvlTag", { s: defi.semaine + 1, n: defi.niveau + 1 });
+  peindreMain();
+}
+function quitterDefi(){
+  mode = "classique";
+  defi = null; mainDefi = []; indiceVu = false;
+  N = 6; murs = new Set();
+  document.getElementById("defibar").hidden = true;
+  document.getElementById("slotnext").hidden = false;
+}
+
+/* ---------- la main ----------
+   Tous les dominos restants, en ligne, et c'est au joueur de choisir lequel
+   poser : c'est là que se joue le défi. Le râtelier se redessine à chaque
+   tour — il rétrécit — et le domino tenu se détache des autres. */
+function peindreMain(){
+  const rack = document.getElementById("rack");
+  rack.textContent = "";
+  mainDefi.forEach((d, i) => {
+    const b = document.createElement("button");
+    b.type = "button";
+    b.className = (i === choisi ? "pris" : "") +
+                  (indiceVu && defi && i === indiceRang() ? " montre" : "");
+    b.appendChild(pieceEl(d, 0, true));
+    b.setAttribute("aria-pressed", i === choisi ? "true" : "false");
+    b.setAttribute("aria-label", T("rackPick", { a: d.a, b: d.b }));
+    b.disabled = phase === "over";
+    b.addEventListener("click", () => prendre(i));
+    rack.appendChild(b);
+  });
+}
+function prendre(i){
+  if (phase !== "place" || paused || hammer) return;
+  if (i < 0 || i >= mainDefi.length) return;
+  choisi = i;
+  piece = mainDefi[i];
+  rot = 0;                       // un domino qu'on vient de prendre est à plat
+  clearGhost(); drawPieces(); peindreMain();
+  SFX.play("pivot");
+}
+/* L'indice désigne un domino par son rang dans la main de départ. Ce rang
+   bouge dès qu'on a posé quelque chose — d'où la recherche par valeur, et
+   d'où le fait que l'indice ne s'offre qu'au premier coup. */
+function indiceRang(){
+  if (!defi) return -1;
+  const [a, b] = defi.main[defi.indice.i];
+  return mainDefi.findIndex(d => d.a === a && d.b === b);
 }
 
 /* ---------- abandon ----------
@@ -1802,6 +2181,13 @@ function ask(el, action, question){
   arm(el, action, question);
 }
 function forfeit(){
+  /* En défi, il n'y a pas d'écran de défaite à afficher : on n'abandonne pas
+     une partie, on repose un problème. Le bouton rend donc la main à la liste
+     des sept niveaux, d'où l'on repart quand on veut. */
+  if (mode === "defi"){
+    clearGhost(); disarm();
+    return ouvrirCadre(cadreDefis);
+  }
   forfeited = true;
   hammer = false; boardEl.classList.remove("smashing");
   clearGhost();
@@ -1811,7 +2197,9 @@ function forfeit(){
   syncButtons(); syncRewards(); say(); saveGame();
 }
 function syncButtons(){
-  forfeitBtn.disabled = !(phase === "place" && placed > 0);
+  // en défi le bouton sert à sortir, il ne dépend donc pas d'un domino posé
+  forfeitBtn.disabled = mode === "defi" ? phase !== "place"
+                                        : !(phase === "place" && placed > 0);
   syncPublish();
   if (armed && armed.el.disabled){ disarm(); say(); }
 }
@@ -1821,7 +2209,9 @@ forfeitBtn.addEventListener("click", () => ask(forfeitBtn, forfeit, T("askForfei
 function addScore(gained, chain){
   score += gained;
   scoreEl.textContent = score;
-  if (score > best){ best = score; bestEl.textContent = best;
+  // le record appartient à la partie sans fin : un défi joue une main donnée,
+  // ses points ne se comparent à rien
+  if (mode !== "defi" && score > best){ best = score; bestEl.textContent = best;
     try { localStorage.setItem("domino2048.best", best); } catch(e){} }
   floatEl.textContent = "+" + num(gained) + (chain > 1 ? T("chain", { n: chain }) : "");
   floatEl.classList.remove("go"); void floatEl.offsetWidth; floatEl.classList.add("go");
@@ -1838,9 +2228,10 @@ function say(){
   statusEl.classList.remove("warn","good");
   const free = N * N - tiles.length;
   statusEl.textContent =
-    phase === "over" ? T("statusOver") :
-    free <= 6        ? Tn("statusFree", free, { n: free }) :
-                       T("statusTurn");
+    phase === "over"   ? T("statusOver") :
+    mode === "defi"    ? T("statusDefi") :
+    free <= 6          ? Tn("statusFree", free, { n: free }) :
+                         T("statusTurn");
 }
 /* L'écran de fin retient ses clés plutôt que ses phrases : changer de langue en
    cours de partie doit le retraduire, pas le figer dans celle d'avant. */
@@ -1853,10 +2244,13 @@ function showOverlay(kTitre, kTexte, kBouton){
 function peindreOverlay(){
   if (!ovEtat) return;
   document.getElementById("ovtitle").textContent = T(ovEtat.kTitre);
+  const obj = defi ? texteObjectif(defi) : "";
   document.getElementById("ovtext").textContent =
-    ovEtat.rank !== null   ? T("lbPublished", { rank: rang(ovEtat.rank) }) :
-    ovEtat.kTexte === "endText" ? Tn("endText", placed, { score: num(score), n: placed })
-                               : T(ovEtat.kTexte);
+    ovEtat.rank !== null          ? T("lbPublished", { rank: rang(ovEtat.rank) }) :
+    ovEtat.kTexte === "endText"   ? Tn("endText", placed, { score: num(score), n: placed }) :
+    ovEtat.kTexte === "defiWinText"  ? Tn("defiWinText", placed, { obj, n: placed }) :
+    ovEtat.kTexte === "defiLostText" ? T("defiLostText", { obj })
+                                  : T(ovEtat.kTexte);
   document.getElementById("ovbtn").textContent = T(ovEtat.kBouton);
 }
 
@@ -1865,13 +2259,24 @@ function peindreOverlay(){
    il expose des effets et un point de branchement (Domino.setAdProvider), la
    build partenaire fournit la régie. Sans régie, les boutons restent masqués et
    le jeu tourne exactement comme avant. */
+/* Les cinq premiers appartiennent à la partie sans fin : changer de domino ou
+   ressusciter un tapis n'a pas de sens quand la main est donnée d'avance et
+   que le tapis est le problème posé. Leur cadre est déjà masqué en défi, mais
+   la règle est écrite ici plutôt que confiée à l'affichage. */
+const enPartie = () => mode !== "defi";
 const REWARDS = {
-  undo:   { can: () => !!history && (phase === "place" || phase === "over") },
-  swap:   { can: () => phase === "place" && !hammer },
-  hammer: { can: () => phase === "place" && !hammer && tiles.length > 0 },
-  revive: { can: () => phase === "over" && !forfeited && revives < 2 },
+  undo:   { can: () => enPartie() && !!history && (phase === "place" || phase === "over") },
+  swap:   { can: () => enPartie() && phase === "place" && !hammer },
+  hammer: { can: () => enPartie() && phase === "place" && !hammer && tiles.length > 0 },
+  revive: { can: () => enPartie() && phase === "over" && !forfeited && revives < 2 },
   // proposé seulement aux deux tours tirés au sort, et seulement pour ce domino-là
-  boost:  { can: () => phase === "place" && boostOffer && !hammer }
+  boost:  { can: () => enPartie() && phase === "place" && boostOffer && !hammer },
+  /* L'indice montre l'ouverture — quel domino, et sur quelle case. Il ne vaut
+     donc que tant que rien n'est posé : passé le premier coup, le tapis n'est
+     plus celui que la solution connaissait. Une fois payé il reste affiché,
+     on ne le fait pas racheter. */
+  indice: { can: () => mode === "defi" && phase === "place" && !hammer &&
+                       placed === 0 && !indiceVu }
 };
 
 function saveHistory(){
@@ -1944,6 +2349,15 @@ function grant(name){
   if (name === "hammer"){ hammer = true; boardEl.classList.add("smashing"); clearGhost(); syncRewards();
                           return flash(T("smashPick"), "good"); }
   if (name === "revive") return reviveBoard();
+  if (name === "indice"){
+    indiceVu = true;
+    const rang = indiceRang();
+    if (rang >= 0) prendre(rang);
+    rot = defi.indice.rot;
+    clearGhost(); drawPieces(); peindreMain(); montrerIndice(); syncRewards();
+    SFX.play("bonus");
+    return flash(T("hintDone", { r: defi.indice.r + 1, c: defi.indice.c + 1 }), "good");
+  }
   if (name === "boost"){
     piece = { a: piece.a * 2, b: piece.b * 2 };
     boostTurns = boostTurns.filter(t => t !== placed);   // offre consommée
@@ -1962,13 +2376,22 @@ function requestReward(name){
     skipped: msg => { done(); flash(msg || T("adSkipped")); }
   });
 }
+/* La case que l'indice désigne, entourée sur le tapis. Le halo tient jusqu'à
+   la pose : c'est un indice, pas un éclair. */
+function montrerIndice(){
+  boardEl.querySelectorAll(".cell.vise").forEach(e => e.classList.remove("vise"));
+  if (!indiceVu || !defi || placed > 0) return;
+  const el = boardEl.querySelector(`.cell[data-r="${defi.indice.r}"][data-c="${defi.indice.c}"]`);
+  if (el) el.classList.add("vise");
+}
 const EN_JEU = ["undo", "swap", "hammer", "boost"];   // les quatre du cadre
 function syncRewards(){
   const bar = document.getElementById("bonusbar");
   const btn = document.getElementById("bonus");
   const ov  = document.getElementById("ovrewards");
-  bar.hidden = !ads;
-  ov.hidden  = !ads || phase !== "over";
+  bar.hidden = !ads || mode === "defi";      // les quatre bonus sont ceux de la partie sans fin
+  ov.hidden  = !ads || phase !== "over" || mode === "defi";
+  document.getElementById("indice").hidden = !ads || mode !== "defi";
   if (!ads) return;
   document.querySelectorAll("[data-reward]").forEach(b => {
     const r = REWARDS[b.dataset.reward];
@@ -2099,7 +2522,8 @@ function montrerClassement(visible){
 
 function syncPublish(){
   const form = document.getElementById("publish");
-  form.hidden = !(api && lbJoignable !== false && phase === "over" && score > 0 && !published);
+  form.hidden = !(api && lbJoignable !== false && mode !== "defi" &&
+                  phase === "over" && score > 0 && !published);
 }
 
 document.getElementById("publish").addEventListener("submit", async e => {
@@ -2209,8 +2633,18 @@ document.getElementById("rotate").addEventListener("click", rotate);
 overlayEl.addEventListener("click", e => e.stopPropagation());
 document.getElementById("ovbtn").addEventListener("click", e => {
   e.stopPropagation();
-  if (phase === "over") newGame();
-  else overlayEl.classList.remove("show");
+  if (phase !== "over"){ overlayEl.classList.remove("show"); return; }
+  /* En défi, l'écran de fin ne renvoie pas à une partie neuve : réussi, il
+     ouvre la liste — le niveau suivant vient de s'y débloquer ; manqué, il
+     remet le même défi en place, puisqu'on le refait autant qu'on veut. */
+  if (mode === "defi"){
+    const s = defi.semaine, niveau = defi.niveau, gagne = objectifAtteint();
+    overlayEl.classList.remove("show");
+    if (gagne) ouvrirCadre(cadreDefis);
+    else demarrerDefi(s, niveau);
+    return;
+  }
+  newGame();
 });
 
 /* ---------- les cadres ----------
@@ -2226,8 +2660,13 @@ let cadreOuvert = null;
    et le navigateur s'en plaint. */
 function ouvrirCadre(c, silencieux){
   if (cadreOuvert === c) return;
-  // un cadre verrouillé refuse de partir : il garde alors la main
-  if (cadreOuvert){ fermerCadre(); if (cadreOuvert) return; }
+  /* Un cadre verrouillé refuse de partir et garde la main — sauf devant les
+     défis, qui sont l'un des deux choix du menu : celui-là passe par-dessus,
+     et lance une partie ou revient au menu. */
+  if (cadreOuvert && !(cadreOuvert === cadreMenu && c === cadreDefis)){
+    fermerCadre(); if (cadreOuvert) return;
+  }
+  if (cadreOuvert === cadreMenu){ cadreOuvert.veil.hidden = true; menuSousDefis = true; }
   c.retour = document.activeElement;
   c.veil.hidden = false;
   if (c.bouton) c.bouton.setAttribute("aria-expanded", "true");
@@ -2248,6 +2687,7 @@ function fermerCadre(force){
   if (c.bouton) c.bouton.setAttribute("aria-expanded", "false");
   if (c.retour && c.retour.focus) c.retour.focus();
   c.retour = null;
+  if (c.enFermant) c.enFermant();
 }
 /* Tous les cadres n'ont pas de bouton pour les ouvrir ni de croix pour les
    fermer : le menu d'accueil s'ouvre tout seul et ne se quitte qu'en jouant.
@@ -2258,11 +2698,15 @@ function brancherCadre(idVeil, o){
               focus:    document.getElementById(o.focus || o.fermer),
               verrou:   !!o.verrou,
               alOuvrir: o.alOuvrir || null,
+              enFermant: o.enFermant || null,
               retour:   null };
   // la croix passe par une lambda : sans elle, l'événement du clic arriverait
   // dans `force` et un cadre verrouillé se laisserait fermer
   if (o.fermer) document.getElementById(o.fermer).addEventListener("click", () => fermerCadre());
-  if (!c.verrou) c.veil.addEventListener("click", e => { if (e.target === c.veil) fermerCadre(); });
+  if (o.enFermant) c.enFermant = o.enFermant;
+  // le voile écoute toujours : c'est fermerCadre qui décide, et le verrou du
+  // menu peut se lever en cours de route
+  c.veil.addEventListener("click", e => { if (e.target === c.veil) fermerCadre(); });
   if (c.bouton) c.bouton.addEventListener("click", () => cadreOuvert === c ? fermerCadre() : ouvrirCadre(c));
   return c;
 }
@@ -2280,10 +2724,86 @@ const cadreClassement = brancherCadre("lbveil", { bouton: "classement", fermer: 
 /* Le menu d'accueil : ni croix, ni fermeture au voile ou à Échap. On en sort en
    choisissant un mode — et pour l'instant il n'y en a qu'un d'ouvert, le défi
    de la semaine attend son tour. */
-const cadreMenu = brancherCadre("menuveil", { focus: "playclassic", verrou: true });
+/* Les sept niveaux de la semaine. La liste se peuple à l'ouverture : elle
+   dépend de la semaine du jour et de ce qui est déjà tombé. */
+const cadreDefis = brancherCadre("defiveil", { bouton: "playweekly", fermer: "deficlose",
+                                               alOuvrir: peindreNiveaux,
+                                               enFermant: retourAuMenu });
+/* Refermer la liste sans avoir choisi de niveau ne doit pas laisser le joueur
+   devant un tapis qu'il n'a pas demandé : si le menu était ouvert dessous, il
+   se remontre. Une fois un défi lancé, il n'y a plus de menu à qui rendre. */
+let menuSousDefis = false;
+function retourAuMenu(){
+  if (!menuSousDefis) return;
+  menuSousDefis = false;
+  ouvrirCadre(cadreMenu, true);
+}
+/* Le menu s'ouvre verrouillé au chargement : on y choisit un mode, il n'y a
+   rien derrière à quoi revenir. Rouvert plus tard par son bouton, il redevient
+   un cadre ordinaire — une partie tourne déjà, on doit pouvoir y retourner —
+   et sa croix paraît alors. */
+const cadreMenu = brancherCadre("menuveil", { focus: "playclassic", fermer: "menuclose",
+                                              bouton: "menu", verrou: true });
+function verrouillerMenu(ferme){
+  cadreMenu.verrou = ferme;
+  document.getElementById("menuclose").hidden = ferme;
+}
+// brancherCadre a déjà relié le bouton ; il ne reste qu'à lever le verrou
+// avant l'ouverture, ce qu'un écouteur posé plus tôt fait à coup sûr
+document.getElementById("menu").addEventListener("click", () => {
+  if (cadreOuvert !== cadreMenu) verrouillerMenu(false);
+}, true);
 document.getElementById("playclassic").addEventListener("click", () => {
-  if (cadreOuvert === cadreMenu) fermerCadre(true);      // le seul choix qui lève le verrou
+  if (cadreOuvert !== cadreMenu) return;
+  fermerCadre(true);                                     // le choix lève le verrou
+  // on sort d'un défi : la partie sans fin reprend son tapis plein et sa main
+  if (mode === "defi") newGame();
 });
+
+/* Un niveau se lit avant d'être ouvert : ce qu'il demande, sur quelle grille,
+   avec combien de dominos. Les niveaux fermés restent lisibles — savoir ce qui
+   attend fait partie de l'envie d'y arriver — mais ne se cliquent pas. */
+function peindreNiveaux(){
+  const s = semaineCourante(), passes = faits(s);
+  const liste = document.getElementById("niveaux");
+  document.getElementById("defiintro").textContent =
+    T("defiIntro", { s: s + 1, n: passes });
+  liste.textContent = "";
+  DEFIS[s].forEach((d, i) => {
+    const fait   = i < passes;
+    const ouvert = i <= passes;                 // le suivant du dernier réussi
+    const b = document.createElement("button");
+    b.type = "button";
+    b.className = fait ? "fait" : "";
+    b.disabled = !ouvert;
+
+    const num = document.createElement("span");
+    num.className = "nvnum"; num.textContent = i + 1;
+
+    const txt = document.createElement("span");
+    txt.className = "nvtxt";
+    const o = document.createElement("span");
+    o.className = "nvobj"; o.textContent = texteObjectif(d);
+    const sub = document.createElement("span");
+    sub.className = "nvsub";
+    sub.textContent = T("nvSub", { n: d.n, d: d.main.length }) +
+                      (d.murs.length ? " · " + T("nvTrouee") : "");
+    txt.append(o, sub);
+
+    const etat = document.createElement("span");
+    etat.className = "nvetat";
+    etat.textContent = fait ? "✔" : ouvert ? "▸" : "🔒";
+    etat.setAttribute("aria-label", T(fait ? "nvFait" : ouvert ? "nvOuvert" : "nvFerme"));
+
+    b.append(num, txt, etat);
+    b.addEventListener("click", () => {
+      menuSousDefis = false;              // on a choisi : le menu ne revient pas
+      fermerCadre(true);
+      demarrerDefi(s, i);
+    });
+    liste.appendChild(b);
+  });
+}
 
 /* ---------- jouer au clavier ----------
    Les flèches déplacent la visée sur le plateau, Entrée pose. Le fantôme sert de
@@ -2332,6 +2852,10 @@ document.addEventListener("keydown", e => {
     });
     return;
   }
+  // en défi, les chiffres prennent le domino correspondant du râtelier
+  if (mode === "defi" && k >= "1" && k <= "8"){
+    e.preventDefault(); return prendre(Number(k) - 1);
+  }
   if (k === "r" || k === " "){ e.preventDefault(); return rotate(); }
   if (k === "m"){ e.preventDefault(); return muteBtn.click(); }
   if (k === "l"){ e.preventDefault(); return document.getElementById("lang").click(); }
@@ -2365,6 +2889,8 @@ function saveGame(){
        la fusion attendue n'arriverait jamais. Le dernier enregistrement, pris
        en fin de tour, reste valable : on perd au pire le coup en cours. */
     if (phase === "anim") return;
+    // un défi ne se reprend pas : il se refait, et sa main est déjà connue
+    if (mode === "defi") return;
     // une partie finie n'a rien à reprendre, une partie vierge non plus
     if (phase === "over" || placed === 0){ localStorage.removeItem(SAVE_KEY); return; }
     localStorage.setItem(SAVE_KEY, JSON.stringify({
@@ -2432,9 +2958,23 @@ function restoreGame(s){
 }
 
 /* ---------- démarrage ---------- */
+/* Les cases sont refaites à chaque changement de tapis : la taille varie d'un
+   défi à l'autre, et les murs avec elle. Une case murée reste dans le DOM mais
+   se voit — c'est le trou qu'on doit lire d'un coup d'œil — et ne reçoit
+   jamais rien, puisque inB la refuse. */
+function batirPlateau(){
+  boardEl.querySelectorAll(".cell").forEach(e => e.remove());
+  for (let r = 0; r < N; r++) for (let c = 0; c < N; c++){
+    const d = document.createElement("div");
+    d.className = "cell" + (murs.has(r * N + c) ? " mur" : "");
+    d.dataset.r = r; d.dataset.c = c;
+    boardEl.appendChild(d);
+  }
+}
 // remise à zéro pure : ni tirage, ni publicité, ni écriture — la reprise s'en
 // sert autant que la nouvelle partie
 function resetGame(){
+  batirPlateau();
   grid = Array.from({length:N}, () => Array(N).fill(null));
   tiles = [];
   score = 0; uid = 1; rot = 0; won = false; placed = 0;
@@ -2450,6 +2990,7 @@ function resetGame(){
   scoreEl.textContent = "0";
 }
 function newGame(){
+  quitterDefi();                 // une partie sans fin se joue sur la 6×6 pleine
   resetGame();
   // deux offres par partie, à des tours tirés au hasard — assez tôt pour qu'une
   // partie courte les voie passer toutes les deux
@@ -2460,11 +3001,6 @@ function newGame(){
   drawPieces(); say(); syncButtons(); syncRewards();
   if (ads && games > 0) ads.showInterstitial("new-game");
   games++;
-}
-for (let r = 0; r < N; r++) for (let c = 0; c < N; c++){
-  const d = document.createElement("div");
-  d.className = "cell"; d.dataset.r = r; d.dataset.c = c;
-  boardEl.appendChild(d);
 }
 games = 0; adBusy = false;
 traduire();                       // avant le premier affichage
@@ -2504,8 +3040,32 @@ window.Domino = {
   setLeaderboard(url){ useLeaderboard(url); },
   pause (){ paused = true; SFX.duck(true); },
   resume(){ paused = false; SFX.duck(false); },
-  state (){ return { score, best, placed, phase, unlocked, tiles: tiles.length, revives,
-                     boostOffer, boostTurns: boostTurns.slice() }; },
+  state (){
+    const e = { mode, score, best, placed, phase, unlocked, tiles: tiles.length, revives,
+                boostOffer, boostTurns: boostTurns.slice() };
+    if (mode === "defi" && defi)
+      e.defi = { semaine: defi.semaine, niveau: defi.niveau, n: defi.n,
+                 murs: defi.murs.length, obj: { ...defi.obj },
+                 main: mainDefi.map(d => [d.a, d.b]), choisi, atteint: objectifAtteint() };
+    return e;
+  },
+  // La semaine du jour, et ce qui y est déjà tombé — de quoi bâtir un lien
+  // profond vers un niveau depuis un portail.
+  defis(){
+    const s = semaineCourante();
+    return { semaine: s, semaines: DEFIS.length, faits: faits(s),
+             niveaux: DEFIS[s].map(d => ({ obj: { ...d.obj }, n: d.n,
+                                           murs: d.murs.length, main: d.main.length })) };
+  },
+  // ouvrir un niveau : semaine et niveau comptés à partir de zéro
+  defi(semaine, niveau){
+    const s = Number(semaine), l = Number(niveau);
+    if (!Number.isInteger(s) || !Number.isInteger(l)) return false;
+    if (s < 0 || s >= DEFIS.length || l < 0 || l > 6) return false;
+    fermerCadre(true);
+    demarrerDefi(s, l);
+    return true;
+  },
   newGame
 };
 window.dispatchEvent(new Event("domino.ready"));

@@ -56,11 +56,63 @@ comme les 5 secondes d'inactivité. Pour repartir de zéro, l'écran de fin prop
 
 ## Le menu
 
-Le jeu ouvre sur un **menu** qui donne le choix du mode. **Jouer classique** lance la partie
-sans fin décrite plus haut — ou reprend celle qui était en cours. **Défi de la semaine** est
-annoncé mais **pas encore ouvert** : son bouton reste éteint, étiqueté « bientôt », lisible
-mais inerte. Le menu n'a pas de croix et ne se ferme ni au voile ni à Échap : on en sort en
-choisissant un mode.
+Le jeu ouvre sur un **menu** qui donne le choix du mode : **Jouer classique**, la partie sans
+fin décrite plus haut — ou celle qui était en cours, reprise là où elle en était — et **Défi
+de la semaine**, décrit ci-dessous. Au chargement le menu n'a pas de croix et ne se ferme ni
+au voile ni à Échap : on en sort en choisissant. Le bouton **Menu** du bandeau y ramène à
+tout moment, et le menu redevient alors un cadre ordinaire, qu'on peut refermer — une partie
+tourne déjà derrière.
+
+## Le défi de la semaine
+
+Sept niveaux par semaine, et l'on n'ouvre le suivant qu'en passant le précédent. Un niveau
+n'est pas une partie : **le talon ne distribue rien**. La main est donnée d'avance — de
+**4 à 8 dominos**, tous différents, tous visibles — et c'est au joueur de décider lequel
+poser, et dans quel ordre. C'est là que se joue le défi.
+
+Chaque niveau demande soit de **monter une tuile** d'une valeur donnée, soit d'**atteindre un
+score**. Il est gagné dès que l'objectif paraît, pas à la fin de la main : monter le 64 au
+troisième domino sur cinq, c'est gagné. Il est perdu quand la main est vide, ou quand plus
+rien ne rentre — et il se refait autant qu'on veut, à l'identique.
+
+Les tapis ne sont pas tous des carrés pleins : ils vont du **5×5** au **6×6**, et treize
+formes les trouent — losange, croix, anneau, escalier, îlots, sablier, peigne… Une case murée
+n'est pas une case occupée : c'est une case qui n'existe pas. Rien ne s'y pose, rien n'y
+fusionne, rien ne la traverse. Le jeu n'a pas eu à l'apprendre, tout passe par `inB`.
+
+**L'indice** montre l'ouverture : quel domino prendre, et sur quelle case le poser. Il se
+paie d'une publicité récompensée, comme les quatre bonus, et ne vaut donc que tant que rien
+n'est posé — passé le premier coup, le tapis n'est plus celui que la solution connaissait.
+Sans régie branchée, le bouton reste masqué.
+
+`?semaine=N` force une semaine, ce qui sert aux essais. La progression est retenue par
+semaine dans le navigateur : revenir sur une semaine déjà jouée ne repart pas de zéro.
+
+### D'où viennent les 350 défis
+
+Ils sont **fabriqués et vérifiés hors ligne**, puis gravés dans `index.html` — le jeu tient en
+un seul fichier, il ne peut pas aller chercher ses niveaux ailleurs. Cinquante semaines sont
+prêtes ; passé la cinquantième, la table repart au début.
+
+```sh
+node tools/defis.mjs          # fabrique tools/defis.json (50 semaines × 7)
+node tools/verify-defis.mjs   # rejoue la solution de chacun, sans navigateur
+node tools/embed-defis.mjs    # grave la table dans index.html (11 Kio)
+node tools/verify-defis-jeu.mjs 21   # rejoue un échantillon dans le vrai jeu
+```
+
+`tools/defis.mjs` ne se contente pas d'espérer qu'un défi soit faisable : pour chaque niveau
+il **cherche une ligne de jeu** — une recherche en faisceau sur « quel domino × quelle case ×
+quelle orientation » — et l'objectif est ce que cette ligne a réellement atteint, à un cran
+près selon la difficulté visée. La solution existe donc **par construction**, et le premier
+coup de cette solution devient l'indice du niveau.
+
+Le moteur de fusion n'est pas réécrit : il est prélevé mot pour mot dans `index.html` par
+`tools/simulate.mjs`, murs compris. `tools/verify-defis.mjs` rejoue les 350 solutions et
+exige que l'objectif tombe — c'est lui qui a attrapé 18 objectifs de score arrondis *au plus
+proche*, donc placés juste au-dessus de ce que la solution atteignait. `tools/verify-defis-jeu.mjs`
+va plus loin : il ouvre la page, clique dans le râtelier, pivote, pose — et vérifie que le
+jeu livré déclare le défi réussi et débloque le suivant.
 
 ## Cadre tourné par le portail
 

@@ -15,7 +15,9 @@ const SRC  = fs.readFileSync(path.join(ROOT, 'index.html'), 'utf8');
 // automatiquement index.html, et verify-sim.mjs le vérifie.
 const read = (re, def) => { const m = SRC.match(re); return m ? Number(m[1]) : def; };
 export const CONF = {
-  N:   read(/const N = (\d+);/, 5),
+  // N a cessé d'être une constante le jour où les défis ont eu leurs propres
+  // tapis : la déclaration se lit « let », et c'est toujours la 6×6 classique
+  N:   read(/\blet N = (\d+);/, 6),
   CAP: read(/const CAP = (\d+);/, 16),
   WEIGHT: (SRC.match(/const DEAL_WEIGHT = "([a-z]+)";/) || [,'uniforme'])[1]
 };
@@ -38,14 +40,19 @@ function grab(name){
 }
 const ENGINE = ['listMoves','applyMove','chainFrom','betterOutcome','bestOutcome','better','pickMove'];
 const ENGINE_SRC = ENGINE.map(grab).join('\n');
-// le moteur dépend de la taille de grille : une instance par taille
+// Le moteur dépend de la taille de grille : une instance par taille — et par
+// jeu de cases murées, car les défis jouent sur des grilles trouées. Une case
+// murée est simplement une case hors du tapis : c'est ce que dit inB, et tout
+// le reste en découle (ni pose, ni fusion, ni voisinage au travers d'un mur).
 const engines = new Map();
-export function makeEngine(n){
-  if (!engines.has(n))
-    engines.set(n, new Function('N','inB','NB','MAX_DEPTH','MAX_NODES',
+export function makeEngine(n, murs){
+  const cle = n + '|' + (murs ? [...murs].sort((a,b) => a - b).join(',') : '');
+  if (!engines.has(cle))
+    engines.set(cle, new Function('N','inB','NB','MAX_DEPTH','MAX_NODES',
       ENGINE_SRC + `\nreturn {${ENGINE.join(',')}};`)(
-        n, (r,c) => r >= 0 && r < n && c >= 0 && c < n, NB, MAX_DEPTH, MAX_NODES));
-  return engines.get(n);
+        n, (r,c) => r >= 0 && r < n && c >= 0 && c < n && !(murs && murs.has(r * n + c)),
+        NB, MAX_DEPTH, MAX_NODES));
+  return engines.get(cle);
 }
 export const engine = makeEngine(N);
 let { listMoves, applyMove, pickMove } = engine;
