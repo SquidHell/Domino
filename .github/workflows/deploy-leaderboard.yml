@@ -223,13 +223,22 @@ jobs:
         id: branchement
         run: |
           set -euo pipefail
+          # « rien n'a changé » et « la ligne est introuvable » ne sont pas la
+          # même chose. On testait l'égalité des deux textes, donc redéployer à
+          # la même adresse — le cas ordinaire — était pris pour une ligne
+          # manquante et faisait échouer une mise en ligne pourtant réussie.
+          # On cherche maintenant le motif, et on n'échoue que s'il manque.
           URL="${{ steps.deploiement.outputs.url }}" node -e '
             const fs = require("fs");
             const t = fs.readFileSync("index.html", "utf8");
-            const n = t.replace(/const LEADERBOARD_API = "[^"]*";/,
-                                `const LEADERBOARD_API = "${process.env.URL}";`);
-            if (n === t){ console.error("ligne LEADERBOARD_API introuvable"); process.exit(1); }
-            fs.writeFileSync("index.html", n);
+            const re = /const LEADERBOARD_API = "[^"]*";/;
+            if (!re.test(t)){
+              console.error("ligne LEADERBOARD_API introuvable dans index.html");
+              process.exit(1);
+            }
+            const n = t.replace(re, `const LEADERBOARD_API = "${process.env.URL}";`);
+            if (n === t) console.log("le jeu pointait déjà sur cette adresse.");
+            else { fs.writeFileSync("index.html", n); console.log("adresse écrite dans index.html."); }
           '
           [ -f tools/build-y8.py ] && python3 tools/build-y8.py || true
           git config user.name  "github-actions[bot]"
