@@ -37,7 +37,9 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - name: 38 vérifications, sans réseau
+      # le nombre de vérifications change quand le Worker gagne des routes :
+      # l'étiquette ne le répète plus, elle vieillissait mal
+      - name: Vérifications du Worker, sans réseau
         working-directory: server
         run: node --experimental-sqlite test/worker.test.mjs
 
