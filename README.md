@@ -65,7 +65,8 @@ tourne déjà derrière.
 
 ## Le défi de la semaine
 
-Sept niveaux par semaine, et l'on n'ouvre le suivant qu'en passant le précédent. Un niveau
+Sept niveaux par semaine — 52 semaines, une année entière — et l'on n'ouvre le suivant qu'en
+passant le précédent. Un niveau
 n'est pas une partie : **le talon ne distribue rien**. La main est donnée d'avance — de
 **4 à 8 dominos**, tous différents, tous visibles — et c'est au joueur de décider lequel
 poser, et dans quel ordre. C'est là que se joue le défi.
@@ -85,19 +86,34 @@ paie d'une publicité récompensée, comme les quatre bonus, et ne vaut donc que
 n'est posé — passé le premier coup, le tapis n'est plus celui que la solution connaissait.
 Sans régie branchée, le bouton reste masqué.
 
+### La rotation
+
+On avance **d'une semaine à la fois**, du lundi au lundi, et passé la dernière on revient à la
+première. La table tient **52 semaines, soit 364 jours** : le cycle fait une année, et la
+première semaine retombe donc à peu près au même moment de l'année d'un cycle à l'autre.
+
+Le compte part du lundi 5 janvier 2026 et se fait en **UTC**, pour que tout le monde change de
+semaine au même instant plutôt qu'à des heures différentes selon le fuseau. Le modulo suit la
+longueur de la table et non un nombre écrit en dur : ajouter des semaines suffit à rallonger
+le cycle.
+
 `?semaine=N` force une semaine, ce qui sert aux essais. La progression est retenue par
 semaine dans le navigateur : revenir sur une semaine déjà jouée ne repart pas de zéro.
 
-### D'où viennent les 350 défis
+### D'où viennent les 364 défis
 
 Ils sont **fabriqués et vérifiés hors ligne**, puis gravés dans `index.html` — le jeu tient en
-un seul fichier, il ne peut pas aller chercher ses niveaux ailleurs. Cinquante semaines sont
-prêtes ; passé la cinquantième, la table repart au début.
+un seul fichier, il ne peut pas aller chercher ses niveaux ailleurs.
+
+Les niveaux sont tirés d'une graine calculée sur (semaine, niveau) : la table se refabrique à
+l'identique, et **rallonger le cycle ne déplace pas les semaines déjà en place** — passer de
+50 à 52 semaines a laissé les cinquante premières mot pour mot, donc sans invalider la
+progression enregistrée chez les joueurs.
 
 ```sh
-node tools/defis.mjs          # fabrique tools/defis.json (50 semaines × 7)
+node tools/defis.mjs          # fabrique tools/defis.json (52 semaines × 7)
 node tools/verify-defis.mjs   # rejoue la solution de chacun, sans navigateur
-node tools/embed-defis.mjs    # grave la table dans index.html (11 Kio)
+node tools/embed-defis.mjs    # grave la table dans index.html (11,5 Kio)
 node tools/verify-defis-jeu.mjs 21   # rejoue un échantillon dans le vrai jeu
 ```
 
@@ -108,7 +124,7 @@ près selon la difficulté visée. La solution existe donc **par construction**,
 coup de cette solution devient l'indice du niveau.
 
 Le moteur de fusion n'est pas réécrit : il est prélevé mot pour mot dans `index.html` par
-`tools/simulate.mjs`, murs compris. `tools/verify-defis.mjs` rejoue les 350 solutions et
+`tools/simulate.mjs`, murs compris. `tools/verify-defis.mjs` rejoue les 364 solutions et
 exige que l'objectif tombe — c'est lui qui a attrapé 18 objectifs de score arrondis *au plus
 proche*, donc placés juste au-dessus de ce que la solution atteignait. `tools/verify-defis-jeu.mjs`
 va plus loin : il ouvre la page, clique dans le râtelier, pivote, pose — et vérifie que le

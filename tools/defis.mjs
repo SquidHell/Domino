@@ -1,4 +1,4 @@
-/* Fabrique les 350 défis (50 semaines × 7 niveaux) que le jeu embarque.
+/* Fabrique les 364 défis (52 semaines × 7 niveaux) que le jeu embarque.
 
    Un défi n'est pas une partie : le talon ne distribue rien, la main est
    donnée d'avance — de 4 à 8 dominos — et il faut atteindre une valeur ou un
@@ -21,7 +21,10 @@
    Bien plus fort qu'un joueur, ce qu'il faut pour que l'objectif ait du mordant
    sans être hors d'atteinte.
 
-   Usage : node tools/defis.mjs [--semaines 50] [--largeur 30] [--sortie <fichier>]
+   Cinquante-deux semaines, soit 364 jours : le cycle fait une année, et la
+   table repart à sa première semaine à peu près au même moment de l'année.
+
+   Usage : node tools/defis.mjs [--semaines 52] [--largeur 30] [--sortie <fichier>]
 */
 import fs from 'fs';
 import path from 'path';
@@ -35,7 +38,7 @@ const arg = (nom, def) => {
   const i = process.argv.indexOf('--' + nom);
   return i > 0 && process.argv[i+1] ? process.argv[i+1] : def;
 };
-const SEMAINES = Number(arg('semaines', 50));
+const SEMAINES = Number(arg('semaines', 52));
 const LARGEUR  = Number(arg('largeur', 30));
 const SORTIE   = arg('sortie', path.join(ROOT, 'tools', 'defis.json'));
 
