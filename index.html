@@ -386,6 +386,22 @@
   /* « personne encore », « indisponible » : l'état se dit à côté du titre du
      cadre, en clair, sans reprendre sa casse. */
   #lbstate{margin-left:8px;font-size:12px;font-weight:500;color:var(--muted)}
+  /* Les trois catégories, en onglets. Celui qui est ouvert porte la couleur ;
+     les autres restent lisibles, ce sont des chemins, pas des décorations. */
+  .onglets{display:flex;gap:6px;padding:10px 0 0;flex-wrap:wrap}
+  .onglets button{
+    flex:1 1 0;min-width:0;padding:7px 8px;font-size:12px;
+    background:transparent;color:var(--muted);border:2px solid var(--line);
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  }
+  .onglets button:hover{background:var(--btn);color:var(--btn-ink);border-color:var(--btn);filter:none}
+  .onglets button[aria-selected="true"]{
+    background:var(--btn);color:var(--btn-ink);border-color:var(--btn);
+  }
+  /* Le classement des défis compte des niveaux, pas des points : la valeur y
+     est suivie du mot qui dit ce qu'elle compte, sinon on lit un score. */
+  .lb .faits{font-weight:800;font-variant-numeric:tabular-nums}
+  .lb .faits em{font-style:normal;font-weight:500;font-size:11px;color:var(--muted);margin-left:4px}
 
   /* Pied de page : la langue à gauche, la signature à droite. */
   .foot{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-top:4px}
@@ -901,6 +917,13 @@
       <button id="lbclose" type="button" class="qmark" data-i18n-title="helpClose" title="Close">✕</button>
     </div>
     <div class="sheetbody">
+      <!-- Trois classements, trois onglets. Le premier ouvert est celui de la
+           semaine : c'est celui qui bouge, donc celui qu'on vient voir. -->
+      <div class="onglets" id="lbonglets" role="tablist">
+        <button type="button" role="tab" data-board="semaine"  data-i18n="lbSemaine">This week</button>
+        <button type="button" role="tab" data-board="toujours" data-i18n="lbToujours">All time</button>
+        <button type="button" role="tab" data-board="defis"    data-i18n="lbDefis">Challenges</button>
+      </div>
       <div class="lb" id="lb">
         <ol id="lblist"></ol>
       </div>
@@ -1090,6 +1113,14 @@ const STR = {
     lbSending:    "Sending…",
     lbFailed:     "couldn't send",
     lbPublished:  "Submitted · {rank} on the leaderboard",
+    lbSemaine:    "This week",
+    lbToujours:   "All time",
+    lbDefis:      "Challenges",
+    lbFaits:      "cleared",
+    lbFaitsOne:   "cleared",
+    publishDefi:  "Log it",
+    lbDefiPublie: "{n} challenges cleared · {rank} of the challenge board",
+    lbDefiPublieOne: "One challenge cleared · {rank} of the challenge board",
     chain:        " · chain ×{n}"
   },
   fr: {
@@ -1211,6 +1242,14 @@ const STR = {
     lbSending:    "Envoi…",
     lbFailed:     "envoi impossible",
     lbPublished:  "Publié · {rank} au classement",
+    lbSemaine:    "La semaine",
+    lbToujours:   "De toujours",
+    lbDefis:      "Défis",
+    lbFaits:      "réussis",
+    lbFaitsOne:   "réussi",
+    publishDefi:  "Inscrire",
+    lbDefiPublie: "{n} défis réussis · {rank} au classement des défis",
+    lbDefiPublieOne: "Un défi réussi · {rank} au classement des défis",
     chain:        " · cascade ×{n}"
   }
 };
@@ -2241,7 +2280,7 @@ function say(){
    cours de partie doit le retraduire, pas le figer dans celle d'avant. */
 let ovEtat = null;
 function showOverlay(kTitre, kTexte, kBouton){
-  ovEtat = { kTitre, kTexte, kBouton, rank: null };
+  ovEtat = { kTitre, kTexte, kBouton, rank: null, faits: null };
   peindreOverlay();
   overlayEl.classList.add("show");
 }
@@ -2250,6 +2289,8 @@ function peindreOverlay(){
   document.getElementById("ovtitle").textContent = T(ovEtat.kTitre);
   const obj = defi ? texteObjectif(defi) : "";
   document.getElementById("ovtext").textContent =
+    ovEtat.faits !== null         ? Tn("lbDefiPublie", ovEtat.faits,
+                                       { n: num(ovEtat.faits), rank: rang(ovEtat.rank) }) :
     ovEtat.rank !== null          ? T("lbPublished", { rank: rang(ovEtat.rank) }) :
     ovEtat.kTexte === "endText"   ? Tn("endText", placed, { score: num(score), n: placed }) :
     ovEtat.kTexte === "defiWinText"  ? Tn("defiWinText", placed, { obj, n: placed }) :
@@ -2472,6 +2513,14 @@ function setLbState(msg){ document.getElementById("lbstate").textContent = msg |
    liste — les nombres se reformatent — sans redemander quoi que ce soit au
    serveur. */
 let lbLignes = [];
+/* La catégorie ouverte. « semaine » d'abord : c'est le classement qui bouge,
+   donc celui qu'on vient voir. Les lignes de chaque catégorie sont gardées
+   séparément — revenir sur un onglet déjà lu ne redemande rien au serveur, et
+   changer de langue les redessine toutes sans appel réseau. */
+const BOARDS = ["semaine", "toujours", "defis"];
+let board = "semaine";
+const lbCache = { semaine: null, toujours: null, defis: null };
+
 function peindreClassement(){
   const list = document.getElementById("lblist");
   list.textContent = "";
@@ -2480,12 +2529,26 @@ function peindreClassement(){
     const rk = document.createElement("span"); rk.className = "rk"; rk.textContent = s.rank;
     const nm = document.createElement("span"); nm.className = "nm";
     nm.textContent = s.name;                       // texte, jamais du HTML
-    const sc = document.createElement("b");
-    sc.textContent = num(s.score);
-    li.append(rk, nm, sc);
+    if (board === "defis"){
+      /* Ici on ne compte pas des points mais des niveaux : le nombre est suivi
+         du mot qui le dit, sinon on lit un score. */
+      const f = document.createElement("b");
+      f.className = "faits";
+      f.textContent = num(s.faits);
+      const quoi = document.createElement("em");
+      quoi.textContent = Tn("lbFaits", s.faits);
+      f.appendChild(quoi);
+      li.append(rk, nm, f);
+    } else {
+      const sc = document.createElement("b");
+      sc.textContent = num(s.score);
+      li.append(rk, nm, sc);
+    }
     list.appendChild(li);
   }
-  setLbState(lbLignes.length ? "" : T("lbNone"));
+  setLbState(lbLignes.length ? "" : T(lbJoignable === false ? "lbDown" : "lbNone"));
+  document.querySelectorAll("#lbonglets button").forEach(b =>
+    b.setAttribute("aria-selected", b.dataset.board === board ? "true" : "false"));
 }
 
 /* null : on ne sait pas encore · true : le service a répondu au moins une fois ·
@@ -2494,14 +2557,26 @@ function peindreClassement(){
    par exemple. On y retire le classement et le formulaire d'envoi plutôt que
    d'exhiber un panneau vide et un bouton qui échouera. */
 let lbJoignable = null;
-async function loadBoard(){
+/* Chaque catégorie a sa route : les défis se comptent ailleurs que les scores.
+   `force` sert au rafraîchissement après un envoi — sinon on se contente de ce
+   qu'on a déjà lu pour cet onglet. */
+async function loadBoard(force){
   if (!api) return;
+  const veut = board;
+  if (!force && lbCache[veut]){
+    lbLignes = lbCache[veut];
+    peindreClassement();
+    return;
+  }
+  const route = veut === "defis" ? "/defis?limit=10"
+                                 : "/scores?limit=10&board=" + veut;
   try {
-    const res = await fetch(api + "/scores?limit=10", { headers: { accept: "application/json" } });
+    const res = await fetch(api + route, { headers: { accept: "application/json" } });
     if (!res.ok) throw new Error(res.status);
     const data = await res.json();
-    lbLignes = data.scores || [];
-    peindreClassement();
+    const lignes = data.scores || [];
+    lbCache[veut] = lignes;
+    if (board === veut){ lbLignes = lignes; peindreClassement(); }
     lbJoignable = true;
     syncPublish();
   } catch {
@@ -2515,6 +2590,17 @@ async function loadBoard(){
   }
 }
 
+document.querySelectorAll("#lbonglets button").forEach(b =>
+  b.addEventListener("click", () => {
+    if (board === b.dataset.board) return;
+    board = b.dataset.board;
+    lbLignes = lbCache[board] || [];
+    peindreClassement();
+    setLbState(lbCache[board] ? (lbLignes.length ? "" : T("lbNone")) : T("lbSending"));
+    loadBoard();
+    SFX.play("pivot");
+  }));
+
 /* Le classement n'occupe plus la scène : tout ce qui s'y montre ou s'y cache,
    c'est le bouton qui ouvre son cadre. S'il disparaît alors que le cadre est
    ouvert — service jamais joint, adresse retirée — le cadre part avec lui. */
@@ -2524,10 +2610,15 @@ function montrerClassement(visible){
   layout();                                     // le bandeau change de contenu
 }
 
+/* Le même formulaire sert aux deux modes : en partie sans fin il envoie un
+   score, en défi il inscrit un niveau réussi. Ce qu'on demande — un pseudo —
+   est le même ; ce qu'on en fait diffère, et c'est submit() qui tranche. */
 function syncPublish(){
   const form = document.getElementById("publish");
-  form.hidden = !(api && lbJoignable !== false && mode !== "defi" &&
-                  phase === "over" && score > 0 && !published);
+  const dispo = api && lbJoignable !== false && phase === "over" && !published;
+  form.hidden = !(dispo && (mode === "defi" ? objectifAtteint() : score > 0));
+  document.getElementById("pubbtn").textContent =
+    T(mode === "defi" ? "publishDefi" : "publish");
 }
 
 document.getElementById("publish").addEventListener("submit", async e => {
@@ -2537,22 +2628,28 @@ document.getElementById("publish").addEventListener("submit", async e => {
   const name = input.value.trim();
   if (!name || !api){ input.focus(); return; }
   try { localStorage.setItem("domino2048.name", name); } catch(err){}
+  const enDefi = mode === "defi";
   btn.disabled = true; btn.textContent = T("lbSending");
   try {
-    const res = await fetch(api + "/scores", {
+    const res = await fetch(api + (enDefi ? "/defis" : "/scores"), {
       method: "POST",
       headers: { "content-type": "application/json" },
-      body: JSON.stringify({ name, score, moves: placed })
+      body: JSON.stringify(enDefi
+        ? { name, semaine: defi.semaine, niveau: defi.niveau }
+        : { name, score, moves: placed })
     });
     const data = await res.json().catch(() => ({}));
     if (!res.ok) throw new Error(data.error || res.status);
     published = true;
     SFX.play("publie");
-    if (ovEtat){ ovEtat.rank = data.rank; peindreOverlay(); }
+    if (ovEtat){ ovEtat.rank = data.rank; ovEtat.faits = enDefi ? data.faits : null;
+                 peindreOverlay(); }
     syncPublish();
-    loadBoard();
+    // le classement qu'on vient de nourrir est celui qu'on relit
+    if (enDefi) board = "defis";
+    loadBoard(true);
   } catch (err){
-    btn.disabled = false; btn.textContent = T("publish");
+    btn.disabled = false; btn.textContent = T(enDefi ? "publishDefi" : "publish");
     /* Le mot posé à côté du titre du cadre ne se lit plus que si on l'ouvre :
        l'échec se dit aussi dans le bandeau, là où le joueur regarde. */
     setLbState(T("lbFailed"));
@@ -2563,9 +2660,15 @@ document.getElementById("publish").addEventListener("submit", async e => {
 function useLeaderboard(url){
   api = url ? String(url).trim().replace(/\/+$/, "") : null;
   lbJoignable = null;
+  /* Ce qu'on avait lu appartenait à l'ancienne adresse : on le jette, et on
+     relit sans passer par le cache. Sans cela, changer de serveur montrait
+     encore les lignes du précédent — et si le nouveau ne répond pas, on ne
+     s'en apercevait même pas, puisqu'on n'allait plus le voir. */
+  BOARDS.forEach(b => { lbCache[b] = null; });
+  lbLignes = [];
   montrerClassement(!!api);
   syncPublish();
-  if (api) loadBoard();
+  if (api) loadBoard(true);
 }
 
 /* ---------- entrées ---------- */
@@ -2724,7 +2827,7 @@ const cadreBonus = brancherCadre("bonusveil", { bouton: "bonus", fermer: "bonusc
 /* Le classement se relit à chaque ouverture : il n'est plus sous les yeux en
    permanence, donc rien d'autre ne le rafraîchirait. */
 const cadreClassement = brancherCadre("lbveil", { bouton: "classement", fermer: "lbclose",
-                                                  alOuvrir: loadBoard });
+                                                  alOuvrir: () => loadBoard(true) });
 /* Le menu d'accueil : ni croix, ni fermeture au voile ou à Échap. On en sort en
    choisissant un mode — et pour l'instant il n'y en a qu'un d'ouvert, le défi
    de la semaine attend son tour. */

@@ -144,12 +144,29 @@ chaud, sans toucher au fichier : `Domino.setLeaderboard("https://…")`, ou en d
 Tant que l'adresse est vide, **aucun appel réseau n'est émis** et le panneau du
 classement reste masqué : le jeu fonctionne exactement comme avant.
 
+## Trois classements
+
+**De toujours** et **de la semaine** lisent la même table : une semaine n'est qu'une tranche
+de dates. C'est le **serveur** qui décide où elle commence — même origine que les défis, le
+lundi 5 janvier 2026 en UTC — et jamais le client : sinon il suffirait de mentir sur l'heure
+pour entrer dans la semaine d'à côté.
+
+**Le classement des défis** ne compte pas des points mais des **niveaux réussis**. Une ligne
+par `(pseudo, semaine, niveau)`, avec une contrainte d'unicité : refaire dix fois le même
+niveau n'en donne pas dix. C'est la base qui l'impose, pas le client. À nombre égal, celui qui
+y est arrivé le premier passe devant.
+
+Une catégorie inconnue rend le classement de toujours : un client plus ancien, qui ne connaît
+pas les catégories, retrouve exactement ce qu'il attendait.
+
 ## Les routes
 
 | Méthode | Route | Rôle |
 |---|---|---|
-| `GET` | `/scores?limit=20` | classement public — rang, pseudo, score, date |
+| `GET` | `/scores?limit=20&board=semaine` | classement public — rang, pseudo, score, date. `board=semaine` ne garde que la semaine en cours ; sans le paramètre, c'est le classement de toujours |
 | `POST` | `/scores` | dépôt d'un score : `{ name, score, moves }` |
+| `GET` | `/defis?limit=20` | classement des défis — rang, pseudo, **nombre de défis réussis** |
+| `POST` | `/defis` | un défi réussi : `{ name, semaine, niveau }` |
 | `GET` | `/admin/scores?flagged=1` | tout, coups et marqueurs compris — jeton requis |
 | `DELETE` | `/admin/scores/:id` | suppression manuelle — jeton requis |
 | `GET` | `/health` | sonde |

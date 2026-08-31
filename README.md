@@ -242,6 +242,20 @@ bouton **Classement** posé à gauche du bandeau d'actions, et il se relit à ch
 puisque plus rien ne le rafraîchit sous les yeux. Le tapis récupère la hauteur qui lui était
 réservée.
 
+Trois catégories, en onglets :
+
+- **La semaine** — les meilleurs scores de la semaine en cours. C'est celui qui bouge, donc
+  celui qui s'ouvre en premier.
+- **De toujours** — les meilleurs scores depuis le début.
+- **Défis** — les joueurs classés par **nombre de défis réussis**, et non par score : un défi
+  se réussit ou non, il ne se marchande pas. Le nombre y est suivi du mot qui dit ce qu'il
+  compte, sinon on lit un score.
+
+Un défi réussi s'inscrit depuis son écran de fin, avec le même pseudo que les scores. Refaire
+un niveau déjà réussi ne le compte pas deux fois — c'est la base qui l'impose, pas le jeu. La
+semaine de classement commence au même instant que la semaine de défis, le lundi à minuit UTC,
+et c'est le **serveur** qui en décide : le client ne peut pas se déclarer dans une autre.
+
 Le jeu n'en dépend pas : tant que `LEADERBOARD_API` est vide en tête du script, aucun appel
 réseau n'est émis et le bouton reste masqué — comme lorsque le service n'a jamais répondu.
 Voir `server/README.md`.

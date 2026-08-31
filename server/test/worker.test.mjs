@@ -165,6 +165,90 @@ T(r.status === 400, "corps JSON invalide : 400");
 // monté sur son propre sous-domaine, sans préfixe /api
 T((await call("GET", "/scores")).status === 200, "fonctionne aussi sans le préfixe /api");
 
+/* ---------------- les trois catégories de classement ---------------- */
+env = { DB: makeDB(), ADMIN_TOKEN: "t" };
+const postDefi = (body) => call("POST", "/api/defis", { body });
+
+// 14. classement de la semaine contre classement de toujours
+await post({ name: "Ancienne", score: 9000, moves: 30 });
+await post({ name: "Recente",  score: 500,  moves: 10 });
+// on vieillit une ligne d'un mois, à la main : la semaine ne doit plus la voir
+env.DB._raw.prepare("UPDATE scores SET created_at = datetime('now','-30 days') WHERE name = 'Ancienne'").run();
+
+r = await call("GET", "/api/scores");
+b = await r.json();
+T(b.board === "toujours" && b.scores.length === 2,
+  "sans paramètre : le classement de toujours, les deux lignes");
+T(b.scores[0].name === "Ancienne", "de toujours : le plus gros score en tête");
+
+r = await call("GET", "/api/scores?board=semaine");
+b = await r.json();
+T(b.board === "semaine" && b.scores.length === 1 && b.scores[0].name === "Recente",
+  "de la semaine : la ligne d'il y a un mois est écartée");
+T(typeof b.depuis === "string" && /^\d{4}-\d{2}-\d{2} /.test(b.depuis),
+  "le classement de la semaine dit depuis quand il compte : " + b.depuis);
+
+// la frontière de semaine est un lundi, en UTC, comme celle des défis
+const dep = new Date((await (await call("GET", "/api/scores?board=semaine")).json()).depuis + "Z");
+T(dep.getUTCDay() === 1 && dep.getUTCHours() === 0,
+  "la semaine commence un lundi à minuit UTC");
+
+// un client plus ancien, qui ne connaît pas les catégories, garde son classement
+r = await call("GET", "/api/scores?board=nimportequoi");
+T((await r.json()).board === "toujours", "une catégorie inconnue rend le classement de toujours");
+
+// 15. classement des défis : on compte des niveaux réussis
+env = { DB: makeDB(), ADMIN_TOKEN: "t" };
+r = await call("GET", "/api/defis");
+b = await r.json();
+T(r.status === 200 && b.board === "defis" && b.scores.length === 0,
+  "classement des défis vide au départ");
+
+for (const n of [0,1,2,3]) await postDefi({ name: "Zoe", semaine: 0, niveau: n });
+for (const n of [0,1])     await postDefi({ name: "Max", semaine: 3, niveau: n });
+r = await postDefi({ name: "Zoe", semaine: 1, niveau: 0 });
+b = await r.json();
+T(r.status === 201 && b.faits === 5 && b.rank === 1,
+  "le pseudo reçoit son compte et son rang : " + b.faits + " défis, rang " + b.rank);
+
+r = await call("GET", "/api/defis");
+b = await r.json();
+T(b.scores.length === 2 && b.scores[0].name === "Zoe" && b.scores[0].faits === 5,
+  "classement par nombre de défis réussis");
+T(b.scores[1].name === "Max" && b.scores[1].faits === 2, "le second suit avec son compte");
+T(b.scores[0].score === undefined, "le classement des défis ne parle pas de score");
+
+// 16. refaire un défi déjà réussi ne le compte pas deux fois
+for (let i = 0; i < 5; i++) await postDefi({ name: "Zoe", semaine: 0, niveau: 0 });
+b = await (await call("GET", "/api/defis")).json();
+T(b.scores[0].faits === 5, "rejouer le même niveau ne gonfle pas le compte");
+
+// 17. ce que le serveur refuse
+T((await postDefi({ name: "", semaine: 0, niveau: 0 })).status === 400, "défi sans pseudo : 400");
+T((await postDefi({ name: "A", semaine: 52, niveau: 0 })).status === 400, "semaine hors cycle : 400");
+T((await postDefi({ name: "A", semaine: 0, niveau: 7 })).status === 400, "niveau hors des sept : 400");
+T((await postDefi({ name: "A", semaine: -1, niveau: 0 })).status === 400, "semaine négative : 400");
+T((await postDefi({ name: "A", semaine: 1.5, niveau: 0 })).status === 400, "semaine non entière : 400");
+// le pseudo passe par le même nettoyage que les scores
+await postDefi({ name: "  Bo\u200bb  ", semaine: 2, niveau: 0 });
+b = await (await call("GET", "/api/defis")).json();
+T(b.scores.some(s => s.name === "Bob"), "pseudo nettoyé comme ailleurs : " +
+  b.scores.map(s => JSON.stringify(s.name)).join(" "));
+
+// 18. à égalité, le premier arrivé passe devant
+env = { DB: makeDB(), ADMIN_TOKEN: "t" };
+await postDefi({ name: "Tot",  semaine: 0, niveau: 0 });
+env.DB._raw.prepare("UPDATE defis SET created_at = datetime('now','-1 day')").run();
+await postDefi({ name: "Tard", semaine: 0, niveau: 0 });
+b = await (await call("GET", "/api/defis")).json();
+T(b.scores[0].name === "Tot" && b.scores[1].name === "Tard",
+  "à nombre égal, celui qui y est arrivé le premier passe devant");
+
+// 19. la table des défis ne garde pas d'adresse non plus
+const colsD = env.DB._raw.prepare("PRAGMA table_info(defis)").all().map(c => c.name);
+T(!colsD.some(c => /ip|adresse|address/i.test(c)),
+  "aucune colonne d'adresse dans la table des défis : " + colsD.join(", "));
+
 console.log("\n" + count + " vérifications");
 console.log(pass ? "✅ Worker conforme" : "❌ à corriger");
 process.exit(pass ? 0 : 1);
