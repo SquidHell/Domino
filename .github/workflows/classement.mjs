@@ -5,6 +5,12 @@
      classement.mjs table   <fichier> <titre>   tableau lisible du classement
      classement.mjs ligne   <fichier> <id>      la ligne visée, ou échec
      classement.mjs changes <fichier> <attendu> le nombre de lignes touchées
+     classement.mjs defis   <fichier> <titre>   le classement des défis
+     classement.mjs sql-defis <nombre>          le SQL qui fixe un compte
+
+   Le pseudo n'arrive jamais par la ligne de commande : il est lu dans la
+   variable d'environnement PSEUDO, validé, puis échappé ici. Rien de ce que
+   saisit un humain n'est recopié tel quel dans du SQL.
 
    Tout ce qui est écrit sur la sortie standard part à la fois dans le journal
    et dans le résumé du travail, pour se lire depuis un téléphone. */
@@ -58,6 +64,57 @@ if (mode === "changes"){
     process.exit(1);
   }
   console.log(`${n} ligne(s) supprimée(s).`);
+  process.exit(0);
+}
+
+if (mode === "defis"){
+  const b = blocs(fichier);
+  if (!b){ console.log(`### ${arg}\n\nRéponse illisible.\n`); process.exit(0); }
+  const l = lignes(b);
+  console.log(`### ${arg}\n`);
+  if (!l.length){ console.log("Aucun défi inscrit.\n"); process.exit(0); }
+  console.log("| rang | pseudo | défis réussis | dernier |");
+  console.log("|---:|---|---:|---|");
+  l.forEach((x, i) => console.log(
+    `| ${i + 1} | ${String(x.name).replace(/\|/g, "\\|")} | ${x.faits} | ${x.dernier} |`));
+  console.log(`\n${l.length} joueur(s).\n`);
+  process.exit(0);
+}
+
+/* Fixer le nombre de défis réussis d'un pseudo.
+
+   « Fixer » et non « ajouter » : on efface ses lignes puis on en écrit
+   exactement le nombre demandé, de sorte que relancer deux fois le même
+   travail donne le même résultat. Les niveaux sont pris dans l'ordre — la
+   semaine 1 en entier, puis la 2 — parce qu'il faut bien un choix et que
+   celui-là se raconte.
+
+   Le pseudo est validé sur une liste blanche avant d'être échappé : c'est la
+   seule saisie de texte qui approche du SQL, et elle n'y arrive qu'à ces deux
+   conditions. */
+if (mode === "sql-defis"){
+  const brut = process.env.PSEUDO || "";
+  const nombre = Number(fichier);            // ici l'argument porte le nombre
+  const pseudo = brut.replace(/\s+/g, " ").trim();
+
+  if (!pseudo){ console.error("::error::pseudo vide."); process.exit(1); }
+  if (pseudo.length > 16){
+    console.error(`::error::« ${pseudo} » fait plus de 16 caractères.`); process.exit(1);
+  }
+  if (!/^[\p{L}\p{N} ._-]+$/u.test(pseudo)){
+    console.error(`::error::« ${pseudo} » contient autre chose que des lettres, chiffres, espace, point, tiret ou souligné. Refusé : ce texte approche du SQL.`);
+    process.exit(1);
+  }
+  if (!Number.isInteger(nombre) || nombre < 0 || nombre > 364){
+    console.error(`::error::« ${fichier} » n'est pas un nombre de défis entre 0 et 364.`); process.exit(1);
+  }
+
+  const q = "'" + pseudo.replace(/'/g, "''") + "'";   // échappement SQLite
+  const out = [`DELETE FROM defis WHERE name = ${q};`];
+  for (let i = 0; i < nombre; i++)
+    out.push(`INSERT INTO defis (name, semaine, niveau) VALUES (${q}, ${Math.floor(i / 7)}, ${i % 7});`);
+  console.error(`pseudo « ${pseudo} » · ${nombre} défi(s) · ${out.length} instruction(s)`);
+  console.log(out.join("\n"));
   process.exit(0);
 }
 

@@ -7,16 +7,24 @@
 # ADMIN_TOKEN n'est pas nécessaire : on parle à la base D1 directement, sans
 # passer par les routes /admin du Worker.
 #
-# Lancé sans rien remplir, ce travail ne fait que LIRE : il affiche le
-# classement avec l'identifiant de chaque ligne. Rien n'est supprimé tant qu'un
-# identifiant n'est pas donné explicitement.
-name: Modérer le classement
+# Lancé sans rien remplir, ce travail ne fait que LIRE : il affiche les deux
+# classements — les scores avec l'identifiant de chaque ligne, et les défis avec
+# le compte de chaque pseudo. Rien n'est écrit tant qu'un champ n'est pas rempli.
+name: Modérer les classements
 
 on:
   workflow_dispatch:
     inputs:
       supprimer_id:
-        description: "Identifiant de la ligne à supprimer. Laisser vide pour seulement afficher le classement."
+        description: "Identifiant de la ligne de SCORE à supprimer. Laisser vide pour seulement afficher les classements."
+        required: false
+        default: ""
+      defis_pseudo:
+        description: "Pseudo dont on fixe le nombre de DÉFIS réussis. À remplir avec le champ suivant."
+        required: false
+        default: ""
+      defis_nombre:
+        description: "Nombre de défis réussis à lui donner (0 à 364). Le compte est FIXÉ, pas ajouté : relancer deux fois donne le même résultat."
         required: false
         default: ""
 
@@ -32,6 +40,8 @@ jobs:
       CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
       CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
       SUPPRIMER_ID: ${{ inputs.supprimer_id }}
+      DEFIS_PSEUDO: ${{ inputs.defis_pseudo }}
+      DEFIS_NOMBRE: ${{ inputs.defis_nombre }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -58,6 +68,16 @@ jobs:
             echo "::error::« $SUPPRIMER_ID » n'est pas un identifiant : il faut un nombre entier, celui de la colonne id."
             exit 1
           fi
+          # les deux champs des défis vont ensemble : l'un sans l'autre est une
+          # saisie incomplète, et on préfère le dire que de deviner
+          if [ -n "$DEFIS_PSEUDO" ] && [ -z "$DEFIS_NOMBRE" ]; then
+            echo "::error::pseudo donné sans nombre de défis. Remplis les deux champs, ou aucun."
+            exit 1
+          fi
+          if [ -z "$DEFIS_PSEUDO" ] && [ -n "$DEFIS_NOMBRE" ]; then
+            echo "::error::nombre de défis donné sans pseudo. Remplis les deux champs, ou aucun."
+            exit 1
+          fi
 
       - name: Lire le classement
         id: avant
@@ -68,6 +88,38 @@ jobs:
             --command "SELECT id, name, score, moves, flags, created_at FROM scores ORDER BY score DESC, id ASC" \
             > /tmp/avant.json 2>/tmp/avant.err || { cat /tmp/avant.err; exit 1; }
           node "$GITHUB_WORKSPACE/.github/workflows/classement.mjs" table /tmp/avant.json "Classement actuel" | tee -a "$GITHUB_STEP_SUMMARY"
+
+      - name: Lire le classement des défis
+        working-directory: server
+        shell: bash
+        run: |
+          npx --yes wrangler@4 d1 execute domino-2048 --remote --yes --json \
+            --command "SELECT name, COUNT(*) AS faits, MAX(created_at) AS dernier FROM defis GROUP BY name ORDER BY faits DESC, dernier ASC" \
+            > /tmp/defis-avant.json 2>/tmp/defis-avant.err || { cat /tmp/defis-avant.err; exit 1; }
+          node "$GITHUB_WORKSPACE/.github/workflows/classement.mjs" defis /tmp/defis-avant.json "Classement des défis" | tee -a "$GITHUB_STEP_SUMMARY"
+
+      - name: Fixer le nombre de défis d'un pseudo
+        if: ${{ inputs.defis_pseudo != '' }}
+        working-directory: server
+        shell: bash
+        run: |
+          # Le pseudo ne passe pas par la ligne de commande : il est lu dans
+          # l'environnement, validé sur une liste blanche et échappé par le
+          # script, qui écrit le SQL dans un fichier. Rien de saisi n'est
+          # recopié tel quel dans une commande.
+          PSEUDO="$DEFIS_PSEUDO" node "$GITHUB_WORKSPACE/.github/workflows/classement.mjs" \
+            sql-defis "$DEFIS_NOMBRE" > /tmp/defis.sql
+          echo "### SQL appliqué" >> "$GITHUB_STEP_SUMMARY"
+          echo '```sql' >> "$GITHUB_STEP_SUMMARY"
+          head -4 /tmp/defis.sql >> "$GITHUB_STEP_SUMMARY"
+          [ "$(wc -l < /tmp/defis.sql)" -gt 4 ] && echo "-- … $(wc -l < /tmp/defis.sql) instructions en tout" >> "$GITHUB_STEP_SUMMARY"
+          echo '```' >> "$GITHUB_STEP_SUMMARY"
+          npx --yes wrangler@4 d1 execute domino-2048 --remote --yes --file=/tmp/defis.sql \
+            > /tmp/defis-ecr.json 2>/tmp/defis-ecr.err || { cat /tmp/defis-ecr.err; exit 1; }
+          npx --yes wrangler@4 d1 execute domino-2048 --remote --yes --json \
+            --command "SELECT name, COUNT(*) AS faits, MAX(created_at) AS dernier FROM defis GROUP BY name ORDER BY faits DESC, dernier ASC" \
+            > /tmp/defis-apres.json 2>/tmp/defis-apres.err || { cat /tmp/defis-apres.err; exit 1; }
+          node "$GITHUB_WORKSPACE/.github/workflows/classement.mjs" defis /tmp/defis-apres.json "Classement des défis après écriture" | tee -a "$GITHUB_STEP_SUMMARY"
 
       - name: Supprimer la ligne demandée
         if: ${{ inputs.supprimer_id != '' }}
