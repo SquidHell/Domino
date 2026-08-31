@@ -362,11 +362,6 @@
   .modehint{font-size:12px;font-weight:500;line-height:1.45;color:var(--ink-2)}
   .menulist button:hover:not([disabled]) .modehint{color:var(--btn-ink)}
   .menulist button[disabled] .modehint{color:var(--muted)}
-  /* même pastille que « pub », en sourdine : elle annonce, elle ne vend rien */
-  .soon{
-    font-size:8.5px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;
-    background:var(--line);color:var(--ink-2);border-radius:2px;padding:2px 4px;line-height:1;
-  }
 
   /* ---- classement ----
      Il ne vit plus sous le plateau mais dans son cadre : la scène de jeu ne lui
@@ -877,7 +872,7 @@
       <button id="menuclose" type="button" class="qmark" data-i18n-title="helpClose" title="Close" hidden>✕</button>
     </div>
     <div class="sheetbody">
-      <p class="menuintro" data-i18n="menuIntro">Two ways to play. Only one is open for now.</p>
+      <p class="menuintro" data-i18n="menuIntro">Two ways to play.</p>
       <div class="menulist">
         <button id="playclassic" type="button">
           <span class="modename" data-i18n="modeClassic">Play classic</span>
@@ -1001,7 +996,7 @@ const STR = {
     langSwitch:   "Switch to French",
     tagline:      "Place · Merge · Chain",
     menuTitle:    "Choose a mode",
-    menuIntro:    "Two ways to play. Only one is open for now.",
+    menuIntro:    "Two ways to play.",
     modeClassic:  "Play classic",
     modeClassicHint: "Endless: place, merge, chain, as far as you can take it.",
     modeWeekly:   "Weekly challenge",
@@ -1130,7 +1125,7 @@ const STR = {
     langSwitch:   "Passer en anglais",
     tagline:      "Pose · Fusionne · Enchaîne",
     menuTitle:    "Choisir un mode",
-    menuIntro:    "Deux façons de jouer. Une seule est ouverte pour l'instant.",
+    menuIntro:    "Deux façons de jouer.",
     modeClassic:  "Jouer classique",
     modeClassicHint: "Sans fin : pose, fusionne, enchaîne, aussi loin que tu peux aller.",
     modeWeekly:   "Défi de la semaine",
