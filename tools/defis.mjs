@@ -15,6 +15,14 @@
       index.html par simulate.mjs, murs compris — une case murée est une case
       hors du tapis, ce que dit inB, et tout le reste en découle.
 
+   3. Chaque défi doit RESTER un défi. Une première version fixait l'objectif
+      à une fraction de ce qui était atteignable — la moitié aux premiers
+      niveaux — et 147 défis sur 364 se gagnaient alors en posant les dominos
+      au hasard une fois sur deux. La barre est donc placée à l'envers : on
+      mesure d'abord ce que le hasard obtient sur cette main-là, puis on met
+      l'objectif au-dessus de ce qu'il atteint dans PLAFOND[niveau] des cas.
+      C'est la mesure qui décide, pas le jugé.
+
    La recherche est un faisceau : à chaque tour on développe tous les coups
    possibles (quel domino de la main × quelle case × quelle orientation), on
    dédoublonne les tapis identiques, et on ne garde que les LARGEUR meilleurs.
@@ -30,6 +38,7 @@ import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { makeEngine, mulberry32 } from './simulate.mjs';
+import { echantillonHasard, partHasard, partGlouton } from './defi-joueurs.mjs';
 
 const ROOT = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
 const ROTS = [[0,1],[1,0],[0,-1],[-1,0]];
@@ -140,13 +149,22 @@ function jouer(e, n, moteur, dom, r, c, rot, idx){
 const plusHaute = g => g.flat().reduce((m,t) => t ? Math.max(m, t.v) : m, 0);
 const empreinte = g => g.flat().map(t => t ? t.v : 0).join(',');
 
-/* Ce qu'on cherche : monter le plus haut, puis marquer le plus. À égalité on
-   préfère le tapis le moins encombré — il reste des dominos à poser. */
-function valeur(e, n){
+/* Ce qu'on cherche dépend de ce qu'on demandera.
+
+   Pour une tuile : monter le plus haut, puis marquer le plus. Pour un score :
+   marquer le plus, la hauteur ne comptant qu'à égalité. Chercher la hauteur
+   quand on demande un score menait à des lignes qui montaient bien mais
+   marquaient peu — et l'objectif de score, tiré du hasard, se retrouvait alors
+   au-dessus de ce que la recherche trouvait. Aucun défi au score n'y
+   survivait ; c'est pourquoi il n'y en avait plus un seul.
+
+   À égalité on préfère le tapis le moins encombré : il reste des dominos. */
+function valeur(e, n, viseScore){
   const occupe = e.g.flat().filter(Boolean).length;
-  return plusHaute(e.g) * 1e6 + e.score * 10 - occupe;
+  return viseScore ? e.score * 1e6 + plusHaute(e.g) * 10 - occupe
+                   : plusHaute(e.g) * 1e6 + e.score * 10 - occupe;
 }
-function chercher(n, murs, main, largeur){
+function chercher(n, murs, main, largeur, viseScore){
   const moteur = makeEngine(n, murs);
   let faisceau = [etatNeuf(n, main)];
   let meilleur = faisceau[0];
@@ -165,9 +183,10 @@ function chercher(n, murs, main, largeur){
       }
     }
     if (!enfants.length) break;                 // plus rien ne rentre
-    enfants.sort((a,b) => valeur(b,n) - valeur(a,n));
+    enfants.sort((a,b) => valeur(b,n,viseScore) - valeur(a,n,viseScore));
     faisceau = enfants.slice(0, largeur);
-    if (valeur(faisceau[0], n) > valeur(meilleur, n)) meilleur = faisceau[0];
+    if (valeur(faisceau[0], n, viseScore) > valeur(meilleur, n, viseScore))
+      meilleur = faisceau[0];
   }
   return { peak: plusHaute(meilleur.g), score: meilleur.score,
            poses: meilleur.ligne.length, ligne: meilleur.ligne };
@@ -176,39 +195,64 @@ function chercher(n, murs, main, largeur){
 /* ---------- la main ----------
    Des dominos « différents » : deux fois la même paire dans une main donne un
    4 gratuit et un défi sans intérêt. Les valeurs restent basses — de 2 à 16 —
-   pour que tout ce qui monte soit fusionné et non distribué. */
+   pour que tout ce qui monte soit fusionné et non distribué.
+
+   Avec k valeurs il n'existe que k(k+1)/2 paires distinctes : à trois valeurs,
+   six mains possibles au plus. Demander sept dominos distincts n'a alors pas
+   de réponse, et un filet qui complétait la main en autorisait deux
+   identiques — ce que verify-defis.mjs a refusé, à juste titre. On rend donc
+   null, et le candidat est abandonné plutôt que rafistolé. */
 function tirerMain(rand, taille, plafond){
   const vals = [];
   for (let v = 2; v <= plafond; v *= 2) vals.push(v);
+  if (taille > vals.length * (vals.length + 1) / 2) return null;
   const pick = () => vals[Math.floor(rand() * vals.length)];
   const main = [], vues = new Set();
   let garde = 0;
-  while (main.length < taille && garde++ < 400){
+  while (main.length < taille && garde++ < 2000){
     const a = pick(), b = pick();
     const sig = Math.min(a,b) + 'x' + Math.max(a,b);
     if (vues.has(sig)) continue;
     vues.add(sig);
     main.push({ a, b });
   }
-  while (main.length < taille) main.push({ a: pick(), b: pick() });   // filet
-  return main;
+  return main.length === taille ? main : null;
 }
 
 /* ---------- la difficulté ----------
-   Sept niveaux par semaine, du plus simple au plus retors : la main grossit,
-   la grille se troue, et l'objectif se rapproche de ce que la recherche a
-   trouvé de mieux. Au premier niveau on demande la moitié du sommet — un
-   joueur qui découvre doit passer ; au septième, tout le sommet. */
+   Sept niveaux par semaine, du plus simple au plus retors. Ce qui monte d'un
+   niveau à l'autre, ce n'est plus la hauteur de la barre — elle est toujours
+   au maximum de ce qui tient debout — mais la RARETÉ du succès quand on joue
+   sans réfléchir : le premier niveau laisse passer le hasard quatre fois sur
+   dix, le septième une fois sur cinquante.
+
+   Le glouton — celui qui prend à chaque tour le coup qui rapporte le plus,
+   sans regarder plus loin — a son propre plafond : aux derniers niveaux, voir
+   un coup à l'avance ne doit pas suffire.
+
+   `taille` est une fourchette : le générateur essaie les mains de cette
+   taille-là, et une main de quatre dominos ne survit au premier plafond que si
+   le tapis la serre vraiment. */
+const PLAFOND_HASARD  = [0.40, 0.28, 0.20, 0.12, 0.07, 0.035, 0.015];
+/* Le plafond ci-dessus est celui que le rapport applique. Le générateur, lui,
+   vise plus bas : une part mesurée sur quelques centaines de parties flotte, et
+   un défi dont la vraie part vaut 3 % peut se mesurer à 1 % sur un tirage
+   chanceux — c'est ainsi que trois niveaux étaient passés au-dessus de leur
+   plafond une fois relus avec une graine qu'ils n'avaient pas vue. La marge
+   laisse la place à ce flottement. */
+const MARGE = 0.7;
+const PLAFOND_GLOUTON = [1.00, 0.95, 0.85, 0.70, 0.55, 0.40,  0.25];
 const PALIERS = [
-  { taille: 4, plafond: 8,  formes: ['plein'],                          part: 0.50 },
-  { taille: 4, plafond: 16, formes: ['plein','coins'],                  part: 0.60 },
-  { taille: 5, plafond: 8,  formes: ['coins','encoches','sablier'],     part: 0.70 },
-  { taille: 5, plafond: 16, formes: ['losange','couloir','peigne'],     part: 0.80 },
-  { taille: 6, plafond: 8,  formes: ['croix','U','T'],                  part: 0.90 },
-  { taille: 7, plafond: 16, formes: ['anneau','escalier','ilots'],      part: 1.00 },
-  { taille: 8, plafond: 16, formes: ['losange','croix','escalier','ilots'], part: 1.00 }
+  { taille: [4,5], plafond: 8,  formes: ['plein','coins'] },
+  { taille: [4,5], plafond: 16, formes: ['plein','coins','encoches'] },
+  { taille: [5,6], plafond: 8,  formes: ['coins','encoches','sablier','couloir'] },
+  { taille: [5,6], plafond: 16, formes: ['losange','couloir','peigne','sablier'] },
+  { taille: [6,7], plafond: 16, formes: ['croix','U','T','peigne'] },
+  { taille: [6,8], plafond: 16, formes: ['anneau','escalier','ilots','croix'] },
+  { taille: [7,8], plafond: 16, formes: ['losange','croix','escalier','ilots','anneau'] }
 ];
 const TAILLES = [5, 5, 5, 6, 6, 6, 6];   // côté du plateau, niveau par niveau
+const ESSAIS_HASARD = 160;               // parties au hasard par candidat
 
 /* Un objectif se lit : on arrondit le score à un palier rond. Vers le BAS,
    toujours — arrondi au plus proche, un score de 456 devenait un objectif de
@@ -216,41 +260,86 @@ const TAILLES = [5, 5, 5, 6, 6, 6, 6];   // côté du plateau, niveau par niveau
    C'est ce que tools/verify-defis.mjs a attrapé. */
 const rond = s => s >= 400 ? Math.floor(s/100)*100 : s >= 100 ? Math.floor(s/50)*50 : Math.floor(s/10)*10;
 
+/* La barre, tirée de ce que le hasard obtient.
+
+   Pour une tuile : la plus PETITE valeur que le hasard n'atteint plus que dans
+   `plafond` des parties. La plus petite, et non la plus grande, pour ne pas
+   demander l'extravagant quand le simplement difficile suffit.
+
+   Pour un score : le quantile correspondant, arrondi au palier rond inférieur
+   — puis on revérifie, car l'arrondi vers le bas peut faire repasser la part
+   au-dessus du plafond. */
+function barreTuile(ech, plafond){
+  for (let v = 8; v <= 4096; v *= 2){
+    const part = ech.sommets.filter(x => x >= v).length / ech.sommets.length;
+    if (part <= plafond) return v;
+  }
+  return null;
+}
+function barreScore(ech, plafond){
+  const tries = [...ech.scores].sort((a,b) => b - a);
+  const seuil = tries[Math.min(tries.length - 1, Math.floor(plafond * tries.length))];
+  let cible = rond(seuil);
+  // l'arrondi descend : il peut ramener la part au-dessus du plafond
+  for (let garde = 0; garde < 12; garde++){
+    const part = ech.scores.filter(x => x >= cible).length / ech.scores.length;
+    if (part <= plafond) return cible >= 20 ? cible : null;
+    cible = rond(cible + (cible >= 400 ? 100 : cible >= 100 ? 50 : 10));
+  }
+  return null;
+}
+
 function fabriquer(semaine, niveau, rand){
   const p = PALIERS[niveau];
   const n = TAILLES[niveau];
-  for (let essai = 0; essai < 60; essai++){
+  const plafondH = PLAFOND_HASARD[niveau], plafondG = PLAFOND_GLOUTON[niveau];
+  for (let essai = 0; essai < 90; essai++){
     const nomForme = p.formes[Math.floor(rand() * p.formes.length)];
     const murs = new Set(FORMES[nomForme](n));
     if (!connexe(n, murs)) continue;
-    if (n*n - murs.size < p.taille * 2 + 2) continue;      // pas la place de poser
-    const main = tirerMain(rand, p.taille, p.plafond);
-    const sol = chercher(n, murs, main, LARGEUR);
-    if (sol.poses < p.taille) continue;                    // la main ne rentre pas
-    if (sol.peak < 8) continue;                            // rien ne fusionne : sans intérêt
+    const taille = p.taille[0] + Math.floor(rand() * (p.taille[1] - p.taille[0] + 1));
+    if (n*n - murs.size < taille * 2 + 2) continue;        // pas la place de poser
+    const main = tirerMain(rand, taille, p.plafond);
+    if (!main) continue;                                   // pas assez de paires distinctes
+    const mainT = main.map(d => [d.a, d.b]);
 
-    // une valeur à atteindre, ou un score : une fois sur trois, un score
+    /* La mesure d'abord : elle est bien moins chère que la recherche, et c'est
+       elle qui dit si ce candidat peut donner un défi. */
+    const ech = echantillonHasard(n, murs, mainT, ESSAIS_HASARD, 7717 + essai);
     const parScore = Math.floor(rand() * 3) === 0;
-    let obj;
-    if (parScore){
-      const cible = rond(sol.score * p.part);
-      if (cible < 20) continue;
-      obj = { type: 's', valeur: cible };
-    } else {
-      let cible = sol.peak;
-      while (cible > 4 && cible > sol.peak * p.part) cible /= 2;
-      if (cible < 8) continue;
-      obj = { type: 't', valeur: cible };
-    }
+    const cible = parScore ? barreScore(ech, plafondH * MARGE)
+                           : barreTuile(ech, plafondH * MARGE);
+    if (cible === null) continue;              // rien d'assez dur à demander ici
+    const obj = { type: parScore ? 's' : 't', valeur: cible };
+
+    /* Une seconde mesure, avec une autre graine. La barre est tirée du premier
+       échantillon : la juger sur ce même échantillon, c'est la juger sur ce qui
+       l'a produite, et un tirage chanceux passait. On exige donc qu'elle tienne
+       aussi devant un hasard qu'elle n'a pas vu. */
+    const ech2 = echantillonHasard(n, murs, mainT, ESSAIS_HASARD, 31337 + essai * 7);
+    if (partHasard(ech2, obj) > plafondH * MARGE) continue;
+
+    // voir un coup à l'avance ne doit pas suffire aux derniers niveaux
+    if (partGlouton(n, murs, mainT, obj, 16, 40503 + essai) > plafondG) continue;
+
+    // et seulement maintenant : l'objectif est-il seulement atteignable ?
+    // la recherche vise ce qu'on demande, hauteur ou score
+    const sol = chercher(n, murs, main, LARGEUR, parScore);
+    if (sol.poses < taille) continue;                      // la main ne rentre pas
+    if (obj.type === 't' ? sol.peak < obj.valeur : sol.score < obj.valeur) continue;
+
     const [idx, r, c, rot] = sol.ligne[0];
     return { n, forme: nomForme, murs: [...murs].sort((a,b) => a-b),
-             main: main.map(d => [d.a, d.b]), obj,
+             main: mainT, obj,
              // l'indice montré au joueur : le premier coup de la solution
              indice: { i: idx, r, c, rot },
              // la solution entière ne part pas dans le jeu — elle sert à
              // prouver, hors ligne, que le défi se réussit vraiment
              solution: sol.ligne,
-             sommet: sol.peak, scoreMax: sol.score, semaine, niveau };
+             sommet: sol.peak, scoreMax: sol.score,
+             // la difficulté mesurée à la fabrication, relue par le rapport
+             hasard: Math.max(partHasard(ech, obj), partHasard(ech2, obj)),
+             semaine, niveau };
   }
   return null;
 }

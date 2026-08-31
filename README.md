@@ -119,9 +119,39 @@ node tools/verify-defis-jeu.mjs 21   # rejoue un échantillon dans le vrai jeu
 
 `tools/defis.mjs` ne se contente pas d'espérer qu'un défi soit faisable : pour chaque niveau
 il **cherche une ligne de jeu** — une recherche en faisceau sur « quel domino × quelle case ×
-quelle orientation » — et l'objectif est ce que cette ligne a réellement atteint, à un cran
-près selon la difficulté visée. La solution existe donc **par construction**, et le premier
-coup de cette solution devient l'indice du niveau.
+quelle orientation ». La solution existe donc **par construction**, et le premier coup de
+cette solution devient l'indice du niveau.
+
+### Faire qu'un défi en reste un
+
+Qu'un défi ait une solution ne dit rien de sa difficulté. Une première version fixait
+l'objectif à une fraction de ce qui était atteignable — la moitié aux premiers niveaux — et le
+résultat était sans appel : **147 défis sur 364 se gagnaient au moins une fois sur deux en
+posant les dominos au hasard**, plusieurs étaient même impossibles à rater.
+
+La barre est donc placée à l'envers. On ne devine plus un objectif pour espérer ensuite qu'il
+résiste : on **mesure d'abord ce que le hasard obtient** sur cette main-là — 160 parties jouées
+sans rien regarder — puis on met l'objectif au-dessus de ce qu'il atteint dans le plafond du
+niveau. C'est la mesure qui décide.
+
+`tools/defi-joueurs.mjs` fournit deux joueurs délibérément médiocres : **hasard** (un domino au
+hasard, posé au hasard) et **glouton** (le coup qui rapporte le plus tout de suite, sans
+regarder plus loin). Ce qui monte d'un niveau au suivant, ce n'est pas la hauteur de la barre —
+elle est toujours au maximum de ce qui tient debout — mais la **rareté du succès quand on joue
+sans réfléchir** : le premier niveau laisse passer le hasard quatre fois sur dix, le septième
+une fois sur soixante-dix. Le glouton a son propre plafond : aux derniers niveaux, voir un coup
+à l'avance ne doit pas suffire.
+
+Deux garde-fous, parce qu'une part mesurée sur quelques centaines de parties flotte. La barre
+est jugée sur un **second échantillon** que le tirage qui l'a produite n'a pas vu, et le
+générateur vise **30 % sous** le plafond publié pour laisser la place à ce flottement.
+
+```sh
+node tools/difficulte-defis.mjs --essais 200   # le rapport, niveau par niveau
+```
+
+Il rejoue les 364 défis avec une troisième graine et sort en erreur si l'un dépasse le plafond
+de son niveau.
 
 Le moteur de fusion n'est pas réécrit : il est prélevé mot pour mot dans `index.html` par
 `tools/simulate.mjs`, murs compris. `tools/verify-defis.mjs` rejoue les 364 solutions et
